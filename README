@@ -1,0 +1,12 @@
+Introduction
+------------
+
+skink is a Continuous Integration server that's as simple as it gets. 
+
+Specify a git repository, a shell command to execute 
+to build your project and that's pretty much it.
+
+Just ask skink to run your build and it will update your code, run a build
+and keep track of your build history.
+
+You can create a git hook to auto-execute the build upon push as well.
