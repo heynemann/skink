@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+from elixir import *
 
 class ModelHelper(object):
     @classmethod
@@ -11,7 +12,10 @@ class ModelHelper(object):
         if return_message:
             raise ValueError("The following errors happened:\n%s" % "\n".join(return_message))
 
-class Project (object):
+class Project (Entity):
+    name = Field(Unicode(255))
+    build_script = Field(Unicode(2000))
+    
     def __init__(self, name, build_script):
         ModelHelper.assert_not_empty("The field %s of the Project model must not be empty or null.", name=name, build_script=build_script)
         self.name = name

@@ -5,3 +5,4 @@ out.txt
 dist/
 build/
 *report.html
+.coverage

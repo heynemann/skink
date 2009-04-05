@@ -63,11 +63,21 @@ unit: compile
 	@echo "Running unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
 	@nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}
-
+	@echo "============="
+	@echo "Unit coverage"
+	@echo "============="
+	@cat build/unit.log | egrep '(Name)|(TOTAL)'
+	@echo
+	
 func: compile
 	@echo "Running functional tests..."
 	@rm -f ${functional_log_file} >> /dev/null
 	@nosetests --verbose --with-coverage --cover-package=skink ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}
+	@echo "==================="
+	@echo "Functional coverage"
+	@echo "==================="
+	@cat build/unit.log | egrep '(Name)|(TOTAL)'
+	@echo
 	
 acceptance: compile
 	@echo "Running acceptance tests..."

@@ -10,7 +10,6 @@ from tests.base.base_unit_test import BaseUnitTest
 from skink.models import Project
 
 class TestProjectModel(BaseUnitTest):
-
     def test_create_project(self):
         project = Project(name="Test Project", build_script="make test")
         self.assertEqual(project.name, "Test Project")
@@ -26,3 +25,4 @@ class TestProjectModel(BaseUnitTest):
 
 if __name__ == '__main__':
     unittest.main()
+    
