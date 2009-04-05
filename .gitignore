@@ -1,0 +1,7 @@
+*~
+*.pyc
+docs/build
+out.txt
+dist/
+build/
+*report.html
