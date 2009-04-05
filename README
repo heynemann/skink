@@ -10,3 +10,11 @@ Just ask skink to run your build and it will update your code, run a build
 and keep track of your build history.
 
 You can create a git hook to auto-execute the build upon push as well.
+
+Project Naming
+--------------
+The name for the project comes from the "Plestiodon skiltonianus" or Western Skink (http://www.wildherps.com/species/E.skiltonianus.html).
+
+This very beautiful reptile keeps moving constantly, just like the skink server does.
+
+Skinkize your project right now! Keep moving!
