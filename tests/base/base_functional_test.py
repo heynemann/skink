@@ -16,7 +16,6 @@ class BaseFunctionalTest(TestCase):
         metadata.bind = 'sqlite:///:memory:'
         setup_all()
         create_all()
-        session.begin()
 
     def tearDown(self):
         session.close()

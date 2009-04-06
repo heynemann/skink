@@ -13,7 +13,6 @@ from skink.models import Project
 class ProjectRepository(object):
     def create(self, name, build_script):
         '''Creates a new project.'''
-        elixir.session.begin()
         project = Project(name=name, build_script=build_script)
         elixir.session.commit()
         
@@ -26,6 +25,5 @@ class ProjectRepository(object):
         return Project.query.all()
     
     def update(self, project):
-        elixir.session.begin()
         elixir.session.merge(project)
         elixir.session.commit()

@@ -86,5 +86,5 @@ acceptance: compile
 	@nosetests ${acceptance_tests_dir} >> ${acceptance_log_file} 2>> ${acceptance_log_file}
 	
 run:
-	@python skink/controllers/__init__.py
+	@python skink/controllers/infra.py
 	
