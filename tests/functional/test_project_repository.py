@@ -10,12 +10,13 @@ from elixir import session
 
 from tests.base.base_functional_test import BaseFunctionalTest
 from skink.models import Project
+from skink.repositories import ProjectRepository
 
-class TestProjectModel(BaseFunctionalTest):
+class TestProjectRepository(BaseFunctionalTest):
 
     def test_create_project(self):
-        project = Project(name=u"Test Project", build_script=u"make test")
-        session.commit()
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test")
         self.assertNotEqual(project.id, 0)
         self.assertEqual(project.name, u"Test Project")
         self.assertEqual(project.build_script, u"make test")
@@ -27,24 +28,23 @@ class TestProjectModel(BaseFunctionalTest):
         self.assertEqual(projects[0].build_script, project.build_script)
 
     def test_update_project(self):
-        project = Project(name=u"Test Project", build_script=u"make test")
-        session.commit()
-        session.begin()
-        update = Project.get_by(id=project.id)
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test")
+
+        update = repository.get(project_id=project.id)
         self.assertEqual(update.id, project.id)
         self.assertEqual(update.name, project.name)
         self.assertEqual(update.build_script, project.build_script)
         
-        update.name = "Some Other Project"
-        update.build_script = "make build"
+        update.name = u"Some Other Project"
+        update.build_script = u"make build"
         
-        session.commit()
-        session.begin() #TODO: REMOVE THIS AFTER SQL ALCHEMY UPGRADE
+        repository.update(update)
 
-        updated = Project.get_by(id=project.id)
+        updated = repository.get(project_id=project.id)
         self.assertEqual(updated.id, project.id)
-        self.assertEqual(updated.name, "Some Other Project")
-        self.assertEqual(updated.build_script, "make build")
+        self.assertEqual(updated.name, u"Some Other Project")
+        self.assertEqual(updated.build_script, u"make build")
 
 if __name__ == '__main__':
     unittest.main()

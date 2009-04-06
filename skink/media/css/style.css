@@ -1,0 +1,27 @@
+body{
+    margin: 0px 0px 0px 0px;
+}
+
+:link, :visited { 
+    color: #307822; 
+    text-decoration: none; 
+    font-weight: bold; 
+}
+:link:hover, :visited:hover { 
+    text-decoration: underline; 
+    font-weight: bold; 
+}
+:link img, :visited img { 
+    border: none; 
+}
+
+.breadcrumb{
+    color: #307822; 
+    text-decoration: none; 
+    font-weight: bold;
+}
+
+.grey-area {
+    background-color: #f3f3f3;
+    width:10%;
+}

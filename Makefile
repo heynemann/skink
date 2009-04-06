@@ -17,7 +17,7 @@ unit_log_file=${build_dir}/unit.log
 functional_log_file=${build_dir}/functional.log
 acceptance_log_file=${build_dir}/acceptance.log
 
-.PHONY: help build compile unit func acceptance
+.PHONY: help build compile test unit func acceptance run
 
 help:
 	@echo
@@ -32,6 +32,7 @@ help:
 	@echo "    unit             runs all unit tests"
 	@echo "    func             runs all functional tests"
 	@echo "    acceptance       runs all acceptance tests"
+	@echo "    run              runs the skink server"
 	@echo
 
 # orchestrator targets
@@ -83,4 +84,7 @@ acceptance: compile
 	@echo "Running acceptance tests..."
 	@rm -f ${acceptance_log_file} >> /dev/null
 	@nosetests ${acceptance_tests_dir} >> ${acceptance_log_file} 2>> ${acceptance_log_file}
+	
+run:
+	@python skink/controllers/__init__.py
 	

@@ -10,15 +10,19 @@ import elixir
 
 from skink.models import Project
 
-class BaseRepository(object):
-    def __init__(self, session=elixir.session):
-        self.session = session
-
-class ProjectRepository(BaseRepository):
+class ProjectRepository(object):
     def create(self, name, build_script):
         '''Creates a new project.'''
-        self.session.begin()
+        elixir.session.begin()
         project = Project(name=name, build_script=build_script)
-        self.session.commit()
+        elixir.session.commit()
         
         return project
+        
+    def get(self, project_id):
+        return Project.query.filter_by(id=project_id).one()
+    
+    def update(self, project):
+        elixir.session.begin()
+        elixir.session.merge(project)
+        elixir.session.commit()
