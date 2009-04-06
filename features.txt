@@ -1,7 +1,9 @@
+DONE
 As a skink user 
 I want to see a list of the currently added projects and their statuses
 So that I get an overview of my current build status
 
+DONE
 As a skink admin
 I want to create a new project
 So that skink can build that project for me
