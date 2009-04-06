@@ -12,16 +12,24 @@ from skink.repositories import ProjectRepository
 import template
 
 class ProjectController(object):
+    def __init__(self):
+        self.repository = ProjectRepository()
+        
     @cherrypy.expose
     @template.output("create_project.html")
     def new(self):
         return template.render()
 
     @cherrypy.expose
-    def create(self, name, build_script):
-        repository = ProjectRepository()
-        project = repository.create(name=name, build_script=build_script)
+    def create(self, name, build_script, scm_repository):
+        project = self.repository.create(name=name, build_script=build_script, scm_repository=scm_repository)
         raise cherrypy.HTTPRedirect('/')
+
+    @cherrypy.expose
+    @template.output("project_details.html")
+    def default(self, project_id):
+        project = self.repository.get(project_id)
+        return template.render(project=project)
 
 class IndexController(object):
     project = ProjectController()

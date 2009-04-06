@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="${url('/media/script/create_project.js')}"></script>
+    </head>
+    <body class="index">
+        <div class="section">${project.name}</div>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td class="project-details-data" style="width:50%;">
+                    <b>status</b>: -
+                </td>
+                <td class="project-details-data">
+                    <b>last successful build</b>: -
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="project-details-data">
+                    <b>git repository</b>: ${project.scm_repository}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="project-details-data">
+                    <b>build script</b>: ${project.build_script}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="project-details-data">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                        <tr>
+                            <td style="border-right: dashed 1px green; width:25%; padding: 6px 6px 6px 6px;" valign="top">
+                                <div class="sub-section">
+                                    Last 10 builds
+                                </div>
+                                <div class="build-list">
+                                    No builds so far.
+                                </div>
+                            </td>
+                            <td style="padding: 6px 6px 6px 6px;" valign="top">
+                                <div class="sub-section">
+                                    Last Build
+                                </div>
+                                <div class="current-build">
+                                    No builds so far.
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

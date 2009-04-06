@@ -1,9 +1,10 @@
 $(function(){
     function refreshTableHeight(){
-        var windowHeight = $(window).height();
+        var windowHeight = $(window).height() - 15;
         $('table.full-height').each(function(){
             var tbl = $(this);
-            tbl.height(windowHeight);
+            if (tbl.height() < windowHeight)
+                tbl.height(windowHeight);
         });
     }
 

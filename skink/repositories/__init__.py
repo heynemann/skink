@@ -11,9 +11,9 @@ import elixir
 from skink.models import Project
 
 class ProjectRepository(object):
-    def create(self, name, build_script):
+    def create(self, name, build_script, scm_repository):
         '''Creates a new project.'''
-        project = Project(name=name, build_script=build_script)
+        project = Project(name=name, build_script=build_script, scm_repository=scm_repository)
         elixir.session.commit()
         
         return project

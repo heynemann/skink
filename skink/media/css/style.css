@@ -79,7 +79,6 @@ span.notice{
     text-align: right;
     padding-right: 8px;
     vertical-align: top;
-    
 }
 
 .field-button {
@@ -91,17 +90,20 @@ span.notice{
     border-width: 1px;
     background-color: #e0ffda;   
     cursor:hand;
-    height: 34px;
+    height: 40px;
 }
 
 .text-field {
     font-weight:bold;
     font-size:26px;
     background-color: #e0ffda;
-    height: 50px;
+    height: 40px;
     color: #307822;
     padding-left:6px;
     padding-right:6px;
+    border-size: 2;
+    border-color: #307822;
+    border-style: solid;
 }
 
 .text-area {
@@ -109,4 +111,19 @@ span.notice{
     font-size:26px;
     background-color: #e0ffda;
     color: #307822;
+}
+
+.project-details-data{
+    font-size:16px;
+    color: #307822;
+}
+
+.build-list{
+    margin-left:12px;
+    padding: 6px 6px 6px 6px;
+}
+
+.current-build{
+    margin-left:12px;
+    padding: 6px 6px 6px 6px;
 }
