@@ -45,6 +45,34 @@ class TestProjectRepository(BaseFunctionalTest):
         self.assertEqual(updated.id, project.id)
         self.assertEqual(updated.name, u"Some Other Project")
         self.assertEqual(updated.build_script, u"make build")
+    
+    def test_get_project(self):
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test")
 
+        retrieved = repository.get(project_id=project.id)
+        self.assertEqual(retrieved.id, project.id)
+        self.assertEqual(retrieved.name, project.name)
+        self.assertEqual(retrieved.build_script, project.build_script)
+        
+    def test_get_all_projects(self):
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test")
+        project2 = repository.create(name=u"Test Project2", build_script=u"make build")
+        project3 = repository.create(name=u"Test Project3", build_script=u"make acceptance")
+
+        projects = repository.get_all()
+        
+        self.assertEqual(len(projects), 3)
+        self.assertEqual(projects[0].id, project.id)
+        self.assertEqual(projects[0].name, project.name)
+        self.assertEqual(projects[0].build_script, project.build_script)
+        self.assertEqual(projects[1].id, project2.id)
+        self.assertEqual(projects[1].name, project2.name)
+        self.assertEqual(projects[1].build_script, project2.build_script)
+        self.assertEqual(projects[2].id, project3.id)
+        self.assertEqual(projects[2].name, project3.name)
+        self.assertEqual(projects[2].build_script, project3.build_script)
+        
 if __name__ == '__main__':
     unittest.main()

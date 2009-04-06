@@ -1,60 +1,30 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <title>Skink CI</title>
-    <link rel="stylesheet" href="/media/css/style.css" type="text/css" media="screen" title="default css" charset="utf-8" />
-    <script src="/media/script/lib/jquery-1.3.2.min.js"></script>
-    <script src="/media/script/index.js"></script>
-    <script src="/media/script/common.js"></script>
-  </head>
-  <body class="index">
-    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="full-height">
-        <tr>
-            <td class="grey-area">
-                &nbsp;
-            </td>
-            <td style="padding-top: 5px; padding-left:8px; padding-right: 8px; padding-bottom:5px;">
-                <table border="0" cellspacing="0" cellpadding="0" width="100%" class="full-height">
-                    <tr style="height:90px">
-                        <td align="center">
-                            <table border="0" cellspacing="0" cellpadding="0" width="600" align="center">
-                                <colgroup>
-                                    <col />
-                                    <col style="width:50px;" />
-                                </colgroup>
-                                <tr>
-                                    <td align="center" colspan="2">
-                                        <img src="/media/images/logo_skink.gif" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="left">
-                                        <span class="breadcrumb"><a href="/">Projects</a> /</span>
-                                    </td>
-                                    <td align="right">
-                                        <a href="/admin">Admin</a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td valign="top">
-                            Contents
-                        </td>
-                    </tr>
-                    <tr style="height:35px;">
-                        <td align="center">
-                            <p class="legalese">
-                                Skink CI v0.1.0 - <a href="http://www.skinkci.org" target="_blank">http://www.skinkci.org</a>
-                            </p>
-                        </td>
-                    </tr>                
-                </table>
-            </td>
-            <td class="grey-area">
-                &nbsp;
-            </td>
-        </tr>
-    </table>
-  </body>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="${url('/media/script/index.js')}"></script>
+    </head>
+    <body class="index">
+        <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="projects">
+            <tr py:for="project in projects">
+                <td align="center">
+                    <a href="/project/${project.id}">${project.name}</a>
+                </td>
+            </tr>
+        </table>
+
+        <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="not projects">
+            <tr>
+                <td align="center">
+                    <div class="warning" style="width:400px; text-align:center;">
+                        Looks like you don't have any projects!<br />
+                        How about <a href="/project/new">creating one now</a>?
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
 </html>

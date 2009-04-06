@@ -6,3 +6,4 @@ dist/
 build/
 *report.html
 .coverage
+skinkdb.db

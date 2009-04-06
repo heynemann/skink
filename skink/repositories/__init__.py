@@ -22,6 +22,9 @@ class ProjectRepository(object):
     def get(self, project_id):
         return Project.query.filter_by(id=project_id).one()
     
+    def get_all(self):
+        return Project.query.all()
+    
     def update(self, project):
         elixir.session.begin()
         elixir.session.merge(project)

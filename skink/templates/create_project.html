@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="${url('/media/script/create_project.js')}"></script>
+    </head>
+    <body class="index">
+        <form action="create" method="post">
+            <div class="section">Create New Project</div>
+            <br />
+            <div class="sub-section">Project Details</div>
+            <div class="sub-section-content">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                        <td class="field-header" style="width:120px">
+                            name
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="name" class="text-field" style="width:70%" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+            <div class="sub-section">Build Details</div>
+            <div class="sub-section-content">
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                        <td class="field-header" style="width:120px">
+                            build script
+                        </td>
+                        <td>
+                            <textarea name="build_script" 
+                                      id="build_script" 
+                                      rows="6" 
+                                      class="text-field" 
+                                      style="width:70%;"></textarea>
+                            <br />
+                            <span class="notice">*the command here will be concatenated to a single line. You can use many lines just for clarity.</span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+            <div class="toolbar">
+                <button class="field-button" id="submit">
+                    <img src="${url('/media/images/accept.png')}" align="absMiddle" /> 
+                    create
+                </button>
+                <button class="field-button" id="cancel">
+                    <img src="${url('/media/images/cancel.png')}" align="absMiddle" /> 
+                    cancel
+                </button>
+            </div>
+        </form>
+    </body>
+</html>
