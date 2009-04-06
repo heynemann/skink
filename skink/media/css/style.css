@@ -54,10 +54,10 @@ body{
 
 .sub-section-content {
     width:95%;
-    background-color: #e0ffda;
+    /*background-color: #e0ffda;*/
     margin-left:12px;
     padding: 6px 6px 6px 6px;
-    border-left: 1px solid #307822;
+    /*border-left: 1px solid #307822;*/
 }
 
 div.toolbar {
@@ -65,7 +65,7 @@ div.toolbar {
     margin-left:12px;
     width:95%;
     padding: 6px 6px 6px 6px;
-    background-color: #e0ffda;
+    /*background-color: #e0ffda;*/
 }
 
 span.notice{
@@ -73,9 +73,9 @@ span.notice{
 }
 
 .field-header{
-    color: #303030;
+    color: #307822;
     font-weight: bold;
-    font-size:16px;
+    font-size:22px;
     text-align: right;
     padding-right: 8px;
     vertical-align: top;
@@ -85,10 +85,28 @@ span.notice{
 .field-button {
     color: #307822; 
     font-weight:bold;
-    font-size:16px;
+    font-size:22px;
     border-style: solid;
     border-color: #307822;
     border-width: 1px;
     background-color: #e0ffda;   
     cursor:hand;
+    height: 34px;
+}
+
+.text-field {
+    font-weight:bold;
+    font-size:26px;
+    background-color: #e0ffda;
+    height: 50px;
+    color: #307822;
+    padding-left:6px;
+    padding-right:6px;
+}
+
+.text-area {
+    font-weight:bold;
+    font-size:26px;
+    background-color: #e0ffda;
+    color: #307822;
 }

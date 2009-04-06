@@ -15,11 +15,11 @@
             <div class="sub-section-content">
                 <table border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
-                        <td class="field-header" style="width:120px">
+                        <td class="field-header" style="width:200px;padding-top:16px;">
                             name
                         </td>
                         <td>
-                            <input type="text" name="name" id="name" class="text-field" style="width:70%" />
+                            <input type="text" name="name" id="name" class="text-field rounded" style="width:70%;" />
                         </td>
                     </tr>
                 </table>
@@ -29,28 +29,22 @@
             <div class="sub-section-content">
                 <table border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
-                        <td class="field-header" style="width:120px">
+                        <td class="field-header" style="width:200px;padding-top:16px;">
                             build script
                         </td>
                         <td>
-                            <textarea name="build_script" 
-                                      id="build_script" 
-                                      rows="6" 
-                                      class="text-field" 
-                                      style="width:70%;"></textarea>
-                            <br />
-                            <span class="notice">*the command here will be concatenated to a single line. You can use many lines just for clarity.</span>
+                            <input type="text" name="build_script" id="build_script" class="text-field rounded" style="width:70%;" />
                         </td>
                     </tr>
                 </table>
             </div>
             <br />
             <div class="toolbar">
-                <button class="field-button" id="submit">
+                <button class="field-button rounded" id="submit">
                     <img src="${url('/media/images/accept.png')}" align="absMiddle" /> 
                     create
                 </button>
-                <button class="field-button" id="cancel">
+                <button class="field-button rounded" id="cancel">
                     <img src="${url('/media/images/cancel.png')}" align="absMiddle" /> 
                     cancel
                 </button>
