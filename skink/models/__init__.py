@@ -29,9 +29,11 @@ class Project(Entity):
 class Build(Entity):
     date = Field(DateTime)
     status = Field(Unicode(20))
+    scm_status = Field(Unicode(20))
+    log = Field(Unicode(4000))
     project = ManyToOne('Project')
     
-    def __init__(self, date, status, project):
+    def __init__(self, date, status, scm_status, log, project):
         super(Build, self).__init__()
         ModelHelper.assert_not_empty("The field %s of the Build model must not be empty or null.", date=date, status=status, project=project)
         self.date = date

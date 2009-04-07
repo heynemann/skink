@@ -25,7 +25,7 @@ class TestBuildService(BaseUnitTest):
 
         repository_mock.get(1).AndReturn(project)
         repository_mock.update(project)
-        scm_mock.create_or_update(project.scm_repository).AndReturn(scm_result)
+        scm_mock.create_or_update(project).AndReturn(scm_result)
         executer_mock.execute(project.build_script).AndReturn(execute_result)
         
         self.mock.ReplayAll()
@@ -36,3 +36,7 @@ class TestBuildService(BaseUnitTest):
         
         self.assertEqual(build.status, BuildService.Success)
         self.mock.VerifyAll()
+
+if __name__ == '__main__':
+    unittest.main()
+    

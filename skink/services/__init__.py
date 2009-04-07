@@ -15,7 +15,7 @@ class BuildService(object):
     Success = "SUCCESS"
     Failure = "FAILURE"
     
-    def __init__(self, repository=None, scm=None, executer=None, base_path=join(root_path,'skink_source')):
+    def __init__(self, repository=None, scm=None, executer=None, base_path=join(root_path,'skink','build')):
         if not repository:
             self.repository = ProjectRepository()
         else:
@@ -27,7 +27,7 @@ class BuildService(object):
             self.scm = scm
             
         if not executer:
-            self.executer = ShellExecuter(base_path)
+            self.executer = ShellExecuter()
         else:
             self.executer = executer
         
@@ -36,28 +36,28 @@ class BuildService(object):
     def build_project(self, project_id):
         log = ["Build started at %s" % datetime.now()]
         status = BuildService.Failure
+        scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
-        build = Build(datetime.now(), status, project)
+        build = Build(datetime.now(), status,  scm_status, "", project)
         
-        scm_creation_result = self.scm.create_or_update(project.scm_repository)
+        scm_creation_result = self.scm.create_or_update(project)
+        build.scm_status = scm_creation_result.status
         if scm_creation_result.status == ScmResult.Failed:
             log.append(scm_creation_result.log)
             status = BuildService.Failure
         else:
             log.append("Downloaded code from %s" % project.scm_repository)
             
-            execute_result = self.executer.execute(project.build_script)
+            execute_result = self.executer.execute(project.build_script, scm_creation_result.repository_path)
             log.append("Executed %s" % project.build_script)
             log.append("Exit Code: %s" % execute_result.exit_code)
             log.append("Run Log:")
             log.append(execute_result.run_log)
-            if (execute_result.error_log):
-                log.append("Error log:")
-                log.append(execute_result.error_log)
             
             status = execute_result.exit_code == 0 and BuildService.Success or BuildService.Failure
         
         build.status = status
+        build.log = "\n".join(log)
         self.repository.update(project)
         
         return build

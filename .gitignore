@@ -7,3 +7,4 @@ build/
 *report.html
 .coverage
 skinkdb.db
+tests/functional/repo
