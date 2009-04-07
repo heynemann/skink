@@ -10,26 +10,48 @@ import cherrypy
 from elixir import *
 
 from skink.models import *
-from skink.controllers import IndexController
+from skink.controllers import IndexController, ProjectController
 
 class Server(object):
     @classmethod
-    def start(self):
+    def __setup_routes(cls):
+        d = cherrypy.dispatch.RoutesDispatcher()
+        d.connect('project_new', 'project/new', controller=ProjectController(), action='new')
+        d.connect('project_create', 'project/create', controller=ProjectController(), action='create')
+        d.connect('project_delete', 'project/:project_id/delete', controller=ProjectController(), action='delete')
+        d.connect('project_build', 'project/:project_id/build', controller=ProjectController(), action='build')
+        d.connect('project_details', 'project/:project_id', controller=ProjectController(), action='details')
+        d.connect('build_details', 'project/:project_id/builds/:build_id', controller=ProjectController(), action='build_details')
+        d.connect('index', ':action', controller=IndexController())
+        dispatcher = d
+        return dispatcher
+
+    
+    @classmethod
+    def start(cls):
         Db.verify_and_create()
+
         cherrypy.config.update({
             'server.socket_host':'0.0.0.0',
-            'server.socket_port': 8088,
+            'server.socket_port': 8087,
             'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
             'tools.decode.on': True,
             'tools.trailing_slash.on': True,
-            'tools.staticdir.root': join(root_path, "skink/"),
-        })
-        cherrypy.quickstart(IndexController(), '/', {
+            'tools.staticdir.root': join(root_path, "skink/")
+            })
+
+        conf = {
+            '/': {
+                'request.dispatch': cls.__setup_routes(),
+            },
             '/media': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': 'media'
             }
-        })
+        }
+
+        app = cherrypy.tree.mount(None, config=conf)
+        cherrypy.quickstart(app)
 
     @classmethod
     def stop(self):

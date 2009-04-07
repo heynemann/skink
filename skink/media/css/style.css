@@ -128,3 +128,37 @@ span.notice{
     padding: 6px 6px 6px 6px;
 }
 
+.failure {
+    color: #ff0000;
+}
+
+.success {
+    color: #307822;
+}
+
+.build-summary-header{
+    font-weight:bold;
+    font-size:16px;
+    color: #307822;
+}
+
+.build-summary-date{
+    padding-top: 6px;
+    font-weight:bold;
+    font-size:16px;
+    color: darkorange;
+}
+
+.build-summary-status{
+    padding-top: 6px;
+    font-weight:bold;
+    font-size:16px;
+    color: #307822;
+}
+
+.build-summary-log{
+    padding-top: 12px;
+    font-weight:bold;
+    font-size:20px;
+    color: #307822;
+}

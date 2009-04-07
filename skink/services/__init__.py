@@ -56,8 +56,11 @@ class BuildService(object):
             
             status = execute_result.exit_code == 0 and BuildService.Success or BuildService.Failure
         
+        build.number = project.last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
+        
+        project.last_build_number = build.number
         self.repository.update(project)
         
         return build

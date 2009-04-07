@@ -10,7 +10,7 @@
     <body class="index">
         <span class="breadcrumb" style="display:none;">
             <a href="${url('/project/' + str(project.id))}">${project.name}</a>
-            </span>
+        </span>
         <div class="section">${project.name}</div>
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
@@ -44,17 +44,64 @@
                                 <div class="sub-section">
                                     Last 10 builds
                                 </div>
-                                <div class="build-list">
-                                    No builds so far.
-                                </div>
+                                <py:if test="not project.builds">
+                                    <div class="build-list" py-if="not project.builds">
+                                        No builds so far.
+                                    </div>
+                                </py:if>
+                                <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="project.builds">
+                                    <tr py:for="build in project.builds">
+                                        <td align="center">
+                                            <a href="/project/${project.id}/builds/${build.id}">${build.date.strftime("%m/%d/%Y %H:%M:%S")} - Build # ${build.number}</a>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                             <td style="padding: 6px 6px 6px 6px;" valign="top">
                                 <div class="sub-section">
                                     Last Build
                                 </div>
-                                <div class="current-build">
-                                    No builds so far.
-                                </div>
+                                <py:if test="not project.builds">
+                                    <div class="current-build" py-if="not project.builds">
+                                        No builds so far.
+                                    </div>
+                                </py:if>
+                                <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="project.builds">
+                                    <tr py:with="build = current_build">
+                                        <td>
+                                            <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                                                <tr>
+                                                    <td class="build-summary-header">
+                                                        Build summary for Build # ${build.number}
+                                                    </td>
+                                                    <td class="build-summary-date" align="right" style="padding-right:25px;">
+                                                        Finished at ${build.date.strftime("%m/%d/%Y %H:%M:%S")}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" class="build-summary-status">
+                                                        Status: 
+                                                            <span class="${build.status.lower()}">
+                                                                ${build.status}
+                                                            </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" class="build-summary-log">
+                                                        Build log:
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2" id="build_log_td">
+                                                        <div id="build_log" style="height: 600px; width: 450px; overflow: auto; border: 1px solid #666; padding: 8px;">
+                                                            <pre>${build.log}</pre>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
@@ -63,15 +110,15 @@
         </table>
         <br />
         <br />
-        <table border="0" cellspacing="0" cellpadding="0" width="350" align="center">
+        <table border="0" cellspacing="0" cellpadding="0" width="350" align="right" style="margin-right:35px;">
             <tr>
-                <td>
-                    <a id="build_project" href="/project/build/${project.id}">
+                <td align="right">
+                    <a id="build_project" href="/project/${project.id}/build">
                         <img src="${url('/media/images/cog_go.png')}" align="absMiddle" />
                         Build
                     </a>
                     |
-                    <a id="delete_project" href="/project/delete/${project.id}">
+                    <a id="delete_project" href="/project/${project.id}/delete">
                         <img src="${url('/media/images/delete.png')}" align="absMiddle" />
                         Delete
                     </a>
