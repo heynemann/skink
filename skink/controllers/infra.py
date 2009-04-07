@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 import sys
 from os.path import dirname, abspath, join, exists
+from ConfigParser import ConfigParser
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
@@ -26,9 +27,11 @@ class Server(object):
         dispatcher = d
         return dispatcher
 
-    
     @classmethod
     def start(cls):
+        config = ConfigParser()
+        config.read(join(root_path, "config.ini"))
+
         Db.verify_and_create()
 
         cherrypy.config.update({
