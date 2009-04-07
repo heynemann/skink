@@ -27,3 +27,7 @@ class ProjectRepository(object):
     def update(self, project):
         elixir.session.merge(project)
         elixir.session.commit()
+        
+    def delete(self, project_id):
+        elixir.session.delete(self.get(project_id))
+        elixir.session.commit()

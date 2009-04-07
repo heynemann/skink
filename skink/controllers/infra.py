@@ -6,8 +6,10 @@ root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 import cherrypy
+
 from elixir import *
 
+from skink.models import *
 from skink.controllers import IndexController
 
 class Server(object):
@@ -37,8 +39,9 @@ class Db(object):
     @classmethod
     def verify_and_create(self):
         metadata.bind = 'sqlite:///skinkdb.db'
+        metadata.bind.echo = True
         setup_all()
-        if not exists("skink.db"):
+        if not exists("skinkdb.db"):
             create_all()
 
 if __name__ == '__main__':

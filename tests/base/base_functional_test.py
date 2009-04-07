@@ -9,15 +9,15 @@ sys.path.insert(0, root_path)
 
 from elixir import *
 
-from skink.models import metadata, setup_all, drop_all
+from skink.models import *
 
 class BaseFunctionalTest(TestCase):
     def setUp(self):
         metadata.bind = 'sqlite:///:memory:'
+        metadata.bind.echo = True
         setup_all()
         create_all()
-
+        
     def tearDown(self):
-        session.close()
         drop_all()
 

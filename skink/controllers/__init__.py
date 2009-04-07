@@ -7,7 +7,6 @@ sys.path.insert(0, root_path)
 
 import cherrypy
 
-from skink.models import metadata, setup_all, drop_all
 from skink.repositories import ProjectRepository
 import template
 
@@ -31,6 +30,11 @@ class ProjectController(object):
         project = self.repository.get(project_id)
         return template.render(project=project)
 
+    @cherrypy.expose
+    def delete(self, project_id):
+        self.repository.delete(project_id)
+        raise cherrypy.HTTPRedirect('/')
+        
 class IndexController(object):
     project = ProjectController()
     

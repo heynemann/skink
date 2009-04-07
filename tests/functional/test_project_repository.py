@@ -6,8 +6,6 @@ import unittest
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-from elixir import session
-
 from tests.base.base_functional_test import BaseFunctionalTest
 from skink.models import Project
 from skink.repositories import ProjectRepository
@@ -17,6 +15,7 @@ class TestProjectRepository(BaseFunctionalTest):
     def test_create_project(self):
         repository = ProjectRepository()
         project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
+
         self.assertNotEqual(project.id, 0)
         self.assertEqual(project.name, u"Test Project")
         self.assertEqual(project.build_script, u"make test")
@@ -81,6 +80,15 @@ class TestProjectRepository(BaseFunctionalTest):
         self.assertEqual(projects[2].name, project3.name)
         self.assertEqual(projects[2].build_script, project3.build_script)
         self.assertEqual(projects[2].scm_repository, project3.scm_repository)
+        
+    def test_delete_project(self):
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo1")
+        repository.delete(project.id)
+        
+        projects = repository.get_all()
+        
+        self.assertEqual(len(projects), 0)
         
 if __name__ == '__main__':
     unittest.main()

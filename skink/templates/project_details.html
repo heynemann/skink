@@ -5,9 +5,12 @@
     <xi:include href="default.html" />
     <head>
         <title>Home</title>
-        <script src="${url('/media/script/create_project.js')}"></script>
+        <script src="${url('/media/script/project_details.js')}"></script>
     </head>
     <body class="index">
+        <span class="breadcrumb" style="display:none;">
+            <a href="${url('/project/' + str(project.id))}">${project.name}</a>
+            </span>
         <div class="section">${project.name}</div>
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
@@ -58,5 +61,26 @@
                 </td>
             </tr>
         </table>
+        <br />
+        <br />
+        <table border="0" cellspacing="0" cellpadding="0" width="350" align="center">
+            <tr>
+                <td>
+                    <a id="build_project" href="/project/build/${project.id}">
+                        <img src="${url('/media/images/cog_go.png')}" align="absMiddle" />
+                        Build
+                    </a>
+                    |
+                    <a id="delete_project" href="/project/delete/${project.id}">
+                        <img src="${url('/media/images/delete.png')}" align="absMiddle" />
+                        Delete
+                    </a>
+
+                </td>
+            </tr>
+        </table>
+        <div align="center">
+            
+        </div>
     </body>
 </html>

@@ -16,7 +16,7 @@ class TestProjectModel(BaseUnitTest):
         self.assertEqual(project.build_script, "make test")
         self.assertEqual(project.scm_repository, "git_repo")
 
-    def test_project_name_must_be_filled(self):
+    def test_name_must_be_filled(self):
         self.assertRaises(ValueError, Project, name=None, build_script="make test", scm_repository="git_repo")
         self.assertRaises(ValueError, Project, name="", build_script="make test", scm_repository="git_repo")
         

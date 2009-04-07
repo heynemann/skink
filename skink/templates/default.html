@@ -35,7 +35,10 @@
                                         </tr>
                                         <tr>
                                             <td align="left">
-                                                <span class="breadcrumb"><a href="/">projects</a> /</span>
+                                                <span class="breadcrumb">
+                                                    <a href="/">projects</a> / 
+                                                    ${select("//span[contains(@class,'breadcrumb')]/*")}
+                                                </span>
                                             </td>
                                             <td align="right">
                                                 <a href="/project/new">create project</a>
@@ -65,4 +68,5 @@
             </table>
         </body>
     </py:match>
+
 </html>
