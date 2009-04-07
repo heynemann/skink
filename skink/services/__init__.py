@@ -61,6 +61,3 @@ class BuildService(object):
         self.repository.update(project)
         
         return build
-        
-    def fix_name(self, name):
-        return name.strip().replace(" ", "")

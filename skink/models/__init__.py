@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
-from datetime import datetime
 
 from elixir import *
 
@@ -28,7 +27,7 @@ class Project(Entity):
         self.scm_repository = scm_repository
 
 class Build(Entity):
-    date = Field(datetime)
+    date = Field(DateTime)
     status = Field(Unicode(20))
     project = ManyToOne('Project')
     

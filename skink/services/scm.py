@@ -7,7 +7,10 @@ class GitRepository(object):
 
     def create_or_update(self, repository):
         pass
-        
+    
+    def fix_name(self, name):
+        return name.strip().replace(" ", "")
+
 class ScmResult(object):
     Created = "CREATED"
     Updated = "UPDATED"
@@ -15,3 +18,4 @@ class ScmResult(object):
     
     def __init__(self, status):
         self.status = status
+
