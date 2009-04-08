@@ -3,6 +3,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
     <xi:include href="default.html" />
+    <?python from genshi import HTML ?>
     <head>
         <title>Home</title>
         <script src="${url('/media/green/script/project_details.js')}"></script>
@@ -12,9 +13,9 @@
             <a href="${url('/project/' + str(project.id))}">${project.name}</a>
         </span>
         <div class="section">${project.name}</div>
-        <div class="sub-section">status</div>
+        <div class="sub-section">status: ${project.get_status()}</div>
         <div class="sub-section-content">
-            <p>last successful build</p>
+            <p>last successful build: ${project.get_last_successful_build()}</p>
             <p>git repository: <strong>${project.scm_repository}</strong></p>
             <p>build script: <strong>${project.build_script}</strong></p>
         </div>
@@ -36,6 +37,9 @@
                <p>Finished at ${build.date.strftime("%m/%d/%Y %H:%M:%S")}</p>
                <p>Status:</p>
                <p><span class="${build.status.lower()}">${build.status}</span></p>
+               <p># ${build.commit_number}</p>
+               <p>By ${build.commit_committer}</p>
+               <p><i>${HTML(build.html_commit_text())}</i></p>
                <h2>Build log</h2>
                <div id="build-log">
                   <code>${build.log}</code>
