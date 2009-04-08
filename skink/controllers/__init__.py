@@ -35,7 +35,7 @@ class ProjectController(object):
     @template.output("project_details.html")
     def details(self, project_id):
         project = self.repository.get(project_id)
-        return template.render(project=project, current_build=project.builds and project.builds[-1] or None)
+        return template.render(project=project, current_build=project.builds and project.builds[0] or None)
 
     @template.output("project_details.html")
     def build_details(self, project_id, build_id):
