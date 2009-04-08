@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="${url('/media/script/index.js')}"></script>
+    </head>
+    <body class="index">
+      <div class="sub-section-content" py:if="projects">
+        <p py:for="project in projects">
+          <a href="/project/${project.id}">${project.name}</a>
+        </p>
+      </div>
+
+      <div id="projects" py:if="not projects">
+        Looks like you don't have any projects!<br />
+          How about <a href="/project/new">creating one now</a>?
+      </div>
+
+    </body>
+</html>

@@ -5,9 +5,9 @@
             <title py:with="title = list(select('title/text()'))">
                 Skink<py:if test="title"> - ${title}</py:if>
             </title>
-            <link rel="stylesheet" href="${url('/media/css/style.css')}" type="text/css" media="screen" title="default css" charset="utf-8" />
-            <script src="${url('/media/script/lib/jquery-1.3.2.min.js')}"></script>
-            <script src="${url('/media/script/common.js')}"></script>
+            <link rel="stylesheet" href="${url('/media/default/css/style.css')}" type="text/css" media="screen" title="default css" charset="utf-8" />
+            <script src="${url('/media/default/script/lib/jquery-1.3.2.min.js')}"></script>
+            <script src="${url('/media/default/script/common.js')}"></script>
           ${select('*[local-name()!="title"]')}
         </head>
     </py:match>
@@ -30,13 +30,13 @@
                                         </colgroup>
                                         <tr>
                                             <td align="center" colspan="2">
-                                                <img src="${url('/media/images/logo_skink.gif')}" />
+                                                <img src="${url('/media/default/images/logo_skink.gif')}" />
                                             </td>
                                         </tr>
                                         <tr>
                                             <td align="left">
                                                 <span class="breadcrumb">
-                                                    <a href="/">projects</a> / 
+                                                    <a href="/">projects</a> /
                                                     ${select("//span[contains(@class,'breadcrumb')]/*")}
                                                 </span>
                                             </td>
@@ -58,7 +58,7 @@
                                         Skink CI v0.1.0 - <a href="http://www.skinkci.org" target="_blank">http://www.skinkci.org</a>
                                     </p>
                                 </td>
-                            </tr>                
+                            </tr>
                         </table>
                     </td>
                     <td class="grey-area">
