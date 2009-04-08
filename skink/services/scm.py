@@ -3,7 +3,7 @@
 from os.path import join, exists
 from executers import ShellExecuter
 
-class GitRepository(object):
+#class GitRepository(object):
     def __init__(self, base_dir):
         self.base_dir = base_dir
 
@@ -22,7 +22,7 @@ class GitRepository(object):
             result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
             return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path)
         else:
-            result = executer.execute("git pull", self.base_dir)
+            result = executer.execute("git pull", repository_path)
             return ScmResult(result.exit_code == 0 and ScmResult.Updated or ScmResult.Failed, repository_path)
 
     def is_repository_created(self, path):

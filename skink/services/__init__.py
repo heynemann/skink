@@ -34,7 +34,7 @@ class BuildService(object):
         
         self.base_path = base_path
 
-    #def build_project(self, project_id):
+    def build_project(self, project_id):
         log = ["Build started at %s" % datetime.now()]
 
         status = BuildService.Failure
