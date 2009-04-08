@@ -8,26 +8,26 @@
         <script src="${url('/media/script/create_project.js')}"></script>
     </head>
     <body class="index">
-        <form action='create' method='post'>
+        <form action="${project and '/project/%s/update' % project.id or 'create'}" method='post'>
             <p class='required'>
                 <label for='project_name'>Name</label>
-                <input class='text' name="name" id="name" type='text' value='' />
+                <input class='text' name="name" id="name" value="${project and project.name or ''}" type='text' />
             </p>
 
             <p class='required'>
                 <label for='project_repository'>Git repository</label>
-                <input class='text' name="scm_repository" id="scm_repository" type='text' value='' />
+                <input class='text' name="scm_repository" value="${project and project.scm_repository or ''}" id="scm_repository" type='text' />
             </p>
 
             <p class='normal'>
                 <label for='project_build_script'>
                     Build script
                 </label>
-                <input class='text' name="build_script" id="build_script" type='text' value='' />
+                <input class='text' name="build_script" value="${project and project.build_script or ''}" id="build_script" type='text' />
             </p>
 
             <p class='submit'>
-                <button class='positive' type='submit'>Create Project</button>
+                <button class='positive' type='submit'>${project and 'Update' or 'Create'} Project</button>
             </p>
         </form>
 

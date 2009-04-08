@@ -19,6 +19,8 @@ class Server(object):
         d = cherrypy.dispatch.RoutesDispatcher()
         d.connect('project_new', 'project/new', controller=ProjectController(), action='new')
         d.connect('project_create', 'project/create', controller=ProjectController(), action='create')
+        d.connect('project_edit', 'project/:project_id/edit', controller=ProjectController(), action='edit')
+        d.connect('project_update', 'project/:project_id/update', controller=ProjectController(), action='update')
         d.connect('project_delete', 'project/:project_id/delete', controller=ProjectController(), action='delete')
         d.connect('project_build', 'project/:project_id/build', controller=ProjectController(), action='build')
         d.connect('project_details', 'project/:project_id', controller=ProjectController(), action='details')

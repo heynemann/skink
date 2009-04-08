@@ -23,8 +23,21 @@ class ProjectController(object):
     def new(self):
         return template.render()
 
+    @template.output("create_project.html")
+    def edit(self, project_id):
+        project = self.repository.get(project_id)
+        return template.render(project=project)
+
     def create(self, name, build_script, scm_repository):
         project = self.repository.create(name=name, build_script=build_script, scm_repository=scm_repository)
+        raise cherrypy.HTTPRedirect('/')
+
+    def update(self, project_id, name, build_script, scm_repository):
+        project = self.repository.get(project_id)
+        project.name = name
+        project.build_script = build_script
+        project.scm_repository = scm_repository
+        self.repository.update(project)
         raise cherrypy.HTTPRedirect('/')
 
     def delete(self, project_id):
