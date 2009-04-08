@@ -47,7 +47,7 @@
         
         <h2>Previous builds</h2>
         <ul id='previous_builds' py:if="project.builds">
-            <li class="${project.builds[0].status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
+            <li class="${build.status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
                 <a href="/project/${project.id}/builds/${build.id}">
                     <strong class='build'>Build ${build.commit_number[:7]}</strong>
                     <span class='attribution'>by ${build.commit_committer}, on ${build.commit_committer_date.strftime("%b %d")}</span>

@@ -21,7 +21,7 @@ class ProjectController(object):
         
     @template.output("create_project.html")
     def new(self):
-        return template.render()
+        return template.render(project=None)
 
     @template.output("create_project.html")
     def edit(self, project_id):
