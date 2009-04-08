@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+    </head>
+    <body>
+        <ul id="projects" py:if="projects">
+            <?python index = 0 ?>
+            <li class="${index % 2 == 0 and 'even' or 'odd'} ${project.get_status() == 'SUCCESS' and 'success' or 'failed'}" py:for="project in projects">
+              <?python index = index + 1 ?>
+              <a href="/project/${project.id}">${project.name}</a>
+              <div class="meta" py:if="project.builds">
+                Build ${project.builds[0].commit_number[:7]} ${project.builds[0].status == "SUCCESS" and "succeeded" or "failed"}
+              </div>
+              <div class="meta" py:if="not project.builds">
+                Never built
+              </div>
+            </li>
+        </ul>
+        <p id="new" py:if="projects">
+            <a href="/project/new">Add a new project</a>
+        </p>
+
+        <div id="projects" py:if="not projects">
+            Looks like you don't have any projects!<br />
+            How about <a href="/project/new">creating one now</a>?
+        </div>
+
+    </body>
+</html>

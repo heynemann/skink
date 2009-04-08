@@ -45,6 +45,8 @@ class Build(Entity):
     commit_author = Field(Unicode(400))
     commit_committer = Field(Unicode(400))
     commit_text = Field(Unicode(4000))
+    commit_author_date = Field(DateTime)
+    commit_committer_date = Field(DateTime)
     project = ManyToOne('Project')
     using_options(tablename="builds")
 

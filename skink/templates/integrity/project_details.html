@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <?python from genshi import HTML ?>
+    <head>
+        <title>Home</title>
+    </head>
+    <body>
+        <span class="breadcrumb" style="display:none;">
+            <a href="${url('/project/' + str(project.id))}">${project.name}</a>
+        </span>
+        <div id='administrative'>
+            <a href='/project/${project.id}/edit'>Edit Project</a>
+        </div>
+          
+        <div class="${project.builds[0].status == 'SUCCESS' and 'success' or 'failed'}" id='last_build' py:if="project.builds">
+            <div py:with="build = project.builds[0]">
+                <h1>Build ${build.commit_number[:7]} ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
+
+                <blockquote>
+                    <p>${HTML(build.commit_text)}</p>
+                    <p class='meta'><span class='who'>by ${build.commit_committer}</span>
+                    |
+                    <span class='when' title='${build.commit_committer_date}'>on ${build.commit_committer_date.strftime("%d/%m/%Y %H:%M")}</span>
+                    <br />
+                    <span class='what'># ${build.commit_number}</span></p>
+                </blockquote>
+
+                <h2>Build Output:</h2>
+                <pre class='output'>${build.log}</pre>
+            </div>
+        </div>
+        
+        <div py:if="not project.builds">
+            <br />
+            No builds happened so far.
+        </div>
+        
+        <form action='/project/${project.id}/build' method='post'>
+            <p class='submit manual-build'>
+                <button title='Fetch the last commit and build it' type='submit'>Build the last commit</button>
+                in the repository (or rebuild the latest)
+            </p>
+        </form>
+        
+        <h2>Previous builds</h2>
+        <ul id='previous_builds' py:if="project.builds">
+            <li class="${project.builds[0].status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
+                <a href="/project/${project.id}/builds/${build.id}">
+                    <strong class='build'>Build ${build.commit_number[:7]}</strong>
+                    <span class='attribution'>by ${build.commit_committer}, on ${build.commit_committer_date.strftime("%b %d")}</span>
+                </a>
+            </li>
+        </ul>
+        <p id='previous_builds' py:if="not project.builds">
+            No builds happened so far
+        </p>
+    </body>
+</html>

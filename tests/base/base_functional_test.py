@@ -15,9 +15,6 @@ class BaseFunctionalTest(TestCase):
     def setUp(self):
         metadata.bind = 'sqlite:///:memory:'
         metadata.bind.echo = True
-        setup_all()
+        setup_all(create_tables=True)
         create_all()
-        
-    def tearDown(self):
-        drop_all()
 

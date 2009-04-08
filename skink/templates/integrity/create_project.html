@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="${url('/media/script/create_project.js')}"></script>
+    </head>
+    <body class="index">
+        <form action='create' method='post'>
+            <p class='required'>
+                <label for='project_name'>Name</label>
+                <input class='text' name="name" id="name" type='text' value='' />
+            </p>
+
+            <p class='required'>
+                <label for='project_repository'>Git repository</label>
+                <input class='text' name="scm_repository" id="scm_repository" type='text' value='' />
+            </p>
+
+            <p class='normal'>
+                <label for='project_build_script'>
+                    Build script
+                </label>
+                <input class='text' name="build_script" id="build_script" type='text' value='' />
+            </p>
+
+            <p class='submit'>
+                <button class='positive' type='submit'>Create Project</button>
+            </p>
+        </form>
+
+    </body>
+</html>

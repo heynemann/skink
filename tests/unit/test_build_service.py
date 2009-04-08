@@ -5,6 +5,7 @@ from os.path import dirname, abspath, join
 import unittest
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
+from datetime import datetime
 
 from tests.base.base_unit_test import BaseUnitTest
 from skink.models import Project
@@ -21,7 +22,15 @@ class TestBuildService(BaseUnitTest):
         project.scm_repository = "git_repo"
         
         execute_result = ExecuteResult(project.build_script, "Ran successfully", 0)
-        scm_result = ScmResult(ScmResult.Created, "some/path/", ("1234abcd","Bernardo","Bernardo","Changed some stuff"))
+        scm_result = ScmResult(ScmResult.Created, "some/path/", 
+        {
+                   'commit_number': "1234abcd",
+                   'author': "Bernardo",
+                   'author_date': None,
+                   'committer': "Bernardo",
+                   'committer_date': None,
+                   'subject': "Changed some stuff"
+        })
 
         repository_mock = self.mock.CreateMock(ProjectRepository)
         scm_mock = self.mock.CreateMock(GitRepository)

@@ -3,6 +3,8 @@
 from os.path import join, exists
 from executers import ShellExecuter
 import re
+from datetime import datetime
+import time
 
 class GitRepository(object):
     def __init__(self, base_dir):
@@ -41,20 +43,38 @@ class GitRepository(object):
         author = None
         committer = None
         
-        command = "git log | egrep '^commit' | sed 's/commit //g' | sed -n 1p | git show -s --pretty=raw"
+        command = "git log | egrep '^commit' | sed 's/commit //g' | sed -n 1p | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
         
-        regexp = re.compile("^commit ([\w\d]+\n)tree ([\w\d]+\n)parent ([\w\d]+\n)author ([\w\d\s<@.]+>).+\ncommitter ([\w\d\s<@.]+>).+\n([^$]+)")
-        data = regexp.match(result.run_log)
-        groups = data.groups()
-        commit_number = groups[0]
-        author = groups[3]
-        committer = groups[4]
-        text = groups[5]
-
-        return (commit_number, author, committer, text)
+        #regexp = re.compile("^commit ([\w\d]+\n)tree ([\w\d]+\n)parent ([\w\d]+\n)author ([\w\d\s<@.]+>).+\ncommitter ([\w\d\s<@.]+>).+\n([^$]+)")
+        #data = regexp.match(result.run_log)
+        #groups = data.groups()
+        #commit_number = groups[0]
+        #author = groups[3]
+        #committer = groups[4]
+        #text = groups[5]
         
+        commit_number, author_name, author_email, author_date, committer_name, committer_email, committer_date, subject = result.run_log.split("||")
+        
+        author_date = self.convert_to_date(author_date)
+        committer_date = self.convert_to_date(committer_date)
+        
+        return {
+                   'commit_number': commit_number,
+                   'author': "%s <%s>" % (author_name, author_email),
+                   'author_date': author_date,
+                   'committer': "%s <%s>" % (committer_name, committer_email),
+                   'committer_date': committer_date,
+                   'subject': subject
+               }
+
+    def convert_to_date(self, dt):
+        dt = " ".join(dt.split(" ")[:2])
+        time_components = time.strptime(dt.strip(), "%Y-%m-%d %H:%M:%S")[:6]
+        now = datetime(*time_components)
+        return now
+
 class ScmResult(object):
     Created = "CREATED"
     Updated = "UPDATED"
