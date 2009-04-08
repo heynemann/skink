@@ -21,7 +21,7 @@ class TestBuildService(BaseUnitTest):
         project.scm_repository = "git_repo"
         
         execute_result = ExecuteResult(project.build_script, "Ran successfully", 0)
-        scm_result = ScmResult(ScmResult.Created, "some/path/")
+        scm_result = ScmResult(ScmResult.Created, "some/path/", ("1234abcd","Bernardo","Bernardo","Changed some stuff"))
 
         repository_mock = self.mock.CreateMock(ProjectRepository)
         scm_mock = self.mock.CreateMock(GitRepository)
@@ -39,6 +39,11 @@ class TestBuildService(BaseUnitTest):
         build = service.build_project(1)
         
         self.assertEqual(build.status, BuildService.Success)
+        self.assertEqual(build.commit_number, "1234abcd")
+        self.assertEqual(build.commit_author, "Bernardo")
+        self.assertEqual(build.commit_committer, "Bernardo")
+        self.assertEqual(build.commit_text, "Changed some stuff")
+        
         self.mock.VerifyAll()
 
 if __name__ == '__main__':
