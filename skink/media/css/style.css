@@ -167,8 +167,8 @@ span.notice{
 }
 
 .build-summary-comment{
-    font-weight:bold;
-    font-size:22px;
+    font-family: monospace;
+    font-size:18px;
     color: #307822;
     background-color: #dedede;
     

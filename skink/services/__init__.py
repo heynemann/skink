@@ -40,14 +40,14 @@ class BuildService(object):
         status = BuildService.Failure
         scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
+        last_build_number = project.get_last_build_number()
+
         build = Build()
         build.date = datetime.now()
         build.status = status
         build.scm_status = scm_status
         build.log = ""
         build.project = project
-
-        last_build_number = project.get_last_build_number()
         
         scm_creation_result = self.scm.create_or_update(project)
         build.scm_status = scm_creation_result.status

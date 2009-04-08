@@ -83,13 +83,13 @@
                                                 <tr><td colspan="2">&nbsp;</td></tr>
                                                 <tr>
                                                     <td class="build-summary-commit" colspan="2">
-                                                        Commit ${build.commit_number}<br />
-                                                        By ${build.commit_committer}
+                                                        <img src="/media/images/page.png" alt="Commit number" title="Commit number" align="absmiddle" /> ${build.commit_number}<br />
+                                                        <img src="/media/images/status_online.png" alt="Committer" title="Committer" align="absmiddle" /> ${build.commit_committer}
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="build-summary-comment" colspan="2">
-                                                        <pre>${HTML(build.commit_text.strip())}</pre>
+                                                        ${HTML(build.html_commit_text())}
                                                     </td>
                                                 </tr>
                                                 <tr>
