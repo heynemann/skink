@@ -15,9 +15,13 @@ from skink.services.scm import GitRepository, ScmResult
 
 class TestBuildService(BaseUnitTest):
     def test_build(self):
-        project = Project("Test Project", "make test", "git_repo")
-        execute_result = ExecuteResult(project.build_script, "Ran successfully", "", 0)
-        scm_result = ScmResult(ScmResult.Created)
+        project = Project()
+        project.name = "Test Project"
+        project.build_script = "make test"
+        project.scm_repository = "git_repo"
+        
+        execute_result = ExecuteResult(project.build_script, "Ran successfully", 0)
+        scm_result = ScmResult(ScmResult.Created, "some/path/")
 
         repository_mock = self.mock.CreateMock(ProjectRepository)
         scm_mock = self.mock.CreateMock(GitRepository)
@@ -26,7 +30,7 @@ class TestBuildService(BaseUnitTest):
         repository_mock.get(1).AndReturn(project)
         repository_mock.update(project)
         scm_mock.create_or_update(project).AndReturn(scm_result)
-        executer_mock.execute(project.build_script).AndReturn(execute_result)
+        executer_mock.execute(project.build_script, "some/path/").AndReturn(execute_result)
         
         self.mock.ReplayAll()
         

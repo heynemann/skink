@@ -2,7 +2,6 @@
 #-*- coding:utf-8 -*-
 import sys
 from os.path import dirname, abspath, join, exists
-from ConfigParser import ConfigParser
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
@@ -12,6 +11,7 @@ from elixir import *
 
 from skink.models import *
 from skink.controllers import IndexController, ProjectController
+from skink.context import SkinkContext
 
 class Server(object):
     @classmethod
@@ -29,14 +29,11 @@ class Server(object):
 
     @classmethod
     def start(cls):
-        config = ConfigParser()
-        config.read(join(root_path, "config.ini"))
-
         Db.verify_and_create()
 
         cherrypy.config.update({
-            'server.socket_host':'0.0.0.0',
-            'server.socket_port': 8087,
+            'server.socket_host':SkinkContext.current().host,
+            'server.socket_port': SkinkContext.current().port,
             'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
             'tools.decode.on': True,
             'tools.trailing_slash.on': True,

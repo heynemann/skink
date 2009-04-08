@@ -3,7 +3,6 @@
 
 import os
 import sys
-from ConfigParser import ConfigParser
 from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
@@ -13,10 +12,10 @@ from genshi.core import Stream
 from genshi.output import encode, get_serializer
 from genshi.template import Context, TemplateLoader
 
-config = ConfigParser()
-config.read(join(root_path, "config.ini"))
-current_template = config.get("General", "current_template")
-template_path = join(root_path, 'skink','templates',current_template)
+from skink.context import SkinkContext
+
+current_template = SkinkContext.current().current_template
+template_path = join(root_path, 'skink','templates', current_template)
 loader = TemplateLoader(
     template_path,
     auto_reload=True
