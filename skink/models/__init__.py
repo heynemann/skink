@@ -3,7 +3,7 @@
 
 from elixir import *
 
-#class Project(Entity):
+class Project(Entity):
     name = Field(Unicode(255))
     build_script = Field(Unicode(2000))
     scm_repository = Field(Unicode(1500))
