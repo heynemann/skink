@@ -15,10 +15,10 @@
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
                 <td class="project-details-data" style="width:50%;">
-                    <b>status</b>: -
+                    <b>status</b>: ${project.get_status()}
                 </td>
                 <td class="project-details-data">
-                    <b>last successful build</b>: -
+                    <b>last successful build</b>: ${project.get_last_successful_build()}
                 </td>
             </tr>
             <tr>
@@ -52,7 +52,7 @@
                                 <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="project.builds">
                                     <tr py:for="build in project.builds">
                                         <td align="center">
-                                            <a href="/project/${project.id}/builds/${build.id}">${build.date.strftime("%m/%d/%Y %H:%M:%S")} - Build # ${build.number}</a>
+                                            <a href="/project/${project.id}/builds/${build.id}" class="${build.status.lower()}">${build.date.strftime("%m/%d/%Y %H:%M:%S")} - Build # ${build.number}</a>
                                         </td>
                                     </tr>
                                 </table>
@@ -93,8 +93,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2" id="build_log_td">
+                                                        <?python from genshi import HTML ?>
                                                         <div id="build_log" style="height: 600px; width: 450px; overflow: auto; border: 1px solid #666; padding: 8px;">
-                                                            <pre>${build.log}</pre>
+                                                            ${HTML(build_log)}
                                                         </div>
                                                     </td>
                                                 </tr>

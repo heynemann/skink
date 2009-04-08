@@ -3,7 +3,7 @@
 
 from elixir import *
 
-class Project(Entity):
+#class Project(Entity):
     name = Field(Unicode(255))
     build_script = Field(Unicode(2000))
     scm_repository = Field(Unicode(1500))
@@ -20,6 +20,20 @@ class Project(Entity):
         if not hasattr(self, 'builds') or not self.builds:
             return 0
         return len(self.builds)
+
+    def get_status(self):
+        if not hasattr(self, 'builds') or not self.builds:
+            return "UNKNOWN"
+        return self.builds[0].status
+    
+    def get_last_successful_build(self):
+        if not hasattr(self, 'builds') or not self.builds:
+            return "UNKNOWN"
+        for build in self.builds:
+            if build.status=="SUCCESS":
+                return "#%s (%s)" % (build.number, build.date.strftime("%m/%d/%Y %H:%M:%S"))
+
+        return "NONE"
 
 class Build(Entity):
     number = Field(Integer)

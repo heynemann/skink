@@ -6,6 +6,9 @@ root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 import cherrypy
+from pygments import highlight
+from pygments.lexers import BashLexer
+from pygments.formatters import HtmlFormatter
 
 from skink.repositories import ProjectRepository
 from skink.services import BuildService
@@ -35,7 +38,9 @@ class ProjectController(object):
     @template.output("project_details.html")
     def details(self, project_id):
         project = self.repository.get(project_id)
-        return template.render(project=project, current_build=project.builds and project.builds[0] or None)
+        build = project.builds and project.builds[0] or None
+        build_log = highlight(build.log, BashLexer(), HtmlFormatter())
+        return template.render(project=project, current_build=build, build_log=build_log)
 
     @template.output("project_details.html")
     def build_details(self, project_id, build_id):
