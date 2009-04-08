@@ -68,6 +68,10 @@ class BuildService(object):
         build.number = last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
+        build.commit_number = scm_creation_result.last_commit[0]
+        build.commit_author = scm_creation_result.last_commit[1]
+        build.commit_committer = scm_creation_result.last_commit[2]
+        build.commit_text = scm_creation_result.last_commit[3]
         
         self.repository.update(project)
         

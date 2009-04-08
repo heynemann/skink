@@ -37,15 +37,22 @@ class ProjectController(object):
 
     @template.output("project_details.html")
     def details(self, project_id):
-        project = self.repository.get(project_id)
-        build = project.builds and project.builds[0] or None
-        build_log = highlight(build.log, BashLexer(), HtmlFormatter())
-        return template.render(project=project, current_build=build, build_log=build_log)
+        return self.render_details(project_id)
 
     @template.output("project_details.html")
     def build_details(self, project_id, build_id):
+        return self.render_details(project_id, build_id)
+
+    def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)
-        return template.render(project=project, current_build=project.get_build_by_id(int(build_id)))
+        if not build_id:
+            build = project.builds and project.builds[0] or None
+        else:
+            build = project.get_build_by_id(int(build_id))
+        build_log = ""
+        if build and build.log:
+            build_log = highlight(build.log, BashLexer(), HtmlFormatter())
+        return template.render(project=project, current_build=build, build_log=build_log)
 
 class IndexController(object):
     @template.output("index.html")

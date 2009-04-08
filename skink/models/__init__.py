@@ -41,6 +41,12 @@ class Build(Entity):
     status = Field(Unicode(20))
     scm_status = Field(Unicode(20))
     log = Field(Unicode(4000))
+    commit_number = Field(Unicode(40))
+    commit_author = Field(Unicode(400))
+    commit_committer = Field(Unicode(400))
+    commit_text = Field(Unicode(4000))
     project = ManyToOne('Project')
     using_options(tablename="builds")
 
+    def html_commit_text(self):
+        return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""

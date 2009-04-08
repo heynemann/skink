@@ -156,6 +156,28 @@ span.notice{
     color: #307822;
 }
 
+.build-summary-commit{
+    font-weight:bold;
+    font-size:14px;
+    color: #307822;
+    background-color: #e0ffda;
+    border-left: solid 1px #307822;
+    border-top: solid 1px #307822;
+    border-right: solid 1px #307822;
+}
+
+.build-summary-comment{
+    font-weight:bold;
+    font-size:22px;
+    color: #307822;
+    background-color: #dedede;
+    
+    border-left: solid 1px #307822;
+    border-bottom: solid 1px #307822;
+    border-right: solid 1px #307822;
+}
+
+
 .build-summary-log{
     padding-top: 12px;
     font-weight:bold;
