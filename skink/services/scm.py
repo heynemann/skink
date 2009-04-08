@@ -3,7 +3,7 @@
 from os.path import join, exists
 from executers import ShellExecuter
 
-#class GitRepository(object):
+class GitRepository(object):
     def __init__(self, base_dir):
         self.base_dir = base_dir
 

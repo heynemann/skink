@@ -19,7 +19,7 @@ class Project(Entity):
     def get_last_build_number(self):
         if not hasattr(self, 'builds') or not self.builds:
             return 0
-        return self.builds[0].number and self.builds[0].number or 0
+        return len(self.builds)
 
 class Build(Entity):
     number = Field(Integer)
