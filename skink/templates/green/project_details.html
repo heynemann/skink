@@ -31,7 +31,7 @@
           </p>
         </div>
         <div class="sub-section">last build</div>
-        <div class="sub-section-content">
+        <div class="sub-section-content" py:if="project.builds">
            <div py:with="build = current_build">
                <p>Build summary for Build # ${build.number}</p>
                <p>Finished at ${build.date.strftime("%m/%d/%Y %H:%M:%S")}</p>
