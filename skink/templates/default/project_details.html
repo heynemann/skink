@@ -3,6 +3,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/">
     <xi:include href="default.html" />
+    <?python from genshi import HTML ?>
     <head>
         <title>Home</title>
         <script src="${url('/media/default/script/project_details.js')}"></script>
@@ -15,10 +16,10 @@
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
                 <td class="project-details-data" style="width:50%;">
-                    <b>status</b>: -
+                    <b>status</b>: ${project.get_status()}
                 </td>
                 <td class="project-details-data">
-                    <b>last successful build</b>: -
+                    <b>last successful build</b>: ${project.get_last_successful_build()}
                 </td>
             </tr>
             <tr>
@@ -51,8 +52,8 @@
                                 </py:if>
                                 <table border="0" cellspacing="0" cellpadding="0" width="100%" py:if="project.builds">
                                     <tr py:for="build in project.builds">
-                                        <td align="center">
-                                            <a href="/project/${project.id}/builds/${build.id}">${build.date.strftime("%m/%d/%Y %H:%M:%S")} - Build # ${build.number}</a>
+                                        <td align="left">
+                                            <a href="/project/${project.id}/builds/${build.id}" class="${build.status.lower()}"># ${build.number} [${build.date.strftime("%m/%d %H:%M:%S")}]</a>
                                         </td>
                                     </tr>
                                 </table>
@@ -72,18 +73,23 @@
                                             <table border="0" cellspacing="0" cellpadding="0" width="100%">
                                                 <tr>
                                                     <td class="build-summary-header">
-                                                        Build summary for Build # ${build.number}
+                                                        Build summary for Build # ${build.number} 
+                                                        <span class="${build.status.lower()}">${build.status}</span>
                                                     </td>
                                                     <td class="build-summary-date" align="right" style="padding-right:25px;">
                                                         Finished at ${build.date.strftime("%m/%d/%Y %H:%M:%S")}
                                                     </td>
                                                 </tr>
+                                                <tr><td colspan="2">&nbsp;</td></tr>
                                                 <tr>
-                                                    <td colspan="2" class="build-summary-status">
-                                                        Status: 
-                                                            <span class="${build.status.lower()}">
-                                                                ${build.status}
-                                                            </span>
+                                                    <td class="build-summary-commit" colspan="2">
+                                                        <img src="/media/images/page.png" alt="Commit number" title="Commit number" align="absmiddle" /> ${build.commit_number}<br />
+                                                        <img src="/media/images/status_online.png" alt="Committer" title="Committer" align="absmiddle" /> ${build.commit_committer}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="build-summary-comment" colspan="2">
+                                                        ${HTML(build.html_commit_text())}
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -93,8 +99,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2" id="build_log_td">
+
                                                         <div id="build_log" style="height: 600px; width: 450px; overflow: auto; border: 1px solid #666; padding: 8px;">
-                                                            <pre>${build.log}</pre>
+                                                            ${HTML(build_log)}
                                                         </div>
                                                     </td>
                                                 </tr>

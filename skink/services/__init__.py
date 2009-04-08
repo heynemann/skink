@@ -10,12 +10,13 @@ from skink.models import Build
 from skink.repositories import ProjectRepository
 from skink.services.scm import GitRepository, ScmResult
 from skink.services.executers import ShellExecuter
+from skink.context import SkinkContext
 
 class BuildService(object):
     Success = "SUCCESS"
     Failure = "FAILURE"
     
-    def __init__(self, repository=None, scm=None, executer=None, base_path=join(root_path,'skink','build')):
+    def __init__(self, repository=None, scm=None, executer=None, base_path=join(root_path, SkinkContext.current().build_path)):
         if not repository:
             self.repository = ProjectRepository()
         else:
@@ -35,10 +36,18 @@ class BuildService(object):
 
     def build_project(self, project_id):
         log = ["Build started at %s" % datetime.now()]
+
         status = BuildService.Failure
         scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
-        build = Build(datetime.now(), status,  scm_status, "", project)
+        last_build_number = project.get_last_build_number()
+
+        build = Build()
+        build.date = datetime.now()
+        build.status = status
+        build.scm_status = scm_status
+        build.log = ""
+        build.project = project
         
         scm_creation_result = self.scm.create_or_update(project)
         build.scm_status = scm_creation_result.status
@@ -56,11 +65,14 @@ class BuildService(object):
             
             status = execute_result.exit_code == 0 and BuildService.Success or BuildService.Failure
         
-        build.number = project.last_build_number + 1
+        build.number = last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
+        build.commit_number = scm_creation_result.last_commit[0]
+        build.commit_author = scm_creation_result.last_commit[1]
+        build.commit_committer = scm_creation_result.last_commit[2]
+        build.commit_text = scm_creation_result.last_commit[3]
         
-        project.last_build_number = build.number
         self.repository.update(project)
         
         return build

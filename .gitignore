@@ -8,3 +8,4 @@ build/
 .coverage
 skinkdb.db
 tests/functional/repo
+ci_tmp/
