@@ -18,7 +18,7 @@ functional_log_file=${build_dir}/functional.log
 acceptance_log_file=${build_dir}/acceptance.log
 nocoverage=false
 
-.PHONY: help build compile test unit func acceptance run
+.PHONY: help all compile test unit func acceptance run
 
 help:
 	@echo
@@ -27,7 +27,7 @@ help:
 	@echo
 	@echo "    targets:"
 	@echo "    help             displays this help text"
-	@echo "    build            compiles the code and runs all tests"
+	@echo "    all              compiles the code and runs all tests"
 	@echo "    compile          compiles the python code"
 	@echo "    test             runs all tests (unit, functional and acceptance)"
 	@echo "    unit             runs all unit tests"
@@ -41,11 +41,13 @@ help:
 
 # orchestrator targets
 
-prepare_build: remove_build_dir create_build_dir
+prepare_build: clean create_build_dir
 
 test: unit func acceptance
 
-build: prepare_build compile test report_success
+all: prepare_build compile test report_success
+
+clean: remove_build_dir
 
 # action targets
 
@@ -67,22 +69,24 @@ compile:
 unit: compile
 	@echo "Running unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then @nosetests --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else @nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
-
+	@if [ "$(nocoverage)" = "true" ]; then nosetests --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
 	@echo "============="
 	@echo "Unit coverage"
 	@echo "============="
-	@cat build/unit.log | egrep '(Name)|(TOTAL)'
+	@if [ "$(nocoverage)" != "true" ]; then cat ${unit_log_file} | egrep '(Name)|(TOTAL)'; fi
+	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
 	@echo
 	
 func: compile
 	@echo "Running functional tests..."
 	@rm -f ${functional_log_file} >> /dev/null
-	@nosetests --verbose --with-coverage --cover-package=skink ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}
+	@if [ "$(nocoverage)" = "true" ]; then nosetests --verbose ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; else nosetests --verbose --with-coverage --cover-package=skink ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; fi
+
 	@echo "==================="
 	@echo "Functional coverage"
 	@echo "==================="
-	@cat build/unit.log | egrep '(Name)|(TOTAL)'
+	@if [ "$(nocoverage)" != "true" ]; then cat ${functional_log_file} | egrep '(Name)|(TOTAL)'; fi
+	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
 	@echo
 	
 acceptance: compile
