@@ -5,10 +5,7 @@ from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-import cherrypy
-
-from elixir import *
-
+from skink.imports import *
 from skink.models import *
 from skink.controllers import IndexController, ProjectController
 from skink.context import SkinkContext

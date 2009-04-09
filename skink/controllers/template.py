@@ -7,11 +7,7 @@ from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-import cherrypy
-from genshi.core import Stream
-from genshi.output import encode, get_serializer
-from genshi.template import Context, TemplateLoader
-
+from skink.imports import *
 from skink.context import SkinkContext
 
 current_template = SkinkContext.current().current_template

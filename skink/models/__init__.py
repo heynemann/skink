@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-from elixir import *
+import sys
+from os.path import dirname, abspath, join
+root_path = abspath(join(dirname(__file__), "../../"))
+sys.path.insert(0, root_path)
+
+from skink.imports import *
 
 class Project(Entity):
     name = Field(Unicode(255))

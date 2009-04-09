@@ -5,11 +5,7 @@ from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-import cherrypy
-from pygments import highlight
-from pygments.lexers import BashLexer
-from pygments.formatters import HtmlFormatter
-
+from skink.imports import *
 from skink.repositories import ProjectRepository
 from skink.services import BuildService
 import template

@@ -7,9 +7,8 @@ from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-import mox
-from sqlalchemy.orm.scoping import ScopedSession
-import elixir
+from skink.imports import *
+from tests.imports import *
 
 class BaseUnitTest(TestCase):
 

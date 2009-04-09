@@ -7,8 +7,8 @@ from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
-from elixir import *
-
+from skink.imports import *
+from tests.imports import *
 from skink.models import *
 
 class BaseFunctionalTest(TestCase):
