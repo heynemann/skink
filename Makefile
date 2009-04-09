@@ -1,4 +1,5 @@
 # Makefile for Pyccuracy
+SHELL := /bin/bash
 
 # Internal variables.
 file_version=0.1.0
@@ -15,6 +16,7 @@ compile_log_file=${build_dir}/compile.log
 unit_log_file=${build_dir}/unit.log
 functional_log_file=${build_dir}/functional.log
 acceptance_log_file=${build_dir}/acceptance.log
+nocoverage=false
 
 .PHONY: help build compile test unit func acceptance run
 
@@ -65,8 +67,7 @@ compile:
 unit: compile
 	@echo "Running unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@echo ${nocoverage}
-	@if [ -z "nocoverage" ];then @nosetests --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file} else @nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
+	@if [ "$(nocoverage)" = "true" ]; then @nosetests --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else @nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
 
 	@echo "============="
 	@echo "Unit coverage"
