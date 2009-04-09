@@ -15,8 +15,8 @@
             <a href='/project/${project.id}/edit'>Edit Project</a>
         </div>
           
-        <div class="${project.builds[0].status == 'SUCCESS' and 'success' or 'failed'}" id='last_build' py:if="project.builds">
-            <div py:with="build = project.builds[0]">
+        <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.builds">
+            <div py:with="build = current_build">
                 <h1>Build ${build.commit_number[:7]} ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
 
                 <blockquote>
