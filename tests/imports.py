@@ -10,4 +10,4 @@ lib_path = join(root_path, "skink", "lib")
 sys.path.insert(0, lib_path)
 
 #mox - For mock unit tests
-import mox
+from mox.mox import Mox

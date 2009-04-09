@@ -13,7 +13,7 @@ from tests.imports import *
 class BaseUnitTest(TestCase):
 
     def setUp(self):
-        self.mock = mox.Mox()
+        self.mock = Mox()
         elixir.session = self.mock.CreateMock(ScopedSession)
 
     def tearDown(self):
