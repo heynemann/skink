@@ -1,5 +1,4 @@
 # Makefile for Pyccuracy
-#
 
 # Internal variables.
 file_version=0.1.0
@@ -34,6 +33,9 @@ help:
 	@echo "    acceptance       runs all acceptance tests"
 	@echo "    run              runs the skink server"
 	@echo
+	@echo "    to run the tests with no coverage add nocoverage to the make script"
+	@echo "    like this: make build nocoverage"
+	@echo
 
 # orchestrator targets
 
@@ -63,7 +65,9 @@ compile:
 unit: compile
 	@echo "Running unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}
+	@echo ${nocoverage}
+	@if [ -z "nocoverage" ];then @nosetests --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file} else @nosetests --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
+
 	@echo "============="
 	@echo "Unit coverage"
 	@echo "============="
