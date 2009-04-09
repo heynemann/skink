@@ -23,3 +23,11 @@ So that the given project gets a new build
 As a skink user
 I want to view the details of a build
 So that I can see what happened in that build
+
+1) Queue of builds
+2) Tabs for artifacts
+3) Files as artifacts
+4) GET route for /project/1/build/last (for last build)
+5) GET route for /project/1/build/last|id/files - Returns a zip file containing the files added to the build
+
+
