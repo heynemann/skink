@@ -7,7 +7,7 @@ sys.path.insert(0, root_path)
 
 from skink.imports import *
 from skink.models import *
-from skink.controllers import IndexController, ProjectController
+from skink.controllers import IndexController, ProjectController, PipelineController
 from skink.context import SkinkContext
 
 class Server(object):
@@ -22,6 +22,8 @@ class Server(object):
         d.connect('project_build', 'project/:project_id/build', controller=ProjectController(), action='build')
         d.connect('project_details', 'project/:project_id', controller=ProjectController(), action='details')
         d.connect('build_details', 'project/:project_id/builds/:build_id', controller=ProjectController(), action='build_details')
+        d.connect('pipeline_index', 'pipeline', controller=PipelineController(), action='index')
+        d.connect('create_pipeline', 'pipeline/create', controller=PipelineController(), action='create')
         d.connect('index', ':action', controller=IndexController())
         dispatcher = d
         return dispatcher

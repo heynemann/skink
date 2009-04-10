@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Pipeline Index</title>
+        <link rel="stylesheet" href="${url('/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css')}" type="text/css" media="screen" title="default css" charset="utf-8" />
+        <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
+    </head>
+    <body>
+        <h3>
+            This page lets you create build Pipelines for your projects.
+        </h3>
+
+        <h3>Creating Pipelines</h3>
+        <p>
+            To create a new Pipeline enter the Pipeline using the following format:
+            <pre>ProjectA > ProjectA2 > ProjectA3</pre>
+            This means that:
+            <ul>
+                <li>ProjectA2 will get built upon ProjectA's success</li>
+                <li>ProjectA3 will get built upon ProjectA2's success</li>
+            </ul>
+        </p>
+        <py:if test="pipelines">
+            <h2>
+                Existing Pipelines:
+            </h2>
+            <p>
+                <ul>
+                    <li py:for="pipeline in pipelines"><a href="/pipeline/${pipeline.id}"><b>[${pipeline.name}]</b> ${pipeline}</a></li>
+                </ul>
+            </p>
+        </py:if>
+        
+        <h2 py:if="errors">
+            Some errors occurred:<br />
+            <label class="with_errors" py:for="error in errors">
+                $error<br />
+            </label>
+        </h2>
+        
+        <h2>Create a new Pipeline:</h2>
+        <form action="${url('/pipeline/create')}" method='post'>
+            <p class='required'>
+                <label for='pipeline_name'>Name</label>
+                <input class='text' name="name" id="name" type='text' />
+            </p>
+
+            <p class='required'>
+                <label for='project_repository'>Pipeline Definition</label>
+                <input class='text' name="pipeline_definition" id="pipeline_definition" type='text' />
+            </p>
+
+            <p class='submit'>
+                <button class='positive' type='submit'>Create Pipeline</button>
+            </p>
+        </form>
+    </body>
+</html>

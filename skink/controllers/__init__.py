@@ -6,8 +6,9 @@ root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 from skink.imports import *
-from skink.repositories import ProjectRepository
+from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services import BuildService
+from skink.errors import *
 import template
 
 class ProjectController(object):
@@ -69,3 +70,22 @@ class IndexController(object):
         repository = ProjectRepository()
         projects = repository.get_all()
         return template.render(projects=projects)
+        
+class PipelineController(object):
+    def __init__(self):
+        self.repository = PipelineRepository()
+        
+    @template.output("pipeline_index.html")
+    def index(self):
+        pipelines = self.repository.get_all()
+        return template.render(pipelines=pipelines, errors=None)
+    
+    @template.output("pipeline_index.html") 
+    def create(self, name, pipeline_definition):
+        pipelines = self.repository.get_all()
+        try:
+            self.repository.create(name, pipeline_definition)
+            raise cherrypy.HTTPRedirect('/pipeline')
+        except ProjectNotFoundError, err:
+            return template.render(pipelines=pipelines, errors=[err.message,]) | HTMLFormFiller(data=locals())
+

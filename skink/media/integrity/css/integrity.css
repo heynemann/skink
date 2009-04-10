@@ -337,3 +337,14 @@ a.failed {
   text-align: right; }
   #footer strong {
     font-weight: bold; }
+    
+.pipeline {
+    border: solid 1px #c0c0c0;
+    text-align: center;
+}
+
+.with_errors{
+    background: red;
+    color: white;
+    position: relative;
+}

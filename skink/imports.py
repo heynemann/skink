@@ -31,3 +31,5 @@ from routes import *
 from genshi.core import Stream
 from genshi.output import encode, get_serializer
 from genshi.template import Context, TemplateLoader
+from genshi.filters import HTMLFormFiller
+

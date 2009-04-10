@@ -58,6 +58,16 @@ class TestProjectRepository(BaseFunctionalTest):
         self.assertEqual(retrieved.name, project.name)
         self.assertEqual(retrieved.build_script, project.build_script)
         self.assertEqual(retrieved.scm_repository, project.scm_repository)
+
+    def test_get_project_by_name(self):
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
+
+        retrieved = repository.get_project_by_name(project_name="Test Project")
+        self.assertEqual(retrieved.id, project.id)
+        self.assertEqual(retrieved.name, project.name)
+        self.assertEqual(retrieved.build_script, project.build_script)
+        self.assertEqual(retrieved.scm_repository, project.scm_repository)
         
     def test_get_all_projects(self):
         repository = ProjectRepository()
@@ -80,6 +90,29 @@ class TestProjectRepository(BaseFunctionalTest):
         self.assertEqual(projects[2].name, project3.name)
         self.assertEqual(projects[2].build_script, project3.build_script)
         self.assertEqual(projects[2].scm_repository, project3.scm_repository)
+
+    def test_get_all_projects_as_dictionary(self):
+        repository = ProjectRepository()
+        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo1")
+        project2 = repository.create(name=u"Test Project2", build_script=u"make build", scm_repository="git_repo2")
+        project3 = repository.create(name=u"Test Project3", build_script=u"make acceptance", scm_repository="git_repo3")
+
+        projects = repository.get_all_as_dictionary()
+        
+        self.failUnless(isinstance(projects, dict))
+        self.assertEqual(len(projects.keys()), 3)
+        self.assertEqual(projects["Test Project"].id, project.id)
+        self.assertEqual(projects["Test Project"].name, project.name)
+        self.assertEqual(projects["Test Project"].build_script, project.build_script)
+        self.assertEqual(projects["Test Project"].scm_repository, project.scm_repository)
+        self.assertEqual(projects["Test Project2"].id, project2.id)
+        self.assertEqual(projects["Test Project2"].name, project2.name)
+        self.assertEqual(projects["Test Project2"].build_script, project2.build_script)
+        self.assertEqual(projects["Test Project2"].scm_repository, project2.scm_repository)
+        self.assertEqual(projects["Test Project3"].id, project3.id)
+        self.assertEqual(projects["Test Project3"].name, project3.name)
+        self.assertEqual(projects["Test Project3"].build_script, project3.build_script)
+        self.assertEqual(projects["Test Project3"].scm_repository, project3.scm_repository)
         
     def test_delete_project(self):
         repository = ProjectRepository()
