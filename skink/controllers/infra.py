@@ -24,6 +24,9 @@ class Server(object):
         d.connect('build_details', 'project/:project_id/builds/:build_id', controller=ProjectController(), action='build_details')
         d.connect('pipeline_index', 'pipeline', controller=PipelineController(), action='index')
         d.connect('create_pipeline', 'pipeline/create', controller=PipelineController(), action='create')
+        d.connect('edit_pipeline', 'pipeline/:pipeline_id', controller=PipelineController(), action='edit')
+        d.connect('update_pipeline', 'pipeline/:pipeline_id/update', controller=PipelineController(), action='update')
+        d.connect('delete_pipeline', 'pipeline/:pipeline_id/delete', controller=PipelineController(), action='delete')
         d.connect('index', ':action', controller=IndexController())
         dispatcher = d
         return dispatcher
@@ -62,7 +65,7 @@ class Db(object):
     @classmethod
     def verify_and_create(self):
         metadata.bind = 'sqlite:///skinkdb.db'
-        metadata.bind.echo = True
+        metadata.bind.echo = False
         setup_all()
         if not exists("skinkdb.db"):
             create_all()

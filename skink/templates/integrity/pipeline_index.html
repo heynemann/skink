@@ -7,6 +7,7 @@
         <title>Pipeline Index</title>
         <link rel="stylesheet" href="${url('/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css')}" type="text/css" media="screen" title="default css" charset="utf-8" />
         <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
+        <script type="text/javascript" language="javascript" src="/media/integrity/script/pipeline_index.js"></script>
     </head>
     <body>
         <h3>
@@ -29,7 +30,17 @@
             </h2>
             <p>
                 <ul>
-                    <li py:for="pipeline in pipelines"><a href="/pipeline/${pipeline.id}"><b>[${pipeline.name}]</b> ${pipeline}</a></li>
+                    <li py:for="pipeline in pipelines">
+                        <a href="/pipeline/${pipeline.id}">
+                            <b>[${pipeline.name}]</b> ${pipeline} 
+                        </a>
+                        <a href="/pipeline/${pipeline.id}/delete" class="delete_pipeline">
+                            <img border="0" align="absMiddle" 
+                                            src="${url('/media/integrity/images/delete.png')}" 
+                                            alt="Delete this Pipeline" 
+                                            title="Delete this Pipeline" />
+                        </a>
+                    </li>
                 </ul>
             </p>
         </py:if>
@@ -41,20 +52,20 @@
             </label>
         </h2>
         
-        <h2>Create a new Pipeline:</h2>
-        <form action="${url('/pipeline/create')}" method='post'>
+        <h2>${pipeline and 'Edit the "%s" Pipeline' % pipeline.name or 'Create a new Pipeline'}:</h2>
+        <form action="${url('/pipeline/%s' % (pipeline and '%d/update' % pipeline.id or 'create'))}" method='post'>
             <p class='required'>
                 <label for='pipeline_name'>Name</label>
-                <input class='text' name="name" id="name" type='text' />
+                <input class='text' name="name" id="name" value="${pipeline and pipeline.name or ''}" type='text' />
             </p>
 
             <p class='required'>
                 <label for='project_repository'>Pipeline Definition</label>
-                <input class='text' name="pipeline_definition" id="pipeline_definition" type='text' />
+                <input class='text' name="pipeline_definition" id="pipeline_definition" value="${pipeline and str(pipeline) or ''}" type='text' />
             </p>
 
             <p class='submit'>
-                <button class='positive' type='submit'>Create Pipeline</button>
+                <button class='positive' type='submit'>${pipeline and 'Edit Pipeline' or 'Create a new Pipeline'}</button>
             </p>
         </form>
     </body>

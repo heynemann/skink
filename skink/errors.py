@@ -10,3 +10,8 @@ class ProjectNotFoundError(ValueError):
     def __init__(self, message):
         super(ProjectNotFoundError, self).__init__(message)
 
+class CyclicalPipelineError(ValueError):
+    def __init__(self, message):
+        super(CyclicalPipelineError, self).__init__(message)
+
+

@@ -78,7 +78,7 @@ class PipelineController(object):
     @template.output("pipeline_index.html")
     def index(self):
         pipelines = self.repository.get_all()
-        return template.render(pipelines=pipelines, errors=None)
+        return template.render(pipeline=None, pipelines=pipelines, errors=None)
     
     @template.output("pipeline_index.html") 
     def create(self, name, pipeline_definition):
@@ -86,6 +86,25 @@ class PipelineController(object):
         try:
             self.repository.create(name, pipeline_definition)
             raise cherrypy.HTTPRedirect('/pipeline')
-        except ProjectNotFoundError, err:
-            return template.render(pipelines=pipelines, errors=[err.message,]) | HTMLFormFiller(data=locals())
+        except (ProjectNotFoundError, CyclicalPipelineError), err:
+            return template.render(pipelines=pipelines, pipeline=None, errors=[err.message,]) | HTMLFormFiller(data=locals())
 
+    @template.output("pipeline_index.html")
+    def edit(self, pipeline_id):
+        pipelines = self.repository.get_all()
+        pipeline = self.repository.get(pipeline_id)
+        return template.render(pipeline=pipeline, pipelines=pipelines, errors=None)
+
+    @template.output("pipeline_index.html") 
+    def update(self, pipeline_id, name, pipeline_definition):
+        pipelines = self.repository.get_all()
+        pipeline = self.repository.get(int(pipeline_id))
+        try:
+            self.repository.update(pipeline.id, name, pipeline_definition)
+            raise cherrypy.HTTPRedirect('/pipeline')
+        except (ProjectNotFoundError, CyclicalPipelineError), err:
+            return template.render(pipelines=pipelines, pipeline=pipeline, errors=[err.message,]) | HTMLFormFiller(data=locals())
+    
+    def delete(self, pipeline_id):
+        self.repository.delete(pipeline_id)
+        raise cherrypy.HTTPRedirect('/pipeline')

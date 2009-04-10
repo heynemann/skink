@@ -66,17 +66,31 @@ class Pipeline(Entity):
     using_options(tablename="pipelines")
     
     def load_pipeline_items(self, pipeline_definition, all_projects):
-        pipeline_items = pipeline_definition.split(">")
-
+        pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
+        
+        self.assert_for_cyclical_pipeline(pipeline_items)
+        
         for pipeline_item in pipeline_items:
-            key = pipeline_item.strip().lower()
+            key = pipeline_item
             if not all_projects.has_key(key):
                 raise ProjectNotFoundError("The project with name %s does not exist" % key)
             project = all_projects[key]
             pipeline_item = PipelineItem()
             pipeline_item.pipeline = self
             pipeline_item.project = project
-    
+
+    def assert_for_cyclical_pipeline(self, pipeline_items):
+        added_items = []
+        repeated_items = []
+        for item in pipeline_items:
+            if item in added_items:
+                repeated_items.append(item)
+            else:
+                added_items.append(item)
+        
+        if repeated_items:
+            raise CyclicalPipelineError("You are trying to create a cyclical pipeline. \nRepeated projects: %s" % ", ".join(repeated_items))
+            
     def __str__(self):
         if not self.items:
             return "No items in the pipeline."

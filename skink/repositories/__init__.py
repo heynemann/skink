@@ -66,6 +66,35 @@ class PipelineRepository(object):
             
         return pipeline
 
+    def update(self, pipeline_id, name, pipeline_definition):
+        try:
+            project_repository = ProjectRepository()
+            pipeline = self.get(pipeline_id)
+            self.__clear_pipeline_items(pipeline)
+            pipeline.name = name
+            pipeline.load_pipeline_items(pipeline_definition, project_repository.get_all_as_dictionary())
+            
+            elixir.session.commit()
+        except:
+            elixir.session.rollback()
+            raise
+            
+        return pipeline
+
+    def __clear_pipeline_items(self, pipeline):
+        for pipeline_item in pipeline.items:
+            pipeline_item.delete()
+    
+    def delete(self, pipeline_id):
+        try:
+            pipeline = self.get(pipeline_id)
+            self.__clear_pipeline_items(pipeline)
+            pipeline.delete()
+            elixir.session.commit()
+        except:
+            elixir.session.rollback()
+            raise
+        
     def get(self, pipeline_id):
         return Pipeline.query.filter_by(id=pipeline_id).one()
         
