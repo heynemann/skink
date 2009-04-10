@@ -18,10 +18,12 @@
         <body py:attrs="select('@*')">
             <div id="header">
                 <span class="breadcrumb">
-                    <h1><a href="/pipeline">pipelines</a> |
+                    <h1>
                     <a href="/">projects</a> 
                     ${select("//span[contains(@class,'breadcrumb')]/text()")}
                     ${select("//span[contains(@class,'breadcrumb')]/*")}
+                    |
+                    <a href="/pipeline">pipelines</a>
                     </h1>
                 </span>
                 <address class="watermark">
