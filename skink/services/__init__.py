@@ -61,7 +61,7 @@ class BuildService(object):
             log.append(scm_creation_result.log)
             status = BuildService.Failure
         else:
-            log.append("Downloaded code from %s" % project.scm_repository)
+            log.append("Downloaded code from %s (%s)" % (project.scm_repository, scm_creation_result.status))
             
             execute_result = self.executer.execute(project.build_script, scm_creation_result.repository_path)
             log.append("Executed %s" % project.build_script)
