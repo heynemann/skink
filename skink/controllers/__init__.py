@@ -26,20 +26,27 @@ class ProjectController(object):
         project = self.repository.get(project_id)
         return template.render(project=project)
 
-    def create(self, name, build_script, scm_repository):
-        project = self.repository.create(name=name, build_script=build_script, scm_repository=scm_repository)
+    def create(self, name, build_script, scm_repository, monitor_changes=None):
+        project = self.repository.create(
+                                name=name, 
+                                build_script=build_script, 
+                                scm_repository=scm_repository, 
+                                monitor_changes=not monitor_changes is None)
         raise cherrypy.HTTPRedirect('/')
 
-    def update(self, project_id, name, build_script, scm_repository):
+    def update(self, project_id, name, build_script, scm_repository, monitor_changes=None):
         project = self.repository.get(project_id)
         project.name = name
         project.build_script = build_script
         project.scm_repository = scm_repository
+        project.monitor_changes = not monitor_changes is None
         self.repository.update(project)
         raise cherrypy.HTTPRedirect('/')
 
     def delete(self, project_id):
+        project = self.repository.get(project_id)
         self.repository.delete(project_id)
+        self.build_service.delete_scm_repository(project)
         raise cherrypy.HTTPRedirect('/')
     
     def build(self, project_id):

@@ -17,6 +17,10 @@ class BuildService(object):
     Success = u"SUCCESS"
     Failure = u"FAILURE"
     
+    def default_flush(self):
+        elixir.session.commit()
+        elixir.session.flush()
+    
     def __init__(self, repository=None, pipeline_repository=None, scm=None, executer=None, flush_action=None, base_path=join(root_path, SkinkContext.current().build_path)):
         self.repository = repository
         if not repository:
@@ -36,7 +40,7 @@ class BuildService(object):
 
         self.flush_action = flush_action
         if not flush_action:
-            self.flush_action = elixir.session.flush
+            self.flush_action = self.default_flush
         
         self.base_path = base_path
 
@@ -89,6 +93,10 @@ class BuildService(object):
         self.flush_action()
         
         return build
+        
+    def delete_scm_repository(self, project):
+        self.scm.remove_repository(project)
+        
     def process_pipelines_for(self, project):
         pipelines = self.pipeline_repository.get_all_pipelines_for(project)
         for pipeline in pipelines:

@@ -8,15 +8,13 @@ sys.path.insert(0, root_path)
 
 from tests.base.base_functional_test import BaseFunctionalTest
 from skink.models import Pipeline, PipelineItem, Project
-from skink.repositories import PipelineRepository, ProjectRepository
+from skink.repositories import PipelineRepository
 
 class TestPipelineRepository(BaseFunctionalTest):
 
     def test_create_pipeline(self):
-        project_repository = ProjectRepository()
-
-        projecta = project_repository.create(name=u"ProjectA", build_script=u"make test", scm_repository="git_repo")
-        projectb = project_repository.create(name=u"ProjectB", build_script=u"make test", scm_repository="git_repo")
+        projecta = self.create_project()
+        projectb = self.create_project(name=u"ProjectB")
 
         repository = PipelineRepository()
         created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="ProjectA > ProjectB")
@@ -32,11 +30,9 @@ class TestPipelineRepository(BaseFunctionalTest):
         self.assertEqual(str(pipeline), "ProjectA > ProjectB")
 
     def test_update_pipeline(self):
-        project_repository = ProjectRepository()
-
-        projecta = project_repository.create(name=u"A", build_script=u"make test", scm_repository="git_repo")
-        projectb = project_repository.create(name=u"B", build_script=u"make test", scm_repository="git_repo")
-        projectc = project_repository.create(name=u"C", build_script=u"make test", scm_repository="git_repo")
+        projecta = self.create_project(name="A")
+        projectb = self.create_project(name=u"B")
+        projectc = self.create_project(name=u"C")
 
         repository = PipelineRepository()
         created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="A > B")
@@ -56,11 +52,9 @@ class TestPipelineRepository(BaseFunctionalTest):
         self.assertEqual(str(pipeline), "B > A > C")
         
     def test_get_all_pipelines(self):
-        project_repository = ProjectRepository()
-
-        projecta = project_repository.create(name=u"ProjectA", build_script=u"make test", scm_repository="git_repo")
-        projectb = project_repository.create(name=u"ProjectB", build_script=u"make test", scm_repository="git_repo")
-        projectc = project_repository.create(name=u"ProjectC", build_script=u"make test", scm_repository="git_repo")
+        projecta = self.create_project()
+        projectb = self.create_project(name=u"ProjectB")
+        projectc = self.create_project(name=u"ProjectC")
 
         repository = PipelineRepository()
         created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="ProjectA > ProjectB")
@@ -87,10 +81,8 @@ class TestPipelineRepository(BaseFunctionalTest):
         self.assertEqual(pipelines[1].items[2].project.id, projectc.id)
 
     def test_delete_pipeline(self):
-        project_repository = ProjectRepository()
-
-        projecta = project_repository.create(name=u"ProjectA", build_script=u"make test", scm_repository="git_repo")
-        projectb = project_repository.create(name=u"ProjectB", build_script=u"make test", scm_repository="git_repo")
+        projecta = self.create_project()
+        projectb = self.create_project(name=u"ProjectB")
 
         repository = PipelineRepository()
         created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="ProjectA > ProjectB")
@@ -101,11 +93,9 @@ class TestPipelineRepository(BaseFunctionalTest):
         self.assertEqual(len(pipelines), 0)
         
     def test_get_all_pipelines_for_project(self):
-        project_repository = ProjectRepository()
-
-        projecta = project_repository.create(name=u"ProjectA", build_script=u"make test", scm_repository="git_repo")
-        projectb = project_repository.create(name=u"ProjectB", build_script=u"make test", scm_repository="git_repo")
-        projectc = project_repository.create(name=u"ProjectC", build_script=u"make test", scm_repository="git_repo")
+        projecta = self.create_project()
+        projectb = self.create_project(name=u"ProjectB")
+        projectc = self.create_project(name=u"ProjectC")
 
         repository = PipelineRepository()
         created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="ProjectA > ProjectB")

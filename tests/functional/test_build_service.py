@@ -18,8 +18,7 @@ from skink.services.scm import GitRepository, ScmResult
 class TestBuildService(BaseFunctionalTest):
 
     def test_build_successfully(self):
-        project_repo = ProjectRepository()
-        project = project_repo.create("pyoc", "nosetests", "git://github.com/heynemann/pyoc.git")
+        project = self.create_project(name="pyoc", build_script="nosetests", scm_repository="git://github.com/heynemann/pyoc.git", monitor_changes=True)
         repo_path = join(root_path, "tests", "functional", "repo")
         
         try:

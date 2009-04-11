@@ -10,20 +10,32 @@
     <body class="index">
         <form action="${project and '/project/%s/update' % project.id or 'create'}" method='post'>
             <p class='required'>
-                <label for='project_name'>Name</label>
+                <label for='name'>Name</label>
                 <input class='text' name="name" id="name" value="${project and project.name or ''}" type='text' />
             </p>
 
             <p class='required'>
-                <label for='project_repository'>Git repository</label>
+                <label for='scm_repository'>Git repository</label>
                 <input class='text' name="scm_repository" value="${project and project.scm_repository or ''}" id="scm_repository" type='text' />
             </p>
 
             <p class='required'>
-                <label for='project_build_script'>
+                <label for='build_script'>
                     Build script
                 </label>
                 <input class='text' name="build_script" value="${project and project.build_script or ''}" id="build_script" type='text' />
+            </p>
+
+            <p class='required'>
+                <label for='enable_monitoring'>
+                    <py:if test="not project">
+                        <input class='text' name="monitor_changes" checked="true" value="MONITOR" id="monitor_changes" type='checkbox' /> Should monitor for changes?
+                    </py:if>
+                    <py:if test="project">
+                        <input class='text' name="monitor_changes" checked="${project.monitor_changes and 'true' or ''}" value="MONITOR" id="monitor_changes" type='checkbox' /> Should monitor for changes?
+                    </py:if>
+                </label>
+                
             </p>
 
             <p class='submit'>

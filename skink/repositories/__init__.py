@@ -12,10 +12,10 @@ from skink.models import Project, Pipeline, PipelineItem
 from skink.errors import ProjectNotFoundError
 
 class ProjectRepository(object):
-    def create(self, name, build_script, scm_repository):
+    def create(self, name, build_script, scm_repository, monitor_changes):
         '''Creates a new project.'''
         try:
-            project = Project(name=name, build_script=build_script, scm_repository=scm_repository)
+            project = Project(name=name, build_script=build_script, scm_repository=scm_repository, monitor_changes=monitor_changes)
             elixir.session.commit()
         except:
             elixir.session.rollback()
@@ -32,6 +32,9 @@ class ProjectRepository(object):
     def get_all(self):
         return Project.query.all()
 
+    def get_projects_to_monitor(self):
+        return Project.query.filter_by(monitor_changes=True).all()
+
     def get_all_as_dictionary(self):
         all_projects = self.get_all()
         dictionary = dict(zip([project.name.lower() for project in all_projects], all_projects))
@@ -41,6 +44,7 @@ class ProjectRepository(object):
         try:
             elixir.session.merge(project)
             elixir.session.commit()
+            elixir.session.flush()
         except:
             elixir.session.rollback()
             raise        
@@ -108,7 +112,7 @@ class PipelineRepository(object):
         return Pipeline.query.filter_by(id=pipeline_id).one()
         
     def get_all(self):
-        return Pipeline.query.all()
+        return Pipeline.query.all()        
         
     def get_all_pipelines_for(self, project):
         return Pipeline.query.filter(Pipeline.items.any(project=project)).all()

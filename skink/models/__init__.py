@@ -15,6 +15,7 @@ class Project(Entity):
     scm_repository = Field(Unicode(1500))
     builds = OneToMany('Build', order_by="-date")
     pipeline_items = OneToMany('PipelineItem')
+    monitor_changes = Field(Boolean)
     using_options(tablename="projects")
             
     def get_build_by_id(self, build_id):

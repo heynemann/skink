@@ -14,8 +14,8 @@ class TestProjectRepository(BaseFunctionalTest):
 
     def test_create_project(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
-
+        project = self.create_project(name=u"Test Project")
+        
         self.assertNotEqual(project.id, 0)
         self.assertEqual(project.name, u"Test Project")
         self.assertEqual(project.build_script, u"make test")
@@ -30,7 +30,7 @@ class TestProjectRepository(BaseFunctionalTest):
 
     def test_update_project(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
+        project = self.create_project(name=u"Test Project")
 
         update = repository.get(project_id=project.id)
         self.assertEqual(update.id, project.id)
@@ -51,7 +51,7 @@ class TestProjectRepository(BaseFunctionalTest):
     
     def test_get_project(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
+        project = self.create_project(name=u"Test Project")
 
         retrieved = repository.get(project_id=project.id)
         self.assertEqual(retrieved.id, project.id)
@@ -61,7 +61,7 @@ class TestProjectRepository(BaseFunctionalTest):
 
     def test_get_project_by_name(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo")
+        project = self.create_project(name=u"Test Project")
 
         retrieved = repository.get_project_by_name(project_name="Test Project")
         self.assertEqual(retrieved.id, project.id)
@@ -71,9 +71,9 @@ class TestProjectRepository(BaseFunctionalTest):
         
     def test_get_all_projects(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo1")
-        project2 = repository.create(name=u"Test Project2", build_script=u"make build", scm_repository="git_repo2")
-        project3 = repository.create(name=u"Test Project3", build_script=u"make acceptance", scm_repository="git_repo3")
+        project = self.create_project(name=u"Test Project")
+        project2 = self.create_project(name=u"Test Project2")
+        project3 = self.create_project(name=u"Test Project3")
 
         projects = repository.get_all()
         
@@ -93,9 +93,9 @@ class TestProjectRepository(BaseFunctionalTest):
 
     def test_get_all_projects_as_dictionary(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo1")
-        project2 = repository.create(name=u"Test Project2", build_script=u"make build", scm_repository="git_repo2")
-        project3 = repository.create(name=u"Test Project3", build_script=u"make acceptance", scm_repository="git_repo3")
+        project = self.create_project(name=u"Test Project")
+        project2 = self.create_project(name=u"Test Project2")
+        project3 = self.create_project(name=u"Test Project3")
 
         projects = repository.get_all_as_dictionary()
         
@@ -116,7 +116,8 @@ class TestProjectRepository(BaseFunctionalTest):
         
     def test_delete_project(self):
         repository = ProjectRepository()
-        project = repository.create(name=u"Test Project", build_script=u"make test", scm_repository="git_repo1")
+        project = self.create_project(name=u"Test Project")
+        
         repository.delete(project.id)
         
         projects = repository.get_all()

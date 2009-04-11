@@ -13,7 +13,9 @@ from skink.imports import *
 from skink.models import *
 from skink.controllers import IndexController, ProjectController, PipelineController
 from skink.context import SkinkContext
+from skink.repositories import ProjectRepository
 from skink.services import BuildService
+from skink.services.scm import GitRepository
 
 class Server(object):
     @classmethod
@@ -45,6 +47,10 @@ class Server(object):
             for i in range(ctx.worker_processes):
                 builder = Builder(BuildService())
                 builder.start()
+            
+            build_path = join(root_path, SkinkContext.current().build_path)
+            monitor = Monitor(ProjectRepository(), GitRepository(build_path))
+            monitor.start()
 
             cherrypy.config.update({
                     'server.socket_host': ctx.host,
@@ -85,13 +91,41 @@ class Builder(object):
     def process_build_queue(self):
         try:
             ctx = SkinkContext.current()
-            global build_thread_id
-            build_thread_id = os.getpid()
             while(ctx.keep_polling):
                 if ctx.build_queue:
                     item = ctx.build_queue.pop()
                     self.build_service.build_project(item)
                 time.sleep(1)
+        except:
+            time.sleep(5)
+            self.start()
+            raise
+
+class Monitor(object):
+    def __init__(self, project_repository, scm):
+        self.project_repository = project_repository
+        self.scm = scm
+        
+    def start(self):
+        thread.start_new_thread(self.process_monitored_projects, tuple([]))
+
+    def process_monitored_projects(self):
+        try:
+            ctx = SkinkContext.current()
+
+            while(ctx.keep_polling):
+                monitored_projects = self.project_repository.get_projects_to_monitor()
+                if not monitored_projects:
+                    print "No projects found for monitoring..."
+                for project in monitored_projects:
+                    print "Polling %s..." % project.name
+                    if self.scm.does_project_need_update(project):
+                        print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
+                        ctx.build_queue.append(project.id)
+                    else:
+                        print "Project %s is already up-to-date" % project.name
+                    time.sleep(0.5)
+                time.sleep(ctx.polling_interval)
         except:
             time.sleep(5)
             self.start()

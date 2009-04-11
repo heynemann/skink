@@ -23,5 +23,6 @@ class SkinkContext:
             cls.instance.worker_processes = int(config.get("General", "worker_processes"))
             cls.instance.keep_polling = True
             cls.instance.build_queue = Queue.deque()
+            cls.instance.polling_interval = int(config.get("SCM", "polling_interval"))
         
         return cls.instance

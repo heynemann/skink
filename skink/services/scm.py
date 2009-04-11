@@ -3,6 +3,7 @@
 from os.path import join, exists
 from executers import ShellExecuter
 import re
+import shutil
 from datetime import datetime
 import time
 
@@ -34,6 +35,28 @@ class GitRepository(object):
         if not exists(path) or not exists(join(path, ".git")):
             return False
         return True
+    
+    def does_project_need_update(self, project):
+        executer = ShellExecuter()
+        project_name = self.fix_name(project.name)
+        repository_path = join(self.base_dir, project_name)
+        is_repo_created = self.is_repository_created(repository_path)
+        if not is_repo_created:
+            return True
+        
+        executer.execute("git remote update", repository_path)
+        result = executer.execute("git rev-parse origin master", repository_path)
+        commits = result.run_log.split()
+        return len(commits) != 2 or commits[0]!=commits[1]
+
+    def remove_repository(self, project):
+        project_name = self.fix_name(project.name)
+        repository_path = join(self.base_dir, project_name)
+        is_repo_created = self.is_repository_created(repository_path)
+        if not is_repo_created:
+            return None
+        
+        shutil.rmtree(repo_path)
 
     def fix_name(self, name):
         return name.strip().replace(" ", "")
@@ -47,6 +70,8 @@ class GitRepository(object):
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
         
+        if result.exit_code != 0:
+            raise ValueError("unable to determine last commit. Error: %s" % result.run_log)
         commit_number, author_name, author_email, author_date, committer_name, committer_email, committer_date, subject = result.run_log.split("||")
         
         author_date = self.convert_to_date(author_date)
