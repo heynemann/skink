@@ -33,3 +33,4 @@ So that I can see what happened in that build
 3) Files as artifacts
 4) GET route for /project/1/build/last (for last build)
 5) GET route for /project/1/build/last|id/files - Returns a zip file containing the files added to the build
+6) Auto-monitoring of projects in git (DONE)
