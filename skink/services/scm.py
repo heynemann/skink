@@ -66,7 +66,7 @@ class GitRepository(object):
         author = None
         committer = None
         
-        command = "git log | egrep '^commit' | sed 's/commit //g' | sed -n 1p | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
+        command = "git rev-parse master | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
         
