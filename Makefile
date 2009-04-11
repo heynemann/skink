@@ -18,7 +18,7 @@ functional_log_file=${build_dir}/functional.log
 acceptance_log_file=${build_dir}/acceptance.log
 nocoverage=false
 
-.PHONY: help all compile test unit func acceptance run
+.PHONY: help all compile test run_unit run_functional run_acceptance run
 
 help:
 	@echo
@@ -30,9 +30,9 @@ help:
 	@echo "    all              compiles the code and runs all tests"
 	@echo "    compile          compiles the python code"
 	@echo "    test             runs all tests (unit, functional and acceptance)"
-	@echo "    unit             runs all unit tests"
-	@echo "    func             runs all functional tests"
-	@echo "    acceptance       runs all acceptance tests"
+	@echo "    run_unit         runs all unit tests"
+	@echo "    run_functional   runs all functional tests"
+	@echo "    run_acceptance   runs all acceptance tests"
 	@echo "    run              runs the skink server"
 	@echo
 	@echo "    to run the tests with no coverage add nocoverage to the make script"
@@ -46,6 +46,10 @@ prepare_build: clean create_build_dir
 test: unit func acceptance
 
 all: prepare_build compile test report_success
+
+run_unit: prepare_build compile unit report_success
+run_functional: prepare_build compile func report_success
+run_acceptance: prepare_build compile acceptance report_success
 
 clean: remove_build_dir
 

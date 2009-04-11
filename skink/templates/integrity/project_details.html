@@ -6,13 +6,14 @@
     <?python from genshi import HTML ?>
     <head>
         <title>Home</title>
+        <script type="text/javascript" language="javascript" src="/media/integrity/script/project_details.js"></script>
     </head>
     <body>
         <span class="breadcrumb" style="display:none;">
             / <a href="${url('/project/' + str(project.id))}">${project.name}</a>
         </span>
         <div id='administrative'>
-            <a href='/project/${project.id}/edit'>Edit Project</a>
+            <a href='/project/${project.id}/edit'>Edit Project</a> | <a id="delete_project" href='/project/${project.id}/delete'>Delete Project</a>
         </div>
           
         <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.builds">

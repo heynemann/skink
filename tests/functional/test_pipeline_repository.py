@@ -100,5 +100,22 @@ class TestPipelineRepository(BaseFunctionalTest):
         pipelines = repository.get_all()
         self.assertEqual(len(pipelines), 0)
         
+    def test_get_all_pipelines_for_project(self):
+        project_repository = ProjectRepository()
+
+        projecta = project_repository.create(name=u"ProjectA", build_script=u"make test", scm_repository="git_repo")
+        projectb = project_repository.create(name=u"ProjectB", build_script=u"make test", scm_repository="git_repo")
+        projectc = project_repository.create(name=u"ProjectC", build_script=u"make test", scm_repository="git_repo")
+
+        repository = PipelineRepository()
+        created_pipeline = repository.create(name=u"Test Pipeline", pipeline_definition="ProjectA > ProjectB")
+        created_pipeline2 = repository.create(name=u"Test Pipeline 2", pipeline_definition="ProjectB > ProjectA > ProjectC")
+        
+        pipelines = repository.get_all_pipelines_for(projectc)
+        
+        self.assertEqual(len(pipelines), 1)
+        self.assertEqual(pipelines[0].name, u"Test Pipeline 2")
+        self.assertEqual(len(pipelines[0].items), 3)
+        
 if __name__ == '__main__':
     unittest.main()

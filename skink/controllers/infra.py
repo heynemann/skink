@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 import sys
+import os
+import time
+import thread
+
 from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
@@ -9,6 +13,7 @@ from skink.imports import *
 from skink.models import *
 from skink.controllers import IndexController, ProjectController, PipelineController
 from skink.context import SkinkContext
+from skink.services import BuildService
 
 class Server(object):
     @classmethod
@@ -33,33 +38,64 @@ class Server(object):
 
     @classmethod
     def start(cls):
-        Db.verify_and_create()
+        try:
+            ctx = SkinkContext.current()
+            Db.verify_and_create()
+            
+            for i in range(ctx.worker_processes):
+                builder = Builder(BuildService())
+                builder.start()
 
-        cherrypy.config.update({
-            'server.socket_host':SkinkContext.current().host,
-            'server.socket_port': SkinkContext.current().port,
-            'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
-            'tools.decode.on': True,
-            'tools.trailing_slash.on': True,
-            'tools.staticdir.root': join(root_path, "skink/")
-            })
+            cherrypy.config.update({
+                    'server.socket_host': ctx.host,
+                    'server.socket_port': ctx.port,
+                    'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
+                    'tools.decode.on': True,
+                    'tools.trailing_slash.on': True,
+                    'tools.staticdir.root': join(root_path, "skink/")
+                })
 
-        conf = {
-            '/': {
-                'request.dispatch': cls.__setup_routes(),
-            },
-            '/media': {
-                'tools.staticdir.on': True,
-                'tools.staticdir.dir': 'media'
+            conf = {
+                '/': {
+                    'request.dispatch': cls.__setup_routes(),
+                },
+                '/media': {
+                    'tools.staticdir.on': True,
+                    'tools.staticdir.dir': 'media'
+                }
             }
-        }
 
-        app = cherrypy.tree.mount(None, config=conf)
-        cherrypy.quickstart(app)
-
+            app = cherrypy.tree.mount(None, config=conf)
+            cherrypy.quickstart(app)
+        finally:
+            SkinkContext.current().keep_polling = False
+            
     @classmethod
     def stop(self):
         cherrypy.engine.stop()
+        SkinkContext.current().keep_polling = False
+
+class Builder(object):
+    def __init__(self, build_service):
+        self.build_service = build_service
+        
+    def start(self):
+        thread.start_new_thread(self.process_build_queue, tuple([]))
+
+    def process_build_queue(self):
+        try:
+            ctx = SkinkContext.current()
+            global build_thread_id
+            build_thread_id = os.getpid()
+            while(ctx.keep_polling):
+                if ctx.build_queue:
+                    item = ctx.build_queue.pop()
+                    self.build_service.build_project(item)
+                time.sleep(1)
+        except:
+            time.sleep(5)
+            self.start()
+            raise
 
 class Db(object):
     @classmethod

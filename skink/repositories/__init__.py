@@ -46,11 +46,17 @@ class ProjectRepository(object):
             raise        
     def delete(self, project_id):
         try:
-            elixir.session.delete(self.get(project_id))
+            pipeline_repository = PipelineRepository()
+            project = self.get(project_id)
+            pipelines = pipeline_repository.get_all_pipelines_for(project)
+            for pipeline in pipelines:
+                pipeline_repository.delete_pipeline(pipeline)
+            elixir.session.delete(project)
             elixir.session.commit()
         except:
             elixir.session.rollback()
-            raise        
+            raise
+
 class PipelineRepository(object):
     def create(self, name, pipeline_definition):
         try:
@@ -86,18 +92,24 @@ class PipelineRepository(object):
             pipeline_item.delete()
     
     def delete(self, pipeline_id):
+        pipeline = self.get(pipeline_id)
+        self.delete_pipeline(pipeline)
+
+    def delete_pipeline(self, pipeline):
         try:
-            pipeline = self.get(pipeline_id)
             self.__clear_pipeline_items(pipeline)
             pipeline.delete()
             elixir.session.commit()
         except:
             elixir.session.rollback()
             raise
-        
+
     def get(self, pipeline_id):
         return Pipeline.query.filter_by(id=pipeline_id).one()
         
     def get_all(self):
         return Pipeline.query.all()
+        
+    def get_all_pipelines_for(self, project):
+        return Pipeline.query.filter(Pipeline.items.any(project=project)).all()
         

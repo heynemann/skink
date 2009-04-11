@@ -5,6 +5,7 @@ from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
+from skink.context import SkinkContext
 from skink.imports import *
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services import BuildService
@@ -42,7 +43,8 @@ class ProjectController(object):
         raise cherrypy.HTTPRedirect('/')
     
     def build(self, project_id):
-        self.build_service.build_project(project_id)
+        print "Adding project %s to the queue" % project_id
+        SkinkContext.current().build_queue.append(project_id)
         raise cherrypy.HTTPRedirect('/project/%s' % project_id)
 
     @template.output("project_details.html")

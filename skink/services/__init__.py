@@ -6,31 +6,37 @@ from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
+from skink.imports import *
 from skink.models import Build
-from skink.repositories import ProjectRepository
+from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services.scm import GitRepository, ScmResult
 from skink.services.executers import ShellExecuter
 from skink.context import SkinkContext
 
 class BuildService(object):
-    Success = "SUCCESS"
-    Failure = "FAILURE"
+    Success = u"SUCCESS"
+    Failure = u"FAILURE"
     
-    def __init__(self, repository=None, scm=None, executer=None, base_path=join(root_path, SkinkContext.current().build_path)):
+    def __init__(self, repository=None, pipeline_repository=None, scm=None, executer=None, flush_action=None, base_path=join(root_path, SkinkContext.current().build_path)):
+        self.repository = repository
         if not repository:
             self.repository = ProjectRepository()
-        else:
-            self.repository = repository
-            
+
+        self.pipeline_repository = pipeline_repository
+        if not pipeline_repository:
+            self.pipeline_repository = PipelineRepository()
+
+        self.scm = scm
         if not scm:
             self.scm = GitRepository(base_path)
-        else:
-            self.scm = scm
-            
+
+        self.executer = executer
         if not executer:
-            self.executer = ShellExecuter()
-        else:
-            self.executer = executer
+            self.executer = ShellExecuter()    
+
+        self.flush_action = flush_action
+        if not flush_action:
+            self.flush_action = elixir.session.flush
         
         self.base_path = base_path
 
@@ -68,13 +74,26 @@ class BuildService(object):
         build.number = last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
-        build.commit_number = scm_creation_result.last_commit["commit_number"]
-        build.commit_author = scm_creation_result.last_commit["author"]
-        build.commit_committer = scm_creation_result.last_commit["committer"]
+        build.commit_number = unicode(scm_creation_result.last_commit["commit_number"])
+        build.commit_author = unicode(scm_creation_result.last_commit["author"])
+        build.commit_committer = unicode(scm_creation_result.last_commit["committer"])
         build.commit_author_date = scm_creation_result.last_commit["author_date"]
         build.commit_committer_date = scm_creation_result.last_commit["committer_date"]
-        build.commit_text = scm_creation_result.last_commit["subject"]
+        build.commit_text = unicode(scm_creation_result.last_commit["subject"])
         
         self.repository.update(project)
         
+        if (build.status == BuildService.Success):
+            self.process_pipelines_for(project)
+            
+        self.flush_action()
+        
         return build
+    def process_pipelines_for(self, project):
+        pipelines = self.pipeline_repository.get_all_pipelines_for(project)
+        for pipeline in pipelines:
+            for i in range(len(pipeline.items)):
+                if i < len(pipeline.items) - 1:
+                    if pipeline.items[i].project.id == project.id:
+                        print "Adding project %d to the queue because it's in the same pipeline as project %s" % (pipeline.items[i+1].project.id, pipeline.items[i].project.name)
+                        SkinkContext.current().build_queue.append(pipeline.items[i+1].project.id)

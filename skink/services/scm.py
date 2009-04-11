@@ -24,11 +24,11 @@ class GitRepository(object):
                     raise ValueError("Could not create folder %s" % self.base_dir)
             result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
             last_commit = self.get_last_commit(repository_path)
-            return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path, last_commit)
+            return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path, last_commit, result.run_log)
         else:
             result = executer.execute("git pull", repository_path)
             last_commit = self.get_last_commit(repository_path)
-            return ScmResult(result.exit_code == 0 and ScmResult.Updated or ScmResult.Failed, repository_path, last_commit)
+            return ScmResult(result.exit_code == 0 and ScmResult.Updated or ScmResult.Failed, repository_path, last_commit, result.run_log)
 
     def is_repository_created(self, path):
         if not exists(path) or not exists(join(path, ".git")):
@@ -46,14 +46,6 @@ class GitRepository(object):
         command = "git log | egrep '^commit' | sed 's/commit //g' | sed -n 1p | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
-        
-        #regexp = re.compile("^commit ([\w\d]+\n)tree ([\w\d]+\n)parent ([\w\d]+\n)author ([\w\d\s<@.]+>).+\ncommitter ([\w\d\s<@.]+>).+\n([^$]+)")
-        #data = regexp.match(result.run_log)
-        #groups = data.groups()
-        #commit_number = groups[0]
-        #author = groups[3]
-        #committer = groups[4]
-        #text = groups[5]
         
         commit_number, author_name, author_email, author_date, committer_name, committer_email, committer_date, subject = result.run_log.split("||")
         
@@ -76,12 +68,13 @@ class GitRepository(object):
         return now
 
 class ScmResult(object):
-    Created = "CREATED"
-    Updated = "UPDATED"
-    Failed = "FAILED"
+    Created = u"CREATED"
+    Updated = u"UPDATED"
+    Failed = u"FAILED"
     
-    def __init__(self, status, repository_path, last_commit):
+    def __init__(self, status, repository_path, last_commit, log):
         self.status = status
         self.repository_path = repository_path
         self.last_commit = last_commit
+        self.log = log
 
