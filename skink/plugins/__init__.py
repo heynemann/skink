@@ -8,8 +8,12 @@ root_path = abspath(join(dirname(__file__), "../"))
 sys.path.insert(0, root_path)
 
 class Plugin (object):
-    def __init__(self):
+    def __init__(self, configuration = None):
+        if configuration:
+            self.configuration = configuration
+
         self.configuration = {}
+        
         if hasattr(self, "ignore_configuration"):
             if getattr(self, "ignore_configuration"):
                 return;
