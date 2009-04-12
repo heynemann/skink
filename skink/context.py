@@ -41,6 +41,7 @@ class SkinkContext:
             IoC.reset()
             config = InPlaceConfig()
             
+            config.register("configuration", None)
             config.register_files("plugins", join(root_path, "skink", cls.instance.plugin_path), "*_plugin.py")
             
             IoC.configure(config)
