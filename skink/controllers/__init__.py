@@ -10,21 +10,70 @@ from skink.imports import *
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services import BuildService
 from skink.errors import *
+from skink.controllers.filters import authenticated
 import template
 
-class ProjectController(object):
+class BaseController(object):
+    def authenticated(self):
+        return cherrypy.session.get('authenticated')
+
+class IndexController(BaseController):
+    @template.output("index.html")
+    def index(self):
+        repository = ProjectRepository()
+        projects = repository.get_all()
+        return template.render(authenticated=self.authenticated(), projects=projects)
+
+    @template.output("login.html")
+    def login(self, cancel=False, **data):
+        return self.do_login(cancel, data)
+
+    @template.output("login.html")
+    def login_error(self, cancel=False, **data):
+        data["login_error"] = "In order to do that you need to login. Please perform login below."
+        return self.do_login(cancel, data)
+        
+    def do_login(self, cancel, data):
+        if cherrypy.request.method == 'POST':
+            ctx = SkinkContext.current()
+            if cancel:
+                raise cherrypy.HTTPRedirect('/')
+            
+            username = data["username"]
+            password = data["password"]
+
+            if username != ctx.username or password != ctx.password:
+                return template.render(Errors=["Invalid username or password!"])        
+            
+            cherrypy.session['authenticated'] = True
+            
+            raise cherrypy.HTTPRedirect('/')
+
+        errors = []
+        if data.has_key("login_error"):
+            errors.append(data["login_error"])
+            
+        return template.render(authenticated=self.authenticated(), errors=errors)
+
+    def logoff(self):
+        cherrypy.session['authenticated'] = False
+        raise cherrypy.HTTPRedirect('/')
+
+class ProjectController(BaseController):
     def __init__(self):
         self.repository = ProjectRepository()
         self.build_service = BuildService()
         
+    @authenticated()
     @template.output("create_project.html")
     def new(self):
-        return template.render(project=None)
+        return template.render(authenticated=self.authenticated(), project=None)
 
+    @authenticated()
     @template.output("create_project.html")
     def edit(self, project_id):
         project = self.repository.get(project_id)
-        return template.render(project=project)
+        return template.render(authenticated=self.authenticated(), project=project)
 
     def __process_tabs_for(self, data):
         tabs = None
@@ -34,6 +83,7 @@ class ProjectController(object):
             tabs = dict(zip(tab_names, tab_commands))
         return tabs
 
+    @authenticated()
     def create(self, name, build_script, scm_repository, monitor_changes=None, **data):
         project = self.repository.create(
                                 name=name, 
@@ -43,6 +93,7 @@ class ProjectController(object):
                                 tabs=self.__process_tabs_for(data))
         raise cherrypy.HTTPRedirect('/')
 
+    @authenticated()
     def update(self, project_id, name, build_script, scm_repository, monitor_changes=None, **data):
         project = self.repository.get(project_id)
         project.name = name
@@ -52,17 +103,19 @@ class ProjectController(object):
         self.repository.update(project, self.__process_tabs_for(data))
         raise cherrypy.HTTPRedirect('/')
 
+    @authenticated()
     def delete(self, project_id):
         project = self.repository.get(project_id)
         self.repository.delete(project_id)
         self.build_service.delete_scm_repository(project)
         raise cherrypy.HTTPRedirect('/')
     
+    @authenticated()
     def build(self, project_id):
         print "Adding project %s to the queue" % project_id
         SkinkContext.current().build_queue.append(project_id)
         raise cherrypy.HTTPRedirect('/project/%s' % project_id)
-
+            
     def build_status(self, **data):
         ctx = SkinkContext.current()
         projects = self.repository.get_all()
@@ -93,24 +146,18 @@ class ProjectController(object):
         build_log = ""
         if build and build.log:
             build_log = highlight(build.log, BashLexer(), HtmlFormatter())
-        return template.render(project=project, current_build=build, build_log=build_log)
-
-class IndexController(object):
-    @template.output("index.html")
-    def index(self):
-        repository = ProjectRepository()
-        projects = repository.get_all()
-        return template.render(projects=projects)
+        return template.render(authenticated=self.authenticated(), project=project, current_build=build, build_log=build_log)
         
-class PipelineController(object):
+class PipelineController(BaseController):
     def __init__(self):
         self.repository = PipelineRepository()
         
     @template.output("pipeline_index.html")
     def index(self):
         pipelines = self.repository.get_all()
-        return template.render(pipeline=None, pipelines=pipelines, errors=None)
+        return template.render(authenticated=self.authenticated(), pipeline=None, pipelines=pipelines, errors=None)
     
+    @authenticated()
     @template.output("pipeline_index.html") 
     def create(self, name, pipeline_definition):
         pipelines = self.repository.get_all()
@@ -118,14 +165,16 @@ class PipelineController(object):
             self.repository.create(name, pipeline_definition)
             raise cherrypy.HTTPRedirect('/pipeline')
         except (ProjectNotFoundError, CyclicalPipelineError), err:
-            return template.render(pipelines=pipelines, pipeline=None, errors=[err.message,]) | HTMLFormFiller(data=locals())
+            return template.render(authenticated=self.authenticated(), pipelines=pipelines, pipeline=None, errors=[err.message,]) | HTMLFormFiller(data=locals())
 
+    @authenticated()
     @template.output("pipeline_index.html")
     def edit(self, pipeline_id):
         pipelines = self.repository.get_all()
         pipeline = self.repository.get(pipeline_id)
-        return template.render(pipeline=pipeline, pipelines=pipelines, errors=None)
+        return template.render(authenticated=self.authenticated(), pipeline=pipeline, pipelines=pipelines, errors=None)
 
+    @authenticated()
     @template.output("pipeline_index.html") 
     def update(self, pipeline_id, name, pipeline_definition):
         pipelines = self.repository.get_all()
@@ -134,8 +183,9 @@ class PipelineController(object):
             self.repository.update(pipeline.id, name, pipeline_definition)
             raise cherrypy.HTTPRedirect('/pipeline')
         except (ProjectNotFoundError, CyclicalPipelineError), err:
-            return template.render(pipelines=pipelines, pipeline=pipeline, errors=[err.message,]) | HTMLFormFiller(data=locals())
+            return template.render(authenticated=self.authenticated(), pipelines=pipelines, pipeline=pipeline, errors=[err.message,]) | HTMLFormFiller(data=locals())
     
+    @authenticated()
     def delete(self, pipeline_id):
         self.repository.delete(pipeline_id)
         raise cherrypy.HTTPRedirect('/pipeline')

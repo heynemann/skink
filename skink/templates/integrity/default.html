@@ -38,11 +38,17 @@
             </div>
 
             <div id="footer">
-              Hey there!
-              <a class="integrity_link" href="http://builder.integrityapp.com/login">Log In</a>
-              if you have a user
-              <br /><br />
-              Template based on the <a class="integrity_link" href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.
+                <py:if test="not authenticated">
+                    Hey there!
+                    <a class="integrity_link" href="${url('/login')}">Log In</a>
+                    if you have a user
+                </py:if>
+                <py:if test="authenticated">
+                    Thanks for authenticating.
+                    <a class="integrity_link" href="${url('/logoff')}">Log Off</a> if you don't need to change anything else.
+                </py:if>
+                <br /><br />
+                Template based on the <a class="integrity_link" href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.
             </div>
         </body>
     </py:match>
