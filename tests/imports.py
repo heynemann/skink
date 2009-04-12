@@ -11,3 +11,5 @@ sys.path.insert(0, lib_path)
 
 #mox - For mock unit tests
 from mox.mox import *
+from hamcrest import *
+

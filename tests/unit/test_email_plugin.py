@@ -9,6 +9,7 @@ sys.path.insert(0, root_path)
 from tests.base.base_unit_test import BaseUnitTest
 from skink.plugins import BasePlugin
 from skink.plugins.email_plugin import EmailPlugin
+from hamcrest import *
 
 def TestEmailPlugin(BaseUnitTest):
     pass

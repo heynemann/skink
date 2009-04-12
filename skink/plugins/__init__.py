@@ -29,3 +29,10 @@ class BasePlugin (object):
 
     def OnBuildFailed(self, project, build):
         pass
+        
+class Guard (object):
+
+    def against_empty(obj, error_message=None):
+        if not error_message:
+            error_message = 'None receive when some value was expected.'
+        raise ValueError(error_message)
