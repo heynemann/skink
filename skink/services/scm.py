@@ -56,7 +56,7 @@ class GitRepository(object):
         if not is_repo_created:
             return None
         
-        shutil.rmtree(repo_path)
+        shutil.rmtree(repository_path)
 
     def fix_name(self, name):
         return name.strip().replace(" ", "")
