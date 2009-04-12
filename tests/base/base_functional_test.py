@@ -13,9 +13,13 @@ from skink.models import *
 from skink.repositories import ProjectRepository
 
 class BaseFunctionalTest(TestCase):
-    def create_project(self, name="ProjectA", build_script=u"make test", scm_repository="git_repo", monitor_changes=True):
+    def create_project(self, name="ProjectA", build_script=u"make test", scm_repository="git_repo", monitor_changes=True, tabs=None):
         self.project_repository = ProjectRepository()
-        return self.project_repository.create(name=name, build_script=build_script, scm_repository=scm_repository, monitor_changes=monitor_changes)
+        return self.project_repository.create(name=name, 
+                                              build_script=build_script, 
+                                              scm_repository=scm_repository, 
+                                              monitor_changes=monitor_changes, 
+                                              tabs=tabs)
         
     def setUp(self):
         metadata.bind = 'sqlite:///:memory:'

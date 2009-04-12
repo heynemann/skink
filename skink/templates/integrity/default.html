@@ -5,9 +5,10 @@
             <title py:with="title = list(select('title/text()'))">
                 Skink<py:if test="title"> - ${title}</py:if>
             </title>
-            <link rel="stylesheet" href="${url('/media/integrity/css/integrity.css')}" type="text/css" title="default css" charset="utf-8" />
-            <link rel="stylesheet" href="${url('/media/integrity/css/buttons.css')}" type="text/css" title="default css" charset="utf-8" />
-            <link rel="stylesheet" href="${url('/media/integrity/css/reset.css')}" type="text/css" title="default css" charset="utf-8" />
+            <link rel="stylesheet" href="${url('/media/integrity/css/integrity.css')}" type="text/css" />
+            <link rel="stylesheet" href="${url('/media/integrity/css/buttons.css')}" type="text/css" />
+            <link rel="stylesheet" href="${url('/media/integrity/css/reset.css')}" type="text/css" />
+            <link rel="stylesheet" href="${url('/media/common/script/lib/css/smoothness/jquery-ui-1.7.1.custom.css')}" type="text/css" />
             <script src="${url('/media/common/script/lib/jquery-min.js')}"></script>
             <script src="${url('/media/common/script/lib/jquery-ui.min.js')}"></script>
           ${select('*[local-name()!="title"]')}
@@ -19,16 +20,16 @@
             <div id="header">
                 <span class="breadcrumb">
                     <h1>
-                    <a href="/">projects</a> 
+                    <a class="integrity_link" href="/">projects</a> 
                     ${select("//span[contains(@class,'breadcrumb')]/text()")}
                     ${select("//span[contains(@class,'breadcrumb')]/*")}
                     |
-                    <a href="/pipeline">pipelines</a>
+                    <a class="integrity_link" href="/pipeline">pipelines</a>
                     </h1>
                 </span>
                 <address class="watermark">
                     built with
-                    <a href="http://skinkci.org/" title="Skinkize your project now!">skink ci</a>
+                    <a class="integrity_link" href="http://skinkci.org/" title="Skinkize your project now!">skink ci</a>
                 </address>
             </div>
             <div id="content">
@@ -37,10 +38,10 @@
 
             <div id="footer">
               Hey there!
-              <a href="http://builder.integrityapp.com/login">Log In</a>
+              <a class="integrity_link" href="http://builder.integrityapp.com/login">Log In</a>
               if you have a user
               <br /><br />
-              Template based on the <a href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.
+              Template based on the <a class="integrity_link" href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.
             </div>
         </body>
     </py:match>

@@ -31,10 +31,10 @@
             <p>
                 <ul>
                     <li py:for="pipeline in pipelines">
-                        <a href="/pipeline/${pipeline.id}">
+                        <a class="integrity_link" href="/pipeline/${pipeline.id}">
                             <b>[${pipeline.name}]</b> ${pipeline} 
                         </a>
-                        <a href="/pipeline/${pipeline.id}/delete" class="delete_pipeline">
+                        <a href="/pipeline/${pipeline.id}/delete" class="delete_pipeline integrity_link">
                             <img border="0" align="absMiddle" 
                                             src="${url('/media/integrity/images/delete.png')}" 
                                             alt="Delete this Pipeline" 

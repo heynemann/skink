@@ -5,7 +5,7 @@
     <xi:include href="default.html" />
     <head>
         <title>Home</title>
-        <script src="${url('/media/script/create_project.js')}"></script>
+        <script src="${url('/media/integrity/script/create_project.js')}"></script>
     </head>
     <body class="index">
         <form action="${project and '/project/%s/update' % project.id or 'create'}" method='post'>
@@ -35,8 +35,49 @@
                         <input class='text' name="monitor_changes" checked="${project.monitor_changes and 'true' or ''}" value="MONITOR" id="monitor_changes" type='checkbox' /> Should monitor for changes?
                     </py:if>
                 </label>
-                
             </p>
+
+            <p class='required'>
+                <h3>
+                    Additional Tabs
+                </h3>
+                <a class="integrity_link" href="javascript:" id="lnkAddTab">Add new tab</a>
+                <div style="display:none;" id="additional_tab_template">
+                    <label for='additional_tab_name'>
+                        Tab Name:
+                    </label>
+                    <input class='text' name="additional_tab_name" value="" id="additional_tab_name" type='text' /><br />
+                    <label for='additional_tab_command'>
+                        Tab Command:
+                    </label>
+                    <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' /><br /><br />
+                </div>
+                <div id="additional_tabs">
+                    <py:if test="not project">
+                        <label for='additional_tab_name'>
+                            Tab Name:
+                        </label>
+                        <input class='text' name="additional_tab_name" value="" id="additional_tab_name" type='text' /><br />
+                        <label for='additional_tab_command'>
+                            Tab Command:
+                        </label>
+                        <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' />
+                    </py:if>
+                    <py:if test="project">
+                        <div class="additional_tab" py:for="tab in project.tabs">
+                            <label for='additional_tab_name'>
+                                Tab Name:
+                            </label>
+                            <input class='text' name="additional_tab_name" value="${tab.name}" id="additional_tab_name" type='text' /><br />
+                            <label for='additional_tab_command'>
+                                Tab Command:
+                            </label>
+                            <input class='text' name="additional_tab_command" value="${tab.command}" id="additional_tab_command" type='text' /><br /><br />
+                        </div>
+                    </py:if>
+                </div>
+            </p>
+
 
             <p class='submit'>
                 <button class='positive' type='submit'>${project and 'Update' or 'Create'} Project</button>

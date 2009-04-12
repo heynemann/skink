@@ -14,6 +14,7 @@ class Project(Entity):
     build_script = Field(Unicode(2000))
     scm_repository = Field(Unicode(1500))
     builds = OneToMany('Build', order_by="-date")
+    tabs = OneToMany('ProjectTab', order_by="name")
     pipeline_items = OneToMany('PipelineItem')
     monitor_changes = Field(Boolean)
     using_options(tablename="projects")
@@ -43,6 +44,12 @@ class Project(Entity):
 
         return "NONE"
 
+class ProjectTab(Entity):
+    name = Field(Unicode(255))
+    command = Field(Unicode(2000))
+    project = ManyToOne('Project')
+    using_options(tablename="project_tabs")
+
 class Build(Entity):
     number = Field(Integer)
     date = Field(DateTime)
@@ -56,11 +63,19 @@ class Build(Entity):
     commit_author_date = Field(DateTime)
     commit_committer_date = Field(DateTime)
     project = ManyToOne('Project')
+    tabs = OneToMany('BuildTab', order_by="name")
     using_options(tablename="builds")
 
     def html_commit_text(self):
         return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""
-        
+
+class BuildTab(Entity):
+    name = Field(Unicode(255))
+    command = Field(Unicode(2000))
+    build = ManyToOne('Build')
+    log = Field(Unicode(4000))
+    using_options(tablename="build_tabs")
+
 class Pipeline(Entity):
     name = Field(Unicode(100))
     items = OneToMany('PipelineItem')

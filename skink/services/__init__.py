@@ -7,7 +7,7 @@ root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 from skink.imports import *
-from skink.models import Build
+from skink.models import Build, BuildTab
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services.scm import GitRepository, ScmResult
 from skink.services.executers import ShellExecuter
@@ -72,9 +72,14 @@ class BuildService(object):
             log.append("Exit Code: %s" % execute_result.exit_code)
             log.append("Run Log:")
             log.append(execute_result.run_log)
-            
+
             status = execute_result.exit_code == 0 and BuildService.Success or BuildService.Failure
-        
+
+        for command in project.tabs:
+            build_tab = BuildTab(name=command.name, command=command.command, build=build)
+            result = self.executer.execute(command.command, scm_creation_result.repository_path)
+            build_tab.log = result.run_log
+
         build.number = last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
@@ -85,7 +90,7 @@ class BuildService(object):
         build.commit_committer_date = scm_creation_result.last_commit["committer_date"]
         build.commit_text = unicode(scm_creation_result.last_commit["subject"])
         
-        self.repository.update(project)
+        self.repository.update(project, None)
         
         if (build.status == BuildService.Success):
             self.process_pipelines_for(project)

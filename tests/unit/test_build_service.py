@@ -24,12 +24,14 @@ class TestBuildService(BaseUnitTest):
         project.name = "Test Project"
         project.build_script = "make test"
         project.scm_repository = "git_repo"
+        project.tabs = []
 
         project2 = Project()
         project.id = 2
         project2.name = "Test Project 2"
         project2.build_script = "make test"
         project2.scm_repository = "git_repo"
+        project2.tabs = []
         
         execute_result = ExecuteResult(project.build_script, "Ran successfully", 0)
         scm_result = ScmResult(ScmResult.Created, "some/path/", 
@@ -57,7 +59,7 @@ class TestBuildService(BaseUnitTest):
         executer_mock = self.mock.CreateMock(ShellExecuter)
 
         repository_mock.get(1).AndReturn(project)
-        repository_mock.update(project)
+        repository_mock.update(project, None)
         scm_mock.create_or_update(project).AndReturn(scm_result)
         executer_mock.execute(project.build_script, "some/path/").AndReturn(execute_result)
         pipeline_repository_mock.get_all_pipelines_for(project).AndReturn((pipeline,))

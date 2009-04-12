@@ -6,14 +6,14 @@
     <?python from genshi import HTML ?>
     <head>
         <title>Home</title>
-        <script type="text/javascript" language="javascript" src="/media/integrity/script/project_details.js"></script>
+        <script type="text/javascript" language="javascript" src="${url('/media/integrity/script/project_details.js')}"></script>
     </head>
     <body>
         <span class="breadcrumb" style="display:none;">
-            / <a href="${url('/project/' + str(project.id))}">${project.name}</a>
+            / <a class="integrity_link" href="${url('/project/' + str(project.id))}">${project.name}</a>
         </span>
         <div id='administrative'>
-            <a href='/project/${project.id}/edit'>Edit Project</a> | <a id="delete_project" href='/project/${project.id}/delete'>Delete Project</a>
+            <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a>
         </div>
           
         <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.builds">
@@ -30,7 +30,20 @@
                 </blockquote>
 
                 <h2>Build Output:</h2>
-                <pre class='output'>${build.log}</pre>
+                <div id="current-build-tabs">
+                    <ul>
+                        <li><a href="#buildlog" style="font-size:12px;">Build Log</a></li>
+                        <li py:for="tab in build.tabs">
+                            <a href="#additional_tab_${tab.id}" style="font-size:12px;">${tab.name}</a>
+                        </li>
+                    </ul>
+                    <div id="buildlog">
+                        <pre class='output'>${build.log}</pre>
+                    </div>
+                    <div id="additional_tab_${tab.id}" py:for="tab in build.tabs">
+                        <pre class='output'>${tab.log}</pre>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -49,7 +62,7 @@
         <h2>Previous builds</h2>
         <ul id='previous_builds' py:if="project.builds">
             <li class="${build.status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
-                <a href="/project/${project.id}/builds/${build.id}">
+                <a class="integrity_link" href="/project/${project.id}/builds/${build.id}">
                     <strong class='build'>Build ${build.commit_number[:7]}</strong>
                     <span class='attribution'>by ${build.commit_committer}, on ${build.commit_committer_date.strftime("%b %d")}</span>
                 </a>

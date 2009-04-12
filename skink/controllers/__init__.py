@@ -26,21 +26,30 @@ class ProjectController(object):
         project = self.repository.get(project_id)
         return template.render(project=project)
 
-    def create(self, name, build_script, scm_repository, monitor_changes=None):
+    def __process_tabs_for(self, data):
+        tabs = None
+        if data.has_key("additional_tab_name"):
+            tab_names = [name for name in data["additional_tab_name"] if name != u'']
+            tab_commands = [command for command in data["additional_tab_command"] if command != u'']
+            tabs = dict(zip(tab_names, tab_commands))
+        return tabs
+
+    def create(self, name, build_script, scm_repository, monitor_changes=None, **data):
         project = self.repository.create(
                                 name=name, 
                                 build_script=build_script, 
                                 scm_repository=scm_repository, 
-                                monitor_changes=not monitor_changes is None)
+                                monitor_changes=not monitor_changes is None,
+                                tabs=self.__process_tabs_for(data))
         raise cherrypy.HTTPRedirect('/')
 
-    def update(self, project_id, name, build_script, scm_repository, monitor_changes=None):
+    def update(self, project_id, name, build_script, scm_repository, monitor_changes=None, **data):
         project = self.repository.get(project_id)
         project.name = name
         project.build_script = build_script
         project.scm_repository = scm_repository
         project.monitor_changes = not monitor_changes is None
-        self.repository.update(project)
+        self.repository.update(project, self.__process_tabs_for(data))
         raise cherrypy.HTTPRedirect('/')
 
     def delete(self, project_id):

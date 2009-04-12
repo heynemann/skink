@@ -8,14 +8,21 @@ sys.path.insert(0, root_path)
 
 from skink.imports import *
 
-from skink.models import Project, Pipeline, PipelineItem
+from skink.models import Project, ProjectTab, Pipeline, PipelineItem
 from skink.errors import ProjectNotFoundError
 
 class ProjectRepository(object):
-    def create(self, name, build_script, scm_repository, monitor_changes):
+    def create(self, name, build_script, scm_repository, monitor_changes, tabs):
         '''Creates a new project.'''
         try:
             project = Project(name=name, build_script=build_script, scm_repository=scm_repository, monitor_changes=monitor_changes)
+
+            if tabs:
+                for k,v in tabs.items():
+                    if k and v:
+                        tab = ProjectTab(name=k, command=v)
+                        tab.project = project
+
             elixir.session.commit()
         except:
             elixir.session.rollback()
@@ -39,15 +46,23 @@ class ProjectRepository(object):
         all_projects = self.get_all()
         dictionary = dict(zip([project.name.lower() for project in all_projects], all_projects))
         return dictionary
-    
-    def update(self, project):
+
+    def update(self, project, tabs):
         try:
             elixir.session.merge(project)
+            if tabs:
+                for tab in project.tabs:
+                    tab.delete()
+                for k,v in tabs.items():
+                    if k and v:
+                        tab = ProjectTab(name=k, command=v)
+                        tab.project = project
             elixir.session.commit()
             elixir.session.flush()
         except:
             elixir.session.rollback()
-            raise        
+            raise
+
     def delete(self, project_id):
         try:
             pipeline_repository = PipelineRepository()

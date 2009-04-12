@@ -41,7 +41,7 @@ class TestProjectRepository(BaseFunctionalTest):
         update.build_script = u"make build"
         update.scm_repository = u"new_repo"
         
-        repository.update(update)
+        repository.update(update, None)
 
         updated = repository.get(project_id=project.id)
         self.assertEqual(updated.id, project.id)

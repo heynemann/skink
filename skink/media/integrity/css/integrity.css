@@ -9,10 +9,10 @@ body {
   background-color: #e0e0e0;
 }
 
-a {
+a.integrity_link {
   color: #ed1556;
   text-decoration: none; }
-  a:hover {
+  a.integrity_link:hover {
     color: #ffffff;
     background-color: #ed1556; }
 
@@ -347,4 +347,8 @@ a.failed {
     background: red;
     color: white;
     position: relative;
+}
+
+.ui-tabs .ui-tabs-hide {
+     display: none;
 }
