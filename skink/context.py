@@ -47,6 +47,6 @@ class SkinkContext:
             IoC.configure(config)
             
             cls.instance.plugins = [plugin for plugin in IoC.resolve_all("plugins") if plugin.enabled]
-            import pdb;pdb.set_trace()
+            print "%d enabled plugins found: %s" % (len(cls.instance.plugins), ", ".join([klass.__class__.__name__ for klass in cls.instance.plugins]))
             
         return cls.instance

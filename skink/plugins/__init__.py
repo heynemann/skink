@@ -32,13 +32,14 @@ class Plugin (object):
             raise ValueError("You failed to specify a key in the configuration section for the plugin %s called 'enabled', that specifies whether or not this plugin is enabled." % self.__class__.__name__)
         
         self.configuration["enabled"] = config.get(self.section, "enabled").lower() == "true"
+        self.enabled = self.configuration["enabled"]
         
         for key in self.config_keys:
             if config.has_option(self.section, key):
-                print "%s key found with value %s" % (key, config.get(self.section, key))
+                #print "%s key found with value %s" % (key, config.get(self.section, key))
                 self.configuration[key] = config.get(self.section, key)
             else:
-                print "%s key not found" % (key,)
+                #print "%s key not found" % (key,)
                 self.configuration[key] = None
 
     def OnProjectCreated(self, project):
