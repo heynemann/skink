@@ -4,7 +4,7 @@
 import sys
 from ConfigParser import ConfigParser
 from os.path import dirname, abspath, join
-root_path = abspath(join(dirname(__file__), "../"))
+root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 class Plugin (object):
@@ -34,7 +34,10 @@ class Plugin (object):
         self.configuration["enabled"] = config.get(self.section, "enabled").lower() == "true"
         
         for key in self.config_keys:
-            self.configuration[key] = config.get(self.section, key)
+            if config.has_option(self.section, key):
+                self.configuration[key] = config.get(self.section, key)
+            else:
+                self.configuration[key] = None
 
     def OnProjectCreated(self, project):
         pass
@@ -64,8 +67,8 @@ class Plugin (object):
         pass
         
 class Guard (object):
-
-    def against_empty(obj, error_message=None):
+    @classmethod
+    def against_empty(cls, obj, error_message=None):
         if not error_message:
-            error_message = 'None receive when some value was expected.'
+            error_message = 'None received when some value was expected.'
         raise ValueError(error_message)
