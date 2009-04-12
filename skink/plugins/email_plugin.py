@@ -6,11 +6,11 @@ from skink.plugins import Plugin, Guard
 
 class EmailPlugin (Plugin):
     section = "EmailPlugin" 
-    config_keys = ("smtp_host", "smtp_user", "smtp_passwd")
+    config_keys = ("smtp_host", "smtp_user", "smtp_pass")
     
     def __init__(self, configuration=None):
         super(EmailPlugin, self).__init__(configuration)
         Guard.against_empty(self.configuration.get('smtp_host',None))
         Guard.against_empty(self.configuration.get('smtp_user',None))
-        Guard.against_empty(self.configuration.get('smtp_passwd',None))
+        Guard.against_empty(self.configuration.get('smtp_pass',None))
 
