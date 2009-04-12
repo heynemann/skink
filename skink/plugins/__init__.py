@@ -11,6 +11,7 @@ class Plugin (object):
     def __init__(self, configuration = None):
         if configuration:
             self.configuration = configuration
+            return
 
         self.configuration = {}
         
