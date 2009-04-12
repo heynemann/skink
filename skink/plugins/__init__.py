@@ -15,7 +15,7 @@ class Plugin (object):
                 return;
         
         if not hasattr(self, "section") or not hasattr(self,"config_keys"):
-            raise "The plugin %s failed to provide a section (using 'section' class attribute) and a configurations collection (using a tuple in 'config_keys' class attribute. If your plugin does not need any configurations please add a class attribute of ignore_configuration=True to your plugin class."
+            raise "The plugin %s failed to provide a section (using 'section' class attribute) and a configurations collection (using a tuple in 'config_keys' class attribute. If your plugin does not need any configurations please add a class attribute of ignore_configuration=True to your plugin class." % self.__class__.__name__
 
         config = ConfigParser()
         config.read(join(root_path, "config.ini"))
