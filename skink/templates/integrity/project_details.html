@@ -7,18 +7,21 @@
     <head>
         <title>Home</title>
         <script type="text/javascript" language="javascript" src="${url('/media/integrity/script/project_details.js')}"></script>
+        <script src="${url('/media/common/script/project_status.js')}"></script>
     </head>
     <body>
         <span class="breadcrumb" style="display:none;">
             / <a class="integrity_link" href="${url('/project/' + str(project.id))}">${project.name}</a>
         </span>
         <div id='administrative'>
-            <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a>
+            <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/${project.id}/build">Build Project</a>
         </div>
-          
         <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.builds">
             <div py:with="build = current_build">
-                <h1>Build ${build.commit_number[:7]} ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
+                <h1><img src="/media/common/images/accept.png" 
+                     class="project_status" 
+                     title="This project has been built." 
+                     id="build_status_${project.id}" align="absMiddle" />Build ${build.commit_number[:7]} ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
 
                 <blockquote>
                     <p>${HTML(build.commit_text)}</p>
@@ -49,7 +52,7 @@
         
         <div py:if="not project.builds">
             <br />
-            No builds happened so far.
+            <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />No builds happened so far.
         </div>
         
         <form action='/project/${project.id}/build' method='post'>

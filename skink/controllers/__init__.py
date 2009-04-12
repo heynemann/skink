@@ -63,6 +63,19 @@ class ProjectController(object):
         SkinkContext.current().build_queue.append(project_id)
         raise cherrypy.HTTPRedirect('/project/%s' % project_id)
 
+    def build_status(self, **data):
+        ctx = SkinkContext.current()
+        projects = self.repository.get_all()
+        projects_being_built = [int(project_id) for project_id in ctx.projects_being_built]
+        result = {}
+        for project in projects:
+            if project.id in projects_being_built:
+                result[project.id] = "BUILDING" 
+            else:
+                result[project.id] = (project.builds is not None and len(project.builds) > 0) and "BUILT" or "UNKNOWN"
+
+        return "\n".join(["%s=%s" % (k,v) for k,v in result.items()])
+
     @template.output("project_details.html")
     def details(self, project_id):
         return self.render_details(project_id)

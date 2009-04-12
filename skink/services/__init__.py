@@ -45,11 +45,14 @@ class BuildService(object):
         self.base_path = base_path
 
     def build_project(self, project_id):
+        ctx = SkinkContext.current()
+        
         log = ["Build started at %s" % datetime.now()]
 
         status = BuildService.Failure
         scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
+        ctx.projects_being_built.append(project_id)
         last_build_number = project.get_last_build_number()
 
         build = Build()
@@ -92,10 +95,12 @@ class BuildService(object):
         
         self.repository.update(project, None)
         
+        self.flush_action()
+        
+        ctx.projects_being_built.remove(project_id)
+
         if (build.status == BuildService.Success):
             self.process_pipelines_for(project)
-            
-        self.flush_action()
         
         return build
         

@@ -23,6 +23,12 @@ class SkinkContext:
             cls.instance.worker_processes = int(config.get("General", "worker_processes"))
             cls.instance.keep_polling = True
             cls.instance.build_queue = Queue.deque()
+            cls.instance.projects_being_built = Queue.deque()
             cls.instance.polling_interval = int(config.get("SCM", "polling_interval"))
-        
+            cls.instance.scm_verbose = config.get("SCM", "scm_verbose") == "True"
+            cls.instance.build_verbose = config.get("General", "build_verbose") == "True"
+            cls.instance.webserver_verbose = config.get("General", "webserver_verbose") == "True"
+            cls.instance.db_verbose = config.get("Database", "db_verbose") == "True"
+            cls.instance.db_connection = config.get("Database", "db_connection")
+            
         return cls.instance

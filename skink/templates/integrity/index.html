@@ -5,6 +5,7 @@
     <xi:include href="default.html" />
     <head>
         <title>Home</title>
+        <script src="${url('/media/common/script/project_status.js')}"></script>
     </head>
     <body>
         <ul id="projects" py:if="projects">
@@ -13,10 +14,13 @@
               <?python index = index + 1 ?>
               <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
               <div class="meta" py:if="project.builds">
-                Build ${project.builds[0].commit_number[:7]} ${project.builds[0].status == "SUCCESS" and "succeeded" or "failed"}
+                Build ${project.builds[0].commit_number[:7]} ${project.builds[0].status == "SUCCESS" and "succeeded" or "failed"} 
+                <img src="/media/common/images/${project.build_status=='BUILDING' and 'building.gif' or 'accept.png'}" 
+                     class="project_status" title="${project.build_status=='BUILDING' and 'Currently in the process of building...' or 'This project has been built.'}" 
+                     id="build_status_${project.id}" align="absMiddle" />
               </div>
               <div class="meta" py:if="not project.builds">
-                Never built
+                Never built <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
               </div>
             </li>
         </ul>

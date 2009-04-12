@@ -17,6 +17,7 @@ class Project(Entity):
     tabs = OneToMany('ProjectTab', order_by="name")
     pipeline_items = OneToMany('PipelineItem')
     monitor_changes = Field(Boolean)
+    build_status = Field(Unicode(15), default="UNKNOWN")
     using_options(tablename="projects")
             
     def get_build_by_id(self, build_id):

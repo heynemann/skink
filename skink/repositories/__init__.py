@@ -11,7 +11,14 @@ from skink.imports import *
 from skink.models import Project, ProjectTab, Pipeline, PipelineItem
 from skink.errors import ProjectNotFoundError
 
-class ProjectRepository(object):
+class BaseRepository(object):
+    def commit(self):
+        elixir.session.commit()
+        elixir.session.flush()
+    def rollback(self):
+        elixir.session.rollback()
+
+class ProjectRepository(BaseRepository):
     def create(self, name, build_script, scm_repository, monitor_changes, tabs):
         '''Creates a new project.'''
         try:
@@ -23,9 +30,9 @@ class ProjectRepository(object):
                         tab = ProjectTab(name=k, command=v)
                         tab.project = project
 
-            elixir.session.commit()
+            self.commit()
         except:
-            elixir.session.rollback()
+            self.rollback()
             raise
         
         return project
@@ -57,10 +64,9 @@ class ProjectRepository(object):
                     if k and v:
                         tab = ProjectTab(name=k, command=v)
                         tab.project = project
-            elixir.session.commit()
-            elixir.session.flush()
+            self.commit()
         except:
-            elixir.session.rollback()
+            self.rollback()
             raise
 
     def delete(self, project_id):
@@ -71,10 +77,26 @@ class ProjectRepository(object):
             for pipeline in pipelines:
                 pipeline_repository.delete_pipeline(pipeline)
             elixir.session.delete(project)
-            elixir.session.commit()
+            self.commit()
         except:
-            elixir.session.rollback()
+            self.rollback()
             raise
+
+    #def start_build(self, project):
+        #try:
+            #project.build_status = "BUILDING"
+            #self.commit()
+        #except:
+            #self.rollback()
+            #raise
+
+#    def finish_build(self, project):
+#        try:
+#            project.build_status = "BUILT"
+#            self.commit()
+#        except:
+#            self.rollback()
+#            raise
 
 class PipelineRepository(object):
     def create(self, name, pipeline_definition):

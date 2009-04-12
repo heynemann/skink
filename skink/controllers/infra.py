@@ -29,6 +29,7 @@ class Server(object):
         d.connect('project_build', 'project/:project_id/build', controller=ProjectController(), action='build')
         d.connect('project_details', 'project/:project_id', controller=ProjectController(), action='details')
         d.connect('build_details', 'project/:project_id/builds/:build_id', controller=ProjectController(), action='build_details')
+        d.connect('project_build_status', 'buildstatus', controller=ProjectController(), action='build_status')
         d.connect('pipeline_index', 'pipeline', controller=PipelineController(), action='index')
         d.connect('create_pipeline', 'pipeline/create', controller=PipelineController(), action='create')
         d.connect('edit_pipeline', 'pipeline/:pipeline_id', controller=PipelineController(), action='edit')
@@ -58,7 +59,8 @@ class Server(object):
                     'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
                     'tools.decode.on': True,
                     'tools.trailing_slash.on': True,
-                    'tools.staticdir.root': join(root_path, "skink/")
+                    'tools.staticdir.root': join(root_path, "skink/"),
+                    'log.screen': ctx.webserver_verbose
                 })
 
             conf = {
@@ -92,10 +94,14 @@ class Builder(object):
         try:
             ctx = SkinkContext.current()
             while(ctx.keep_polling):
+                if ctx.build_verbose:
+                    print "Polling Queue for projects to build..."
                 if ctx.build_queue:
                     item = ctx.build_queue.pop()
+                    if ctx.build_verbose:
+                        print "Found %s to build. Building..." % item
                     self.build_service.build_project(item)
-                time.sleep(1)
+                time.sleep(2)
         except:
             time.sleep(5)
             self.start()
@@ -115,15 +121,18 @@ class Monitor(object):
 
             while(ctx.keep_polling):
                 monitored_projects = self.project_repository.get_projects_to_monitor()
-                if not monitored_projects:
+                if not monitored_projects and ctx.scm_verbose:
                     print "No projects found for monitoring..."
                 for project in monitored_projects:
-                    print "Polling %s..." % project.name
+                    if ctx.scm_verbose:
+                        print "Polling %s..." % project.name
                     if self.scm.does_project_need_update(project):
-                        print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
+                        if ctx.scm_verbose:
+                            print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
                         ctx.build_queue.append(project.id)
                     else:
-                        print "Project %s is already up-to-date" % project.name
+                        if ctx.scm_verbose:
+                            print "Project %s is already up-to-date" % project.name
                     time.sleep(0.5)
                 time.sleep(ctx.polling_interval)
         except:
@@ -133,9 +142,10 @@ class Monitor(object):
 
 class Db(object):
     @classmethod
-    def verify_and_create(self):
-        metadata.bind = 'sqlite:///skinkdb.db'
-        metadata.bind.echo = False
+    def verify_and_create(cls):
+        ctx = SkinkContext.current()
+        metadata.bind = ctx.db_connection
+        metadata.bind.echo = ctx.db_verbose
         setup_all()
         if not exists("skinkdb.db"):
             create_all()
