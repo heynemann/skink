@@ -3,7 +3,6 @@
 
 from skink.models import Project, Pipeline, PipelineItem
 from skink.plugins import Plugin, Guard
-from hamcrest import *
 
 class EmailPlugin (Plugin):
     section = "EmailPlugin" 
