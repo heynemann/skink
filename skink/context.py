@@ -2,11 +2,14 @@
 # -*- coding:utf-8 -*-
 
 import sys
+from ConfigParser import ConfigParser
 import Queue
 from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../"))
 sys.path.insert(0, root_path)
-from ConfigParser import ConfigParser
+
+from skink.imports import *
+from skink.plugins import Plugin
 
 class SkinkContext:
     instance = None
@@ -32,5 +35,17 @@ class SkinkContext:
             cls.instance.webserver_verbose = config.get("General", "webserver_verbose") == "True"
             cls.instance.db_verbose = config.get("Database", "db_verbose") == "True"
             cls.instance.db_connection = config.get("Database", "db_connection")
+
+            cls.instance.plugin_path = config.get("General", "plugin_path")
+            
+            IoC.reset()
+            config = InPlaceConfig()
+            
+            config.register_files("plugins", join(root_path, "skink", cls.instance.plugin_path), "*_plugin.py")
+            
+            IoC.configure(config)
+            
+            cls.instance.plugins = IoC.resolve_all("plugins")
+            import pdb;pdb.set_trace()
             
         return cls.instance

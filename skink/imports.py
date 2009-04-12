@@ -33,3 +33,6 @@ from genshi.output import encode, get_serializer
 from genshi.template import Context, TemplateLoader
 from genshi.filters import HTMLFormFiller
 
+#pyoc
+from pyoc.ioc import IoC
+from pyoc.config import InPlaceConfig
