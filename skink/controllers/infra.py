@@ -35,6 +35,11 @@ class Server(object):
         d.connect('edit_pipeline', 'pipeline/:pipeline_id', controller=PipelineController(), action='edit')
         d.connect('update_pipeline', 'pipeline/:pipeline_id/update', controller=PipelineController(), action='update')
         d.connect('delete_pipeline', 'pipeline/:pipeline_id/delete', controller=PipelineController(), action='delete')
+
+        d.connect('login', 'login', controller=IndexController(), action='login')
+        d.connect('login_error', 'loginerror', controller=IndexController(), action='login_error')
+        d.connect('logoff', 'logoff', controller=IndexController(), action='logoff')
+
         d.connect('index', ':action', controller=IndexController())
         dispatcher = d
         return dispatcher
@@ -60,7 +65,8 @@ class Server(object):
                     'tools.decode.on': True,
                     'tools.trailing_slash.on': True,
                     'tools.staticdir.root': join(root_path, "skink/"),
-                    'log.screen': ctx.webserver_verbose
+                    'log.screen': ctx.webserver_verbose,
+                    'tools.sessions.on': True
                 })
 
             conf = {
