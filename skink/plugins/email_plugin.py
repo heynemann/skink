@@ -10,7 +10,9 @@ class EmailPlugin (Plugin):
     
     def __init__(self, configuration=None):
         super(EmailPlugin, self).__init__(configuration)
-        Guard.against_empty(self.configuration.get('smtp_host',None),'Please provide a smpt_host parameter, so I know which server to use to send e-mails.')
-        Guard.against_empty(self.configuration.get('smtp_user',None), 'Please provide a smpt_user parameter, so I know which user should I use to log on the smtp server.')
-        Guard.against_empty(self.configuration.get('smtp_pass',None), 'Please provide a smpt_pass parameter, so I know which password should I use to log on the smtp server.')
-
+        self.smtp_host = self.configuration.get('smtp_host',None)
+        self.smtp_user = self.configuration.get('smtp_user',None)
+        self.smtp_pass = self.configuration.get('smtp_pass',None)
+        Guard.against_empty(self.smtp_host,'Please provide a smpt_host parameter, so I know which server to use to send e-mails.')
+        Guard.against_empty(self.smtp_user, 'Please provide a smpt_user parameter, so I know which user should I use to log on the smtp server.')
+        Guard.against_empty(self.smtp_pass, 'Please provide a smpt_pass parameter, so I know which password should I use to log on the smtp server.')
