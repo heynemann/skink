@@ -19,8 +19,11 @@ def TestEmailPlugin(BaseUnitTest):
     def test_null_configuration(self):
         assert_that(EmailPlugin(),raises(ValueError))
         self.asserRaises(ValueError,EmailPlugin())
-        
-        fail('Should have raised a ValueError')
+        fail('Should have raised a ValueError passing no smpt_host')
+
+        self.asserRaises(ValueError,EmailPlugin(smtp_host='localhost'))
+        fail('Should have raised a ValueError passing no smpt_user')
+
 
 if __name__ == '__main__':
     unittest.main()

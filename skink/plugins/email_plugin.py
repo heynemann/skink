@@ -9,5 +9,6 @@ class EmailPlugin (Plugin):
     def __init__(self):
         super(EmailPlugin, self).__init__()
         Guard.against_empty(self.configuration.get('smtp_host',None))
-
+        Guard.against_empty(self.configuration.get('smtp_user',None))
+        Guard.against_empty(self.configuration.get('smtp_passwd',None))
 
