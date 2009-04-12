@@ -35,8 +35,10 @@ class Plugin (object):
         
         for key in self.config_keys:
             if config.has_option(self.section, key):
+                print "%s key found with value %s" % (key, config.get(self.section, key))
                 self.configuration[key] = config.get(self.section, key)
             else:
+                print "%s key not found" % (key,)
                 self.configuration[key] = None
 
     def OnProjectCreated(self, project):
@@ -71,4 +73,5 @@ class Guard (object):
     def against_empty(cls, obj, error_message=None):
         if not error_message:
             error_message = 'None received when some value was expected.'
-        raise ValueError(error_message)
+        if obj is None or obj == u"" or obj == "":
+            raise ValueError(error_message)
