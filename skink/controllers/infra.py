@@ -16,6 +16,7 @@ from skink.context import SkinkContext
 from skink.repositories import ProjectRepository
 from skink.services import BuildService
 from skink.services.scm import GitRepository
+from skink.plugins import PluginEvents
 
 class Server(object):
     @classmethod

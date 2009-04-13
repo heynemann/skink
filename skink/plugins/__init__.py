@@ -19,40 +19,40 @@ class PluginEvents(object):
                 method(*args, **kwargs)
 
     @classmethod
-    def OnProjectCreated(cls, project):
-        cls.raiseEvent("OnProjectCreated", project=project)
+    def on_project_created(cls, project):
+        cls.raiseEvent("on_project_created", project=project)
 
     @classmethod
-    def OnProjectUpdated(cls, project):
-        cls.raiseEvent("OnProjectUpdated", project=project)
+    def on_project_updated(cls, project):
+        cls.raiseEvent("on_project_updated", project=project)
 
     @classmethod
-    def OnProjectDeleted(cls, project):
-        cls.raiseEvent("OnProjectDeleted", project=project)
+    def on_project_deleted(cls, project):
+        cls.raiseEvent("on_project_deleted", project=project)
 
     @classmethod
-    def OnPipelineCreated(cls, pipeline):
-        cls.raiseEvent("OnPipelineCreated", pipeline=pipeline)
+    def on_pipeline_created(cls, pipeline):
+        cls.raiseEvent("on_pipeline_created", pipeline=pipeline)
 
     @classmethod
-    def OnPipelineUpdated(cls, pipeline):
-        cls.raiseEvent("OnPipelineUpdated", pipeline=pipeline)
+    def on_pipeline_updated(cls, pipeline):
+        cls.raiseEvent("on_pipeline_updated", pipeline=pipeline)
 
     @classmethod
-    def OnPipelineDeleted(cls, pipeline):
-        cls.raiseEvent("OnPipelineDeleted", pipeline=pipeline)
+    def on_pipeline_deleted(cls, pipeline):
+        cls.raiseEvent("on_pipeline_deleted", pipeline=pipeline)
 
     @classmethod
-    def OnBeforeBuild(cls, project):
-        cls.raiseEvent("OnBeforeBuild", project=project)
+    def on_before_build(cls, project):
+        cls.raiseEvent("on_before_build", project=project)
 
     @classmethod
-    def OnBuildSuccessful(cls, project, build):
-        cls.raiseEvent("OnBuildSuccessful", project=project, build=build)
+    def on_build_successful(cls, project, build):
+        cls.raiseEvent("on_build_successful", project=project, build=build)
 
     @classmethod
-    def OnBuildFailed(cls, project, build):
-        cls.raiseEvent("OnBuildFailed", project=project, build=build)
+    def on_build_failed(cls, project, build):
+        cls.raiseEvent("on_build_failed", project=project, build=build)
 
 class Plugin (object):
     def __init__(self, configuration=None):
@@ -89,31 +89,31 @@ class Plugin (object):
                 #print "%s key not found" % (key,)
                 self.configuration[key] = None
 
-    def OnProjectCreated(self, project):
+    def on_project_created(self, project):
         pass
 
-    def OnProjectUpdated(self, project):
+    def on_project_updated(self, project):
         pass
 
-    def OnProjectDeleted(self, project):
+    def on_project_deleted(self, project):
         pass
 
-    def OnPipelineCreated(self, pipeline):
+    def on_pipeline_created(self, pipeline):
         pass
 
-    def OnPipelineUpdated(self, pipeline):
+    def on_pipeline_updated(self, pipeline):
         pass
 
-    def OnPipelineDeleted(self, pipeline):
+    def on_pipeline_deleted(self, pipeline):
         pass
 
-    def OnBeforeBuild(self, project):
+    def on_before_build(self, project):
         pass
 
-    def OnBuildSuccessful(self, project, build):
+    def on_build_successful(self, project, build):
         pass
 
-    def OnBuildFailed(self, project, build):
+    def on_build_failed(self, project, build):
         pass
         
 class Guard (object):
