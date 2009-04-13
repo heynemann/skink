@@ -104,6 +104,8 @@ class BuildService(object):
         if (build.status == BuildService.Success):
             PluginEvents.on_build_successful(project, build)
             self.process_pipelines_for(project)
+        else:
+            PluginEvents.on_build_failed(project, build)
         
         return build
         
