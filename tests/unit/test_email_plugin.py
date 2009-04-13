@@ -14,12 +14,11 @@ from skink.plugins.email_plugin import EmailPlugin
 class TestEmailPlugin(BaseUnitTest):
         
     def test_null_configuration(self):
-        assert_that(EmailPlugin(),raises(ValueError))
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True})
-        fail('Should have raised a ValueError passing no smpt_host')
+        self.fail('Should have raised a ValueError passing no smpt_host')
 
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True, "smpt":"127.0.0.1"})
-        fail('Should have raised a ValueError passing no smpt_user')
+        self.fail('Should have raised a ValueError passing no smpt_user')
 
 
 if __name__ == '__main__':
