@@ -44,21 +44,24 @@ class EmailPlugin (Plugin):
           return session
 
     def __send_email__(self, msg):
-        smtpresult = session.sendmail(self.email_sender, self.email_recipients, msg)
-        if smtpresult:
-            errstr = ""
-            for recip in smtpresult.keys():
-                errstr = """Could not deliver mail to: %s
+        try:
+            smtp_result = self.__smpt_session.sendmail(self.email_sender, self.email_recipients, msg)
+            if smtp_result:
+                errstr = ""
+                for recip in smtp_result.keys():
+                    errstr = """Could not deliver mail to: %s
 
-                Server said: %s
-                %s
-                
-                %s""" % (recip, smtpresult[recip][0], smtpresult[recip][1], errstr)
-            raise smtplib.SMTPException, errstr
+                    Server said: %s
+                    %s
+                    
+                    %s""" % (recip, smtp_result[recip][0], smtp_result[recip][1], errstr)
+                raise smtplib.SMTPException, errstr
+        except Exception, e:
+            print 'disabling plugin %s' %e
+            self.enabled = False
 
     def on_project_created(self, project):
         print(" ==> on_project_created")
-        self.__send_email__("project [%s]created " % project.name)
 
     def on_project_updated(self, project):
         print(" ==> on_project_updated")
@@ -80,7 +83,8 @@ class EmailPlugin (Plugin):
 
     def on_build_successful(self, project, build):
         print(" ==> on_build_successful")
+        self.__send_email__("project [%s], build [%s] successfully :) " %(project.name,build.number))
 
     def on_build_failed(self, project, build):
         print(" ==> on_build_failed")
-
+        self.__send_email__("project [%s], build [%s] failed :(" %(project.name,build.number))
