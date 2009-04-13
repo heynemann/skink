@@ -7,6 +7,53 @@ from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
+from skink.context import SkinkContext
+
+class PluginEvents(object):
+
+    @classmethod
+    def raiseEvent(cls, event, *args, **kwargs):
+        for plugin in SkinkContext.current().plugins:
+            if hasattr(plugin, event):
+                method = getattr(plugin, event)
+                method(*args, **kwargs)
+
+    @classmethod
+    def OnProjectCreated(cls, project):
+        cls.raiseEvent("OnProjectCreated", project=project)
+
+    @classmethod
+    def OnProjectUpdated(cls, project):
+        cls.raiseEvent("OnProjectUpdated", project=project)
+
+    @classmethod
+    def OnProjectDeleted(cls, project):
+        cls.raiseEvent("OnProjectDeleted", project=project)
+
+    @classmethod
+    def OnPipelineCreated(cls, pipeline):
+        cls.raiseEvent("OnPipelineCreated", pipeline=pipeline)
+
+    @classmethod
+    def OnPipelineUpdated(cls, pipeline):
+        cls.raiseEvent("OnPipelineUpdated", pipeline=pipeline)
+
+    @classmethod
+    def OnPipelineDeleted(cls, pipeline):
+        cls.raiseEvent("OnPipelineDeleted", pipeline=pipeline)
+
+    @classmethod
+    def OnBeforeBuild(cls, project):
+        cls.raiseEvent("OnBeforeBuild", project=project)
+
+    @classmethod
+    def OnBuildSuccessful(cls, project, build):
+        cls.raiseEvent("OnBuildSuccessful", project=project, build=build)
+
+    @classmethod
+    def OnBuildFailed(cls, project, build):
+        cls.raiseEvent("OnBuildFailed", project=project, build=build)
+
 class Plugin (object):
     def __init__(self, configuration=None):
         if configuration:
