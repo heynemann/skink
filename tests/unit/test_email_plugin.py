@@ -17,6 +17,9 @@ class TestEmailPlugin(BaseUnitTest):
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True})
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True, "smpt_host":"127.0.0.1"})
 
+    def test_disabled_not_raises(self):
+        e = EmailPlugin({"enabled":False})
+        self.assertNotEquals(e,None)
 
 if __name__ == '__main__':
     unittest.main()
