@@ -15,10 +15,7 @@ class TestEmailPlugin(BaseUnitTest):
         
     def test_null_configuration(self):
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True})
-        self.fail('Should have raised a ValueError passing no smpt_host')
-
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True, "smpt":"127.0.0.1"})
-        self.fail('Should have raised a ValueError passing no smpt_user')
 
 
 if __name__ == '__main__':

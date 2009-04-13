@@ -10,6 +10,7 @@ class EmailPlugin (Plugin):
     
     def __init__(self, configuration=None):
         super(EmailPlugin, self).__init__(configuration)
+
         self.smtp_host = self.configuration.get('smtp_host',None)
         self.smtp_user = self.configuration.get('smtp_user',None)
         self.smtp_pass = self.configuration.get('smtp_pass',None)

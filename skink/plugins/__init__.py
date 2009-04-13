@@ -56,7 +56,6 @@ class PluginEvents(object):
 
 class Plugin (object):
     def __init__(self, configuration=None):
-        #import pdb; pdb.set_trace()
 
         if configuration:
             self.configuration = configuration
