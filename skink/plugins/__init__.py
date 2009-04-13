@@ -89,32 +89,35 @@ class Plugin (object):
                 #print "%s key not found" % (key,)
                 self.configuration[key] = None
 
+    def __display_not_overriden(self, event_name):
+        print "%s raised and not overriden for %s" % (event_name, self.__class__.__name__)
+
     def on_project_created(self, project):
-        pass
+        self.__display_not_overriden("on_project_created")
 
     def on_project_updated(self, project):
-        pass
+        self.__display_not_overriden("on_project_updated")
 
     def on_project_deleted(self, project):
-        pass
+        self.__display_not_overriden("on_project_deleted")
 
     def on_pipeline_created(self, pipeline):
-        pass
+        self.__display_not_overriden("on_pipeline_created")
 
     def on_pipeline_updated(self, pipeline):
-        pass
+        self.__display_not_overriden("on_pipeline_updated")
 
     def on_pipeline_deleted(self, pipeline):
-        pass
+        self.__display_not_overriden("on_pipeline_deleted")
 
     def on_before_build(self, project):
-        pass
+        self.__display_not_overriden("on_before_build raised")
 
     def on_build_successful(self, project, build):
-        pass
+        self.__display_not_overriden("on_build_successful")
 
     def on_build_failed(self, project, build):
-        pass
+        self.__display_not_overriden("on_build_failed")
         
 class Guard (object):
     @classmethod
