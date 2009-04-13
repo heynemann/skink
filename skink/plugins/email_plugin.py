@@ -5,9 +5,15 @@ from skink.models import Project, Pipeline, PipelineItem
 from skink.plugins import Plugin, Guard
 import smtplib
 
+no_host_message = "Please provide an 'smtp_host' configuration in the config.ini file, under the EmailPlugin section. This is required in order to define the SMTP server used to send the notifications."
+no_user_message = "Please provide an 'smtp_user' configuration in the config.ini file, under the EmailPlugin section. This is required in order to define the user used to authenticate with the SMTP server."
+no_pass_message = "Please provide an 'smtp_pass' configuration in the config.ini file, under the EmailPlugin section. This is required in order to define the password used to authenticate with the SMTP server."
+no_sender_message = "Please provide an 'email_sender' configuration in the config.ini file, under the EmailPlugin section. This is required in order to define the e-mail used as sender in the notifications."
+no_recipients_message = "Please provide an 'email_recipients' configuration in the config.ini file, under the EmailPlugin section. This is required in order to define the e-mails that will receive the notifications. This argument should be a semi-colon (;) separated list of e-mails."
+
 class EmailPlugin (Plugin):
     section = "EmailPlugin" 
-    config_keys = ("smtp_host", "smtp_user", "smtp_pass")
+    config_keys = ("smtp_host", "smtp_user", "smtp_pass", "email_sender", "email_recipients")
     
     def __init__(self, configuration=None):
         super(EmailPlugin, self).__init__(configuration)
@@ -24,11 +30,11 @@ class EmailPlugin (Plugin):
         self.email_sender = self.configuration.get('email_sender',None)
         self.email_recipients = self.configuration.get('email_recipients',None)
 
-        Guard.against_empty(self.smtp_host,'Please provide a smpt_host parameter, so I know which server to use to send e-mails.')
-        Guard.against_empty(self.smtp_user, 'Please provide a smpt_user parameter, so I know which user should I use to log on the smtp server.')
-        Guard.against_empty(self.smtp_pass, 'Please provide a smpt_pass parameter, so I know which password should I use to log on the smtp server.')
-        Guard.against_empty(self.email_sender, 'Please provide an email_sender parameter, so I know how to inform who sent the e-mail.')
-        Guard.against_empty(self.email_recipients, 'Please provide an email_recipients parameter, so I know whom I have to send the e-mail.')
+        Guard.against_empty(self.smtp_host, no_host_message)
+        Guard.against_empty(self.smtp_user, no_user_message)
+        Guard.against_empty(self.smtp_pass, no_pass_message)
+        Guard.against_empty(self.email_sender, no_sender_message)
+        Guard.against_empty(self.email_recipients, no_recipients_message)
         
         self.__smpt_session = self.__create_smtp_session__(self.smtp_host,self.smtp_user,self.smtp_pass)
         
@@ -42,7 +48,7 @@ class EmailPlugin (Plugin):
         if smtpresult:
             errstr = ""
             for recip in smtpresult.keys():
-                errstr = """Could not delivery mail to: %s
+                errstr = """Could not deliver mail to: %s
 
                 Server said: %s
                 %s
