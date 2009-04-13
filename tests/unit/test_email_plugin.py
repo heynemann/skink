@@ -15,7 +15,7 @@ class TestEmailPlugin(BaseUnitTest):
         
     def test_null_configuration(self):
         self.assertRaises(ValueError,EmailPlugin,{"enabled":True})
-        self.assertRaises(ValueError,EmailPlugin,{"enabled":True, "smpt":"127.0.0.1"})
+        self.assertRaises(ValueError,EmailPlugin,{"enabled":True, "smpt_host":"127.0.0.1"})
 
 
 if __name__ == '__main__':
