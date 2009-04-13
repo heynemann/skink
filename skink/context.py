@@ -9,7 +9,6 @@ root_path = abspath(join(dirname(__file__), "../"))
 sys.path.insert(0, root_path)
 
 from skink.imports import *
-from skink.plugins import Plugin
 
 class SkinkContext:
     instance = None

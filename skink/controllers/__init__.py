@@ -11,6 +11,7 @@ from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services import BuildService
 from skink.errors import *
 from skink.controllers.filters import authenticated
+from skink.plugins import PluginEvents
 import template
 
 class BaseController(object):
@@ -91,6 +92,7 @@ class ProjectController(BaseController):
                                 scm_repository=scm_repository, 
                                 monitor_changes=not monitor_changes is None,
                                 tabs=self.__process_tabs_for(data))
+        PluginEvents.on_project_created(project)
         raise cherrypy.HTTPRedirect('/')
 
     @authenticated()
@@ -101,6 +103,7 @@ class ProjectController(BaseController):
         project.scm_repository = scm_repository
         project.monitor_changes = not monitor_changes is None
         self.repository.update(project, self.__process_tabs_for(data))
+        PluginEvents.on_project_updated(project)
         raise cherrypy.HTTPRedirect('/')
 
     @authenticated()
@@ -108,6 +111,7 @@ class ProjectController(BaseController):
         project = self.repository.get(project_id)
         self.repository.delete(project_id)
         self.build_service.delete_scm_repository(project)
+        PluginEvents.on_project_deleted(project)
         raise cherrypy.HTTPRedirect('/')
     
     @authenticated()
@@ -160,11 +164,12 @@ class PipelineController(BaseController):
     @authenticated()
     @template.output("pipeline_index.html") 
     def create(self, name, pipeline_definition):
-        pipelines = self.repository.get_all()
         try:
-            self.repository.create(name, pipeline_definition)
+            pipeline = self.repository.create(name, pipeline_definition)
+            PluginEvents.on_pipeline_created(pipeline)
             raise cherrypy.HTTPRedirect('/pipeline')
         except (ProjectNotFoundError, CyclicalPipelineError), err:
+            pipelines = self.repository.get_all()
             return template.render(authenticated=self.authenticated(), pipelines=pipelines, pipeline=None, errors=[err.message,]) | HTMLFormFiller(data=locals())
 
     @authenticated()
@@ -177,15 +182,18 @@ class PipelineController(BaseController):
     @authenticated()
     @template.output("pipeline_index.html") 
     def update(self, pipeline_id, name, pipeline_definition):
-        pipelines = self.repository.get_all()
         pipeline = self.repository.get(int(pipeline_id))
         try:
-            self.repository.update(pipeline.id, name, pipeline_definition)
+            pipeline = self.repository.update(pipeline.id, name, pipeline_definition)
+            PluginEvents.on_pipeline_updated(pipeline)
             raise cherrypy.HTTPRedirect('/pipeline')
         except (ProjectNotFoundError, CyclicalPipelineError), err:
+            pipelines = self.repository.get_all()
             return template.render(authenticated=self.authenticated(), pipelines=pipelines, pipeline=pipeline, errors=[err.message,]) | HTMLFormFiller(data=locals())
     
     @authenticated()
     def delete(self, pipeline_id):
+        pipeline = self.repository.get(pipeline_id)
         self.repository.delete(pipeline_id)
+        PluginEvents.on_pipeline_deleted(pipeline)
         raise cherrypy.HTTPRedirect('/pipeline')

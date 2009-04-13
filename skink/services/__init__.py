@@ -12,6 +12,7 @@ from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services.scm import GitRepository, ScmResult
 from skink.services.executers import ShellExecuter
 from skink.context import SkinkContext
+from skink.plugins import PluginEvents
 
 class BuildService(object):
     Success = u"SUCCESS"
@@ -52,6 +53,7 @@ class BuildService(object):
         status = BuildService.Failure
         scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
+        PluginEvents.on_before_build(project)
         ctx.projects_being_built.append(project_id)
         last_build_number = project.get_last_build_number()
 
@@ -100,6 +102,7 @@ class BuildService(object):
         ctx.projects_being_built.remove(project_id)
 
         if (build.status == BuildService.Success):
+            PluginEvents.on_build_successful(project, build)
             self.process_pipelines_for(project)
         
         return build
