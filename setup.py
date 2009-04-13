@@ -22,12 +22,7 @@ For reference to what a skink is check http://www.wildherps.com/species/E.skilto
       packages=["skink",],
       include_package_data=True,
       zip_safe=True,
-      install_requires=[
-          CherryPy,
-          Genshi,
-          Babel,
-          FormEncode
-      ],
+      install_requires=[],
       entry_points="""
       # -*- Entry points: -*-
       """,
