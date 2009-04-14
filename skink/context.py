@@ -31,6 +31,7 @@ class SkinkContext:
             cls.instance.polling_interval = int(config.get("SCM", "polling_interval"))
             cls.instance.scm_verbose = config.get("SCM", "scm_verbose") == "True"
             cls.instance.build_verbose = config.get("General", "build_verbose") == "True"
+            cls.instance.build_polling_interval = int(config.get("General", "build_polling_interval"))
             cls.instance.webserver_verbose = config.get("General", "webserver_verbose") == "True"
             cls.instance.db_verbose = config.get("Database", "db_verbose") == "True"
             cls.instance.db_connection = config.get("Database", "db_connection")

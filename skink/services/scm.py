@@ -1,13 +1,25 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from os.path import join, exists
-from executers import ShellExecuter
+
+import sys
+from os.path import dirname, abspath, join, exists
+root_path = abspath(join(dirname(__file__), "../../"))
+sys.path.insert(0, root_path)
+
 import re
 import shutil
 from datetime import datetime
 import time
 
+from skink.context import SkinkContext
+from executers import ShellExecuter
+
 class GitRepository(object):
+    def log(self, message):
+        ctx = SkinkContext.current()
+        if ctx.scm_verbose:
+            print message
+
     def __init__(self, base_dir):
         self.base_dir = base_dir
 
@@ -23,12 +35,28 @@ class GitRepository(object):
                 result = executer.execute("mkdir %s" % self.base_dir, self.base_dir, change_dir=False)
                 if result.exit_code != 0:
                     raise ValueError("Could not create folder %s" % self.base_dir)
+                else:
+                    self.log("Directory successfully created.")
+
+            self.log("Retrieving scm data for project %s in repository %s (creating new repository - clone)" % (project_name, project.scm_repository))
             result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
+            if result.exit_code == 0:
+                self.log("SCM Data retrieved successfully")
+            else:
+                self.log("Error retrieving SCM Data: %s" % result.run_log)
             last_commit = self.get_last_commit(repository_path)
             return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path, last_commit, result.run_log)
         else:
+            self.log("Retrieving scm data for project %s in repository %s (updating repository - pull)" % (project_name, project.scm_repository))
             result = executer.execute("git pull", repository_path)
+            if result.exit_code == 0:
+                self.log("SCM Data retrieved successfully")
+            else:
+                self.log("Error retrieving SCM Data: %s" % result.run_log)
+            
+            self.log("Retrieving last commit data for project %s in repository %s" % (project_name, project.scm_repository))
             last_commit = self.get_last_commit(repository_path)
+            log ("Data retrieved.")
             return ScmResult(result.exit_code == 0 and ScmResult.Updated or ScmResult.Failed, repository_path, last_commit, result.run_log)
 
     def is_repository_created(self, path):
@@ -42,8 +70,10 @@ class GitRepository(object):
         repository_path = join(self.base_dir, project_name)
         is_repo_created = self.is_repository_created(repository_path)
         if not is_repo_created:
+            self.log("The repository at %s needs to be created." % repository_path)
             return True
         
+        self.log("Verifying if the repository at %s needs to be updated" % repository_path)
         executer.execute("git remote update", repository_path)
         result = executer.execute("git rev-parse origin master", repository_path)
         commits = result.run_log.split()
