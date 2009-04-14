@@ -56,7 +56,7 @@ class GitRepository(object):
             
             self.log("Retrieving last commit data for project %s in repository %s" % (project_name, project.scm_repository))
             last_commit = self.get_last_commit(repository_path)
-            log ("Data retrieved.")
+            self.log("Data retrieved.")
             return ScmResult(result.exit_code == 0 and ScmResult.Updated or ScmResult.Failed, repository_path, last_commit, result.run_log)
 
     def is_repository_created(self, path):
