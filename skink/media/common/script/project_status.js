@@ -38,9 +38,14 @@ function query_status(){
                     }
 
                     if ($image.attr('src').toLowerCase() != new_image.toLowerCase())
-                        $image.attr('src', new_image);
-                        $image.attr('title', new_title);
-                        $image.attr('alt', new_title);
+                        if (new_image == built_image){
+                            location.reload(true);
+                        }
+                        else{
+                            $image.attr('src', new_image);
+                            $image.attr('title', new_title);
+                            $image.attr('alt', new_title);
+                        }
                 }
             }
         }
