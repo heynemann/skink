@@ -146,6 +146,8 @@ class Monitor(object):
             for project in monitored_projects:
                 if project.id in ctx.projects_being_built:
                     continue
+                if project.id in ctx.build_queue:
+                    continue
                 if ctx.scm_verbose:
                     print "Polling %s..." % project.name
                 if self.scm.does_project_need_update(project):
