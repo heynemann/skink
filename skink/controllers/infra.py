@@ -55,7 +55,8 @@ class Server(object):
         cherrypy.config.update({
                 'server.socket_host': ctx.host,
                 'server.socket_port': ctx.port,
-                'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
+                'tools.encode.on': True, 
+                'tools.encode.encoding': 'utf-8',
                 'tools.decode.on': True,
                 'tools.trailing_slash.on': True,
                 'tools.staticdir.root': join(root_path, "skink/"),
