@@ -108,7 +108,6 @@ class Db(object):
         try:
             projects = rep.get_all()
         except Exception, err:
-            import pdb;pdb.set_trace()
             return False
         return True
 if __name__ == '__main__':

@@ -13,8 +13,8 @@ from skink.errors import ProjectNotFoundError
 
 class BaseRepository(object):
     def commit(self):
-        elixir.session.commit()
         elixir.session.flush()
+        elixir.session.commit()
     def rollback(self):
         elixir.session.rollback()
 
