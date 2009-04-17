@@ -4,7 +4,7 @@
 import sys
 import os
 import time
-import thread
+from threading import Thread
 
 from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
@@ -24,13 +24,16 @@ class BuilderPlugin(plugins.SimplePlugin):
         plugins.SimplePlugin.__init__(self, bus)
         self.build_service = build_service
         self.should_die = False
+        self.thread = None
 
     def start(self):
-        thread.start_new_thread(self.process_build_queue, tuple([]))
+        self.thread = Thread(target=self.process_build_queue)
+        self.thread.start()
         
     def stop(self):
         print "Killing builder..."
         self.should_die = True
+        self.thread.join()
         print "Builder dead."
 
     def process_build_queue(self):

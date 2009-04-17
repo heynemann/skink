@@ -4,7 +4,7 @@
 import sys
 import os
 import time
-import thread
+from threading import Thread
 
 from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
@@ -25,13 +25,16 @@ class MonitorPlugin(plugins.SimplePlugin):
         self.project_repository = project_repository
         self.scm = scm
         self.should_die = False
+        self.thread = None
 
     def start(self):
-        thread.start_new_thread(self.process_monitored_projects, tuple([]))
-    
+        self.thread = Thread(target = self.process_monitored_projects)
+        self.thread.start()
+
     def stop(self):
         print "Killing monitor..."
         self.should_die = True
+        self.thread.join()
         print "Monitor dead."
 
     def process_monitored_projects(self):
