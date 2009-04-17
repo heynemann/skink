@@ -11,6 +11,7 @@ sys.path.insert(0, lib_path)
 
 #cherrypy
 import cherrypy
+from cherrypy.process import plugins
 
 #elixir and sql alchemy
 import sqlalchemy

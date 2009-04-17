@@ -17,6 +17,8 @@ from skink.repositories import ProjectRepository
 from skink.services import BuildService
 from skink.services.scm import GitRepository
 from skink.plugins import PluginEvents
+from builder import BuilderPlugin
+from monitor import MonitorPlugin
 
 class Server(object):
     @classmethod
@@ -47,118 +49,47 @@ class Server(object):
 
     @classmethod
     def start(cls):
-        try:
-            ctx = SkinkContext.current()
-            Db.verify_and_create()
-            
-            cls.builders = []
-            for i in range(ctx.worker_processes):
-                builder = Builder(BuildService())
-                cls.builders.append(builder)
-                builder.start()
-            
-            build_path = join(root_path, SkinkContext.current().build_path)
-            monitor = Monitor(ProjectRepository(), GitRepository(build_path))
-            cls.monitor = monitor
-            monitor.start()
+        ctx = SkinkContext.current()
+        Db.verify_and_create()
 
-            cherrypy.config.update({
-                    'server.socket_host': ctx.host,
-                    'server.socket_port': ctx.port,
-                    'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
-                    'tools.decode.on': True,
-                    'tools.trailing_slash.on': True,
-                    'tools.staticdir.root': join(root_path, "skink/"),
-                    'log.screen': ctx.webserver_verbose,
-                    'tools.sessions.on': True
-                })
+        cherrypy.config.update({
+                'server.socket_host': ctx.host,
+                'server.socket_port': ctx.port,
+                'tools.encode.on': True, 'tools.encode.encoding': 'utf-8',
+                'tools.decode.on': True,
+                'tools.trailing_slash.on': True,
+                'tools.staticdir.root': join(root_path, "skink/"),
+                'log.screen': ctx.webserver_verbose,
+                'tools.sessions.on': True
+            })
 
-            conf = {
-                '/': {
-                    'request.dispatch': cls.__setup_routes(),
-                },
-                '/media': {
-                    'tools.staticdir.on': True,
-                    'tools.staticdir.dir': 'media'
-                }
+        conf = {
+            '/': {
+                'request.dispatch': cls.__setup_routes(),
+            },
+            '/media': {
+                'tools.staticdir.on': True,
+                'tools.staticdir.dir': 'media'
             }
+        }
 
-            app = cherrypy.tree.mount(None, config=conf)
-            cherrypy.quickstart(app)
-        finally:
-            cls.stop()
+        app = cherrypy.tree.mount(None, config=conf)
+        
+        #starting cherrypy plugins
+        build_path = join(root_path, SkinkContext.current().build_path)
+        builder_plugin = BuilderPlugin(cherrypy.engine, BuildService())
+        monitor_plugin = MonitorPlugin(cherrypy.engine, ProjectRepository(), GitRepository(build_path))
+
+        builder_plugin.subscribe()
+        monitor_plugin.subscribe()
+
+        cherrypy.quickstart(app)
 
     @classmethod
     def stop(cls):
         print "Killing skink..."
-        for builder in cls.builders:
-            builder.stop()
-        cls.monitor.stop()
         cherrypy.engine.exit()
         print "skink killed."
-
-class Builder(object):
-    def __init__(self, build_service):
-        self.build_service = build_service
-        self.should_die = False
-        
-    def start(self):
-        thread.start_new_thread(self.process_build_queue, tuple([]))
-
-    def stop(self):
-        print "Killing builder..."
-        self.should_die = True
-        print "Builder dead."
-
-    def process_build_queue(self):
-        ctx = SkinkContext.current()
-        while(not self.should_die):
-            if ctx.build_verbose:
-                print "Polling Queue for projects to build..."
-            if ctx.build_queue:
-                item = ctx.build_queue.pop()
-                if ctx.build_verbose:
-                    print "Found %s to build. Building..." % item
-                self.build_service.build_project(item)
-            time.sleep(ctx.build_polling_interval)
-            
-class Monitor(object):
-    def __init__(self, project_repository, scm):
-        self.project_repository = project_repository
-        self.scm = scm
-        self.should_die = False
-        
-    def start(self):
-        thread.start_new_thread(self.process_monitored_projects, tuple([]))
-        
-    def stop(self):
-        print "Killing monitor..."
-        self.should_die = True
-        print "Monitor dead."
-
-    def process_monitored_projects(self):
-        ctx = SkinkContext.current()
-
-        while(not self.should_die):
-            monitored_projects = self.project_repository.get_projects_to_monitor()
-            if not monitored_projects and ctx.scm_verbose:
-                print "No projects found for monitoring..."
-            for project in monitored_projects:
-                if project.id in ctx.projects_being_built:
-                    continue
-                if project.id in ctx.build_queue:
-                    continue
-                if ctx.scm_verbose:
-                    print "Polling %s..." % project.name
-                if self.scm.does_project_need_update(project):
-                    if ctx.scm_verbose:
-                        print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
-                    ctx.build_queue.append(project.id)
-                else:
-                    if ctx.scm_verbose:
-                        print "Project %s is already up-to-date" % project.name
-                time.sleep(2)
-            time.sleep(ctx.polling_interval)
 
 class Db(object):
     @classmethod
@@ -167,8 +98,18 @@ class Db(object):
         metadata.bind = ctx.db_connection
         metadata.bind.echo = ctx.db_verbose
         setup_all()
-        if not exists("skinkdb.db"):
+        
+        if not cls.is_db_created():
             create_all()
 
+    @classmethod
+    def is_db_created(cls):
+        rep = ProjectRepository()
+        try:
+            projects = rep.get_all()
+        except Exception, err:
+            import pdb;pdb.set_trace()
+            return False
+        return True
 if __name__ == '__main__':
     Server.start()

@@ -30,7 +30,10 @@ def main():
     action = args[0]
     
     if action.lower() == "run":
-        Server.start()
+        try:
+            Server.start()
+        except KeyboardInterrupt:
+            Server.stop()
     
     sys.exit(0)
 
