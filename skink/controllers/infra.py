@@ -55,6 +55,7 @@ class Server(object):
         cherrypy.config.update({
                 'server.socket_host': ctx.host,
                 'server.socket_port': ctx.port,
+                'request.base': ctx.root,
                 'tools.encode.on': True, 
                 'tools.encode.encoding': 'utf-8',
                 'tools.decode.on': True,
