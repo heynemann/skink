@@ -20,7 +20,8 @@ from skink.services.scm import GitRepository
 from skink.plugins import PluginEvents
 
 class BuilderPlugin(plugins.SimplePlugin):
-    def log(self, message):
+    #it's called do_log due to cherrypy having a log method already
+    def do_log(self, message):
         ctx = SkinkContext.current()
         if ctx.build_verbose:
             print message
@@ -44,10 +45,10 @@ class BuilderPlugin(plugins.SimplePlugin):
     def process_build_queue(self):
         ctx = SkinkContext.current()
         while(not self.should_die):
-            self.log("Polling Queue for projects to build...")
+            self.do_log("Polling Queue for projects to build...")
             if ctx.build_queue:
                 item = ctx.build_queue.pop()
-                self.log("Found %s to build. Building..." % item)
+                self.do_log("Found %s to build. Building..." % item)
                 self.build_service.build_project(item)
-                self.log("Project %s finished building." % item)
+                self.do_log("Project %s finished building." % item)
             time.sleep(ctx.build_polling_interval)
