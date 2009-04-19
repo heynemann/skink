@@ -5,7 +5,6 @@
     <xi:include href="default.html" />
     <head>
         <title>Login</title>
-        <script src="${url('/media/common/script/project_status.js')}"></script>
     </head>
     <body>
         <h2 py:if="errors">
@@ -13,7 +12,7 @@
                 $error<br />
             </label>
         </h2>
-        <form action="${url('/login')}" method="POST">
+        <form action="/login" method="POST">
             <p class='required'>
                 <label for='username'>Username</label>
                 <input class='text' name="username" id="username" type='text' />

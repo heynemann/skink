@@ -6,12 +6,12 @@
     <?python from genshi import HTML ?>
     <head>
         <title>Home</title>
-        <script type="text/javascript" language="javascript" src="${url('/media/integrity/script/project_details.js')}"></script>
-        <script src="${url('/media/common/script/project_status.js')}"></script>
+        <script type="text/javascript" language="javascript" src="/media/integrity/script/project_details.js"></script>
+        <script src="/media/common/script/project_status.js"></script>
     </head>
     <body>
         <span class="breadcrumb" style="display:none;">
-            / <a class="integrity_link" href="${url('/project/' + str(project.id))}">${project.name}</a>
+            / <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
         </span>
         <div id='administrative'>
             <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/${project.id}/build">Build Project</a>

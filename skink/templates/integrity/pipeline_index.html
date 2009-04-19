@@ -5,7 +5,7 @@
     <xi:include href="default.html" />
     <head>
         <title>Pipeline Index</title>
-        <link rel="stylesheet" href="${url('/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css')}" type="text/css" media="screen" title="default css" charset="utf-8" />
+        <link rel="stylesheet" href="/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css" type="text/css" media="screen" title="default css" charset="utf-8" />
         <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
         <script type="text/javascript" language="javascript" src="/media/integrity/script/pipeline_index.js"></script>
     </head>
@@ -36,7 +36,7 @@
                         </a>
                         <a href="/pipeline/${pipeline.id}/delete" class="delete_pipeline integrity_link">
                             <img border="0" align="absMiddle" 
-                                            src="${url('/media/integrity/images/delete.png')}" 
+                                            src="/media/integrity/images/delete.png" 
                                             alt="Delete this Pipeline" 
                                             title="Delete this Pipeline" />
                         </a>
@@ -53,7 +53,7 @@
         </h2>
         
         <h2>${pipeline and 'Edit the "%s" Pipeline' % pipeline.name or 'Create a new Pipeline'}:</h2>
-        <form action="${url('/pipeline/%s' % (pipeline and '%d/update' % pipeline.id or 'create'))}" method='post'>
+        <form action="/pipeline/${pipeline and '%d/update' % pipeline.id or 'create'}" method='post'>
             <p class='required'>
                 <label for='pipeline_name'>Name</label>
                 <input class='text' name="name" id="name" value="${pipeline and pipeline.name or ''}" type='text' />

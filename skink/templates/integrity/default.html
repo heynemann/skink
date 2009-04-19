@@ -5,13 +5,13 @@
             <title py:with="title = list(select('title/text()'))">
                 Skink<py:if test="title"> - ${title}</py:if>
             </title>
-            <link rel="stylesheet" href="${url('/media/integrity/css/integrity.css')}" type="text/css" />
-            <link rel="stylesheet" href="${url('/media/integrity/css/buttons.css')}" type="text/css" />
-            <link rel="stylesheet" href="${url('/media/integrity/css/reset.css')}" type="text/css" />
-            <link rel="stylesheet" href="${url('/media/common/script/lib/css/smoothness/jquery-ui-1.7.1.custom.css')}" type="text/css" />
-            <script src="${url('/media/common/script/lib/jquery-min.js')}"></script>
-            <script src="${url('/media/common/script/lib/jquery-ui.min.js')}"></script>
-            <script src="${url('/media/common/script/lib/jquery.timers-1.1.2.js')}"></script>
+            <link rel="stylesheet" href="/media/integrity/css/integrity.css" type="text/css" />
+            <link rel="stylesheet" href="/media/integrity/css/buttons.css" type="text/css" />
+            <link rel="stylesheet" href="/media/integrity/css/reset.css" type="text/css" />
+            <link rel="stylesheet" href="/media/common/script/lib/css/smoothness/jquery-ui-1.7.1.custom.css" type="text/css" />
+            <script src="/media/common/script/lib/jquery-min.js"></script>
+            <script src="/media/common/script/lib/jquery-ui.min.js"></script>
+            <script src="/media/common/script/lib/jquery.timers-1.1.2.js"></script>
           ${select('*[local-name()!="title"]')}
         </head>
     </py:match>
@@ -40,12 +40,12 @@
             <div id="footer">
                 <py:if test="not authenticated">
                     Hey there!
-                    <a class="integrity_link" href="${url('/login')}">Log In</a>
+                    <a class="integrity_link" href="/login">Log In</a>
                     if you have a user
                 </py:if>
                 <py:if test="authenticated">
                     Thanks for authenticating.
-                    <a class="integrity_link" href="${url('/logoff')}">Log Off</a> if you don't need to change anything else.
+                    <a class="integrity_link" href="/logoff">Log Off</a> if you don't need to change anything else.
                 </py:if>
                 <br /><br />
                 Template based on the <a class="integrity_link" href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.

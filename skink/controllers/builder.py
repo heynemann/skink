@@ -20,6 +20,11 @@ from skink.services.scm import GitRepository
 from skink.plugins import PluginEvents
 
 class BuilderPlugin(plugins.SimplePlugin):
+    def log(self, message):
+        ctx = SkinkContext.current()
+        if ctx.build_verbose:
+            print message
+        
     def __init__(self, bus, build_service):
         plugins.SimplePlugin.__init__(self, bus)
         self.build_service = build_service
@@ -39,11 +44,10 @@ class BuilderPlugin(plugins.SimplePlugin):
     def process_build_queue(self):
         ctx = SkinkContext.current()
         while(not self.should_die):
-            if ctx.build_verbose:
-                print "Polling Queue for projects to build..."
+            self.log("Polling Queue for projects to build...")
             if ctx.build_queue:
                 item = ctx.build_queue.pop()
-                if ctx.build_verbose:
-                    print "Found %s to build. Building..." % item
+                self.log("Found %s to build. Building..." % item)
                 self.build_service.build_project(item)
+                self.log("Project %s finished building." % item)
             time.sleep(ctx.build_polling_interval)
