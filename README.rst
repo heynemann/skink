@@ -31,3 +31,6 @@ This very beautiful reptile keeps moving constantly, just like the skink server 
 
 Skinkize your project right now! Keep moving!
 
+Project Website
+---------------
+You can check the project website at http://www.skinkci.org
