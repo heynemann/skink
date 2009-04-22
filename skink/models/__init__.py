@@ -59,11 +59,11 @@ class Project(Entity):
         text.append("{")
         text.append("'id':'%d'," % self.id)
         text.append("'name':'%s'," % self.name)
-        text.append("'lastBuild':%s," % (last_build == None and "''" or last_build.to_json()))
-        text.append("'builds':[")
-        if builds:
-            text.append(",".join(builds))
-        text.append("]")
+        text.append("'lastBuild':%s" % (last_build == None and "''" or last_build.to_json()))
+        #text.append("'builds':[")
+        #if builds:
+            #text.append(",".join(builds))
+        #text.append("]")
         text.append("}")
         return "".join(text)
 

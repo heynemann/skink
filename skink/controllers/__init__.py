@@ -12,6 +12,7 @@ from skink.services import BuildService
 from skink.errors import *
 from skink.controllers.filters import authenticated
 from skink.plugins import PluginEvents
+from skink.common import force_unicode
 import template
 
 class BaseController(object):
@@ -152,7 +153,7 @@ class ProjectController(BaseController):
         text.append("]}")
         
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return "".join(text)
+        return force_unicode("".join(text))
 
     def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)

@@ -7,6 +7,7 @@ root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 from skink.imports import *
+from skink.common import force_unicode
 from skink.models import Build, BuildTab
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services.scm import GitRepository, ScmResult
@@ -88,12 +89,12 @@ class BuildService(object):
         build.number = last_build_number + 1
         build.status = status
         build.log = "\n".join(log)
-        build.commit_number = self.force_unicode(scm_creation_result.last_commit["commit_number"])
-        build.commit_author = self.force_unicode(scm_creation_result.last_commit["author"])
-        build.commit_committer = self.force_unicode(scm_creation_result.last_commit["committer"])
+        build.commit_number = force_unicode(scm_creation_result.last_commit["commit_number"])
+        build.commit_author = force_unicode(scm_creation_result.last_commit["author"])
+        build.commit_committer = force_unicode(scm_creation_result.last_commit["committer"])
         build.commit_author_date = scm_creation_result.last_commit["author_date"]
         build.commit_committer_date = scm_creation_result.last_commit["committer_date"]
-        build.commit_text = self.force_unicode(scm_creation_result.last_commit["subject"])
+        build.commit_text = force_unicode(scm_creation_result.last_commit["subject"])
         
         self.repository.update(project, None)
         
@@ -108,24 +109,7 @@ class BuildService(object):
             PluginEvents.on_build_failed(project, build)
         
         return build
-    
-    def force_unicode(self, s, encoding='utf-8', errors='strict'):
-        print "Decoding %s with encoding %s" % (s, encoding)
-        if not isinstance(s, basestring,):
-            if hasattr(s, '__unicode__'):
-                s = unicode(s)
-            else:
-                try:
-                    s = unicode(str(s), encoding, errors)
-                except UnicodeEncodeError:
-                    if not isinstance(s, Exception):
-                        raise
-                    s = ' '.join([self.force_unicode(arg, encoding, errors) for arg in s])
-        elif not isinstance(s, unicode):
-            s = s.decode(encoding, errors)
 
-        return s
-    
     def delete_scm_repository(self, project):
         self.scm.remove_repository(project)
         
