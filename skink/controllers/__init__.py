@@ -151,7 +151,7 @@ class ProjectController(BaseController):
         values["projects"] = serialized_projects
         
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return force_unicode(simplejson.dumps(values))
+        return demjson.encode(values)
 
     def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)

@@ -58,10 +58,6 @@ class Project(Entity):
         values["lastBuild"] = (last_build == None and "''" or last_build.to_dict())
         return values
 
-    def to_json(self):
-        values = self.to_dict()
-        return simplejson.dumps(values)
-
 class ProjectTab(Entity):
     name = Field(Unicode(255))
     command = Field(Unicode(2000))
@@ -99,10 +95,6 @@ class Build(Entity):
         values["commitCommitterDate"] = self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S")
         values["commitText"] = self.commit_text.replace("\"", "'")
         return values
-
-    def to_json(self):
-        values = self.to_dict()
-        return simplejson.dumps(values)
 
 class BuildTab(Entity):
     name = Field(Unicode(255))
