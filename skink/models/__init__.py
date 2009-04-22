@@ -34,7 +34,7 @@ class Project(Entity):
     def get_last_build(self):
         if not hasattr(self, 'builds') or not self.builds:
             return None
-        return self.builds[-1]
+        return self.builds[0]
 
     def get_status(self):
         if not hasattr(self, 'builds') or not self.builds:
