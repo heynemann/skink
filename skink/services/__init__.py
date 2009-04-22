@@ -20,9 +20,9 @@ class BuildService(object):
     Failure = u"FAILURE"
     
     def default_flush(self):
-        elixir.session.commit()
         elixir.session.flush()
-    
+        elixir.session.commit()
+
     def __init__(self, repository=None, pipeline_repository=None, scm=None, executer=None, flush_action=None, base_path=join(root_path, SkinkContext.current().build_path)):
         self.repository = repository
         if not repository:

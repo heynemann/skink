@@ -45,7 +45,7 @@ class IndexController(BaseController):
             password = data["password"]
 
             if username != ctx.username or password != ctx.password:
-                return template.render(authenticated = self.authenticated, errors=["Invalid username or password!"])        
+                return template.render(authenticated = self.authenticated, errors=["Invalid username or password!"])
             
             cherrypy.session['authenticated'] = True
             
