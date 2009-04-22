@@ -8,7 +8,7 @@ sys.path.insert(0, root_path)
 
 from tests.base.base_unit_test import BaseUnitTest
 from tests.imports import *
-from skink.services import *
+from skink.common import *
 
 class DoNothing():
     pass
@@ -16,8 +16,7 @@ class DoNothing():
 class TestEmailPlugin(BaseUnitTest):
         
     def test_force_unicode(self):
-        bs = BuildService(DoNothing(), DoNothing(), DoNothing(), DoNothing(), DoNothing())
-        self.assertEqual(u"mãe", bs.force_unicode("mãe"))
+        self.assertEqual(u"mãe", force_unicode("mãe"))
 
 if __name__ == '__main__':
     unittest.main()
