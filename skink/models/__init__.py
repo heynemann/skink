@@ -31,6 +31,11 @@ class Project(Entity):
             return 0
         return len(self.builds)
 
+    def get_last_build(self):
+        if not hasattr(self, 'builds') or not self.builds:
+            return None
+        return self.builds[-1]
+
     def get_status(self):
         if not hasattr(self, 'builds') or not self.builds:
             return "UNKNOWN"
@@ -44,6 +49,23 @@ class Project(Entity):
                 return "#%s (%s)" % (build.number, build.date.strftime("%m/%d/%Y %H:%M:%S"))
 
         return "NONE"
+
+    def to_json(self):
+        last_build = self.get_last_build()
+        builds = []
+        for build in self.builds:
+            builds.append(build.to_json())
+        text = []
+        text.append("{")
+        text.append("'id':'%d'," % self.id)
+        text.append("'name':'%s'," % self.name)
+        text.append("'lastBuild':%s," % (last_build == None and "''" or last_build.to_json()))
+        text.append("'builds':[")
+        if builds:
+            text.append(",".join(builds))
+        text.append("]")
+        text.append("}")
+        return "".join(text)
 
 class ProjectTab(Entity):
     name = Field(Unicode(255))
@@ -69,6 +91,21 @@ class Build(Entity):
 
     def html_commit_text(self):
         return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""
+    
+    def to_json(self):
+        text = []
+        text.append("{")
+        text.append("'number':%d," % self.number)
+        text.append("'date':'%s'," % self.date.strftime("%d/%m/%Y %H:%M:%S"))
+        text.append("'status':'%s'," % self.status)
+        text.append("'commitNumber':'%s'," % self.commit_number)
+        text.append("'commitAuthor':'%s'," % self.commit_author)
+        text.append("'commitAuthorDate':'%s'," % self.commit_author_date.strftime("%d/%m/%Y %H:%M:%S"))
+        text.append("'commitCommitter':'%s'," % self.commit_author)
+        text.append("'commitCommitterDate':'%s'," % self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S"))
+        text.append("'commitText':'%s'" % self.commit_text)
+        text.append("}")
+        return "".join(text)
 
 class BuildTab(Entity):
     name = Field(Unicode(255))

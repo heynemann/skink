@@ -140,6 +140,19 @@ class ProjectController(BaseController):
     @template.output("project_details.html")
     def build_details(self, project_id, build_id):
         return self.render_details(project_id, build_id)
+        
+    def get_all_status(self, **data):
+        projects = self.repository.get_all()
+        serialized_projects = []
+        for project in projects:
+            serialized_projects.append(project.to_json())
+        text = []
+        text.append("{'projects':[")
+        text.append(",".join(serialized_projects))
+        text.append("]}")
+        
+        cherrypy.response.headers['Content-Type'] = 'application/json'
+        return "".join(text)
 
     def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)
