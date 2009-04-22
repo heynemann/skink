@@ -37,3 +37,6 @@ from genshi.filters import HTMLFormFiller
 #pyoc
 from pyoc.ioc import IoC
 from pyoc.config import InPlaceConfig
+
+#simplejson
+import simplejson

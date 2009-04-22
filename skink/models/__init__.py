@@ -52,20 +52,11 @@ class Project(Entity):
 
     def to_json(self):
         last_build = self.get_last_build()
-        builds = []
-        for build in self.builds:
-            builds.append(build.to_json())
-        text = []
-        text.append("{")
-        text.append("'id':'%d'," % self.id)
-        text.append("'name':'%s'," % self.name)
-        text.append("'lastBuild':%s" % (last_build == None and "''" or last_build.to_json()))
-        #text.append("'builds':[")
-        #if builds:
-            #text.append(",".join(builds))
-        #text.append("]")
-        text.append("}")
-        return "".join(text)
+        values = {}
+        values["id"] = self.id
+        values["name"] = self.name
+        values["lastBuild"] = (last_build == None and "''" or last_build.to_json())
+        return simplejson.dumps(values)
 
 class ProjectTab(Entity):
     name = Field(Unicode(255))
@@ -93,19 +84,18 @@ class Build(Entity):
         return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""
     
     def to_json(self):
-        text = []
-        text.append("{")
-        text.append("'number':%d," % self.number)
-        text.append("'date':'%s'," % self.date.strftime("%d/%m/%Y %H:%M:%S"))
-        text.append("'status':'%s'," % self.status)
-        text.append("'commitNumber':'%s'," % self.commit_number)
-        text.append("'commitAuthor':'%s'," % self.commit_author)
-        text.append("'commitAuthorDate':'%s'," % self.commit_author_date.strftime("%d/%m/%Y %H:%M:%S"))
-        text.append("'commitCommitter':'%s'," % self.commit_author)
-        text.append("'commitCommitterDate':'%s'," % self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S"))
-        text.append("'commitText':'%s'" % self.commit_text)
-        text.append("}")
-        return "".join(text)
+        values = {}
+        values["number"] = self.number
+        values["date"] = self.date.strftime("%d/%m/%Y %H:%M:%S")
+        values["status"] = self.status
+        values["commitNumber"] = self.commit_number
+        values["commitAuthor"] = self.commit_author
+        values["commitAuthorDate"] = self.commit_author_date.strftime("%d/%m/%Y %H:%M:%S")
+        values["commitCommitter"] = self.commit_author
+        values["commitCommitterDate"] = self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S")
+        values["commitText"] = self.commit_text
+
+        return simplejson.dumps(values)
 
 class BuildTab(Entity):
     name = Field(Unicode(255))
