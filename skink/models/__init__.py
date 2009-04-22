@@ -50,12 +50,16 @@ class Project(Entity):
 
         return "NONE"
 
-    def to_json(self):
+    def to_dict(self):
         last_build = self.get_last_build()
         values = {}
         values["id"] = self.id
         values["name"] = self.name
-        values["lastBuild"] = (last_build == None and "''" or last_build.to_json())
+        values["lastBuild"] = (last_build == None and "''" or last_build.to_dict())
+        return values
+
+    def to_json(self):
+        values = self.to_dict()
         return simplejson.dumps(values)
 
 class ProjectTab(Entity):
@@ -83,7 +87,7 @@ class Build(Entity):
     def html_commit_text(self):
         return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""
     
-    def to_json(self):
+    def to_dict(self):
         values = {}
         values["number"] = self.number
         values["date"] = self.date.strftime("%d/%m/%Y %H:%M:%S")
@@ -94,7 +98,10 @@ class Build(Entity):
         values["commitCommitter"] = self.commit_author
         values["commitCommitterDate"] = self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S")
         values["commitText"] = self.commit_text
+        return values
 
+    def to_json(self):
+        values = self.to_dict()
         return simplejson.dumps(values)
 
 class BuildTab(Entity):
