@@ -97,7 +97,7 @@ class Build(Entity):
         values["commitAuthorDate"] = self.commit_author_date.strftime("%d/%m/%Y %H:%M:%S")
         values["commitCommitter"] = self.commit_author
         values["commitCommitterDate"] = self.commit_committer_date.strftime("%d/%m/%Y %H:%M:%S")
-        values["commitText"] = self.commit_text
+        values["commitText"] = self.commit_text.replace("\"", "'")
         return values
 
     def to_json(self):
