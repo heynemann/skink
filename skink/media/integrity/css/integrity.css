@@ -294,7 +294,7 @@ a.integrity_link {
       color: #fff;
       padding: .5em;
       overflow: auto;
-      max-height: 50em;
+      height: 360px;
       font-size: .825em; }
       #content #build pre.output .color30,       #content #last_build pre.output .color30 {
         color: #333; }
