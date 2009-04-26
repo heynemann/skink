@@ -78,11 +78,11 @@ class Build(Entity):
     date = Field(DateTime)
     status = Field(Unicode(20))
     scm_status = Field(Unicode(20))
-    log = Field(Unicode(4000))
+    log = Field(UnicodeText)
     commit_number = Field(Unicode(40))
     commit_author = Field(Unicode(400))
     commit_committer = Field(Unicode(400))
-    commit_text = Field(Unicode(4000))
+    commit_text = Field(UnicodeText)
     commit_author_date = Field(DateTime)
     commit_committer_date = Field(DateTime)
     project = ManyToOne('Project')
@@ -111,7 +111,7 @@ class BuildTab(Entity):
     name = Field(Unicode(255))
     command = Field(Unicode(2000))
     build = ManyToOne('Build')
-    log = Field(Unicode(4000))
+    log = Field(UnicodeText)
     using_options(tablename="build_tabs")
 
 class Pipeline(Entity):
