@@ -45,7 +45,7 @@ class IndexController(BaseController):
             password = data["password"]
 
             if username != ctx.username or password != ctx.password:
-                return template.render(authenticated = self.authenticated, errors=["Invalid username or password!"])        
+                return template.render(authenticated = self.authenticated, errors=["Invalid username or password!"])
             
             cherrypy.session['authenticated'] = True
             
@@ -146,14 +146,12 @@ class ProjectController(BaseController):
         projects = self.repository.get_all()
         serialized_projects = []
         for project in projects:
-            serialized_projects.append(project.to_json())
-        text = []
-        text.append("{'projects':[")
-        text.append(",".join(serialized_projects))
-        text.append("]}")
+            serialized_projects.append(project.to_dict())
+        values = {}
+        values["projects"] = serialized_projects
         
         cherrypy.response.headers['Content-Type'] = 'application/json'
-        return force_unicode("".join(text))
+        return demjson.encode(values)
 
     def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)
