@@ -34,29 +34,37 @@ class MonitorPlugin(plugins.SimplePlugin):
     def stop(self):
         print "Killing monitor..."
         self.should_die = True
-        self.thread.join()
+        try:
+            self.thread.join()
+        except RuntimeError, err:
+            if err.message != "cannot join current thread":
+                raise
         print "Monitor dead."
 
     def process_monitored_projects(self):
         ctx = SkinkContext.current()
 
         while(not self.should_die):
-            monitored_projects = self.project_repository.get_projects_to_monitor()
-            if not monitored_projects and ctx.scm_verbose:
-                print "No projects found for monitoring..."
-            for project in monitored_projects:
-                if project.id in ctx.projects_being_built:
-                    continue
-                if project.id in ctx.build_queue:
-                    continue
-                if ctx.scm_verbose:
-                    print "Polling %s..." % project.name
-                if self.scm.does_project_need_update(project):
+            try:
+                monitored_projects = self.project_repository.get_projects_to_monitor()
+                if not monitored_projects and ctx.scm_verbose:
+                    print "No projects found for monitoring..."
+                for project in monitored_projects:
+                    if project.id in ctx.projects_being_built:
+                        continue
+                    if project.id in ctx.build_queue:
+                        continue
                     if ctx.scm_verbose:
-                        print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
-                    ctx.build_queue.append(project.id)
-                else:
-                    if ctx.scm_verbose:
-                        print "Project %s is already up-to-date" % project.name
-                time.sleep(2)
-            time.sleep(ctx.polling_interval)
+                        print "Polling %s..." % project.name
+                    if self.scm.does_project_need_update(project):
+                        if ctx.scm_verbose:
+                            print "Adding project %s(%d) to the queue due to remote changes." % (project.name, project.id)
+                        ctx.build_queue.append(project.id)
+                    else:
+                        if ctx.scm_verbose:
+                            print "Project %s is already up-to-date" % project.name
+                    time.sleep(2)
+                time.sleep(ctx.polling_interval)
+            except Exception:
+                cherrypy.engine.exit()
+                raise
