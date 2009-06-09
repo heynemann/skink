@@ -10,10 +10,12 @@ class ShellExecuter(object):
         complement=""
         arguments = os.name == "nt" and command.split(" ") or [command]
 
-        proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, cwd=base_path)
-        log = "\n".join(proc.communicate())
-        exit_code = proc.returncode
-
+        try:
+            proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, cwd=base_path)
+            log = "\n".join(proc.communicate())
+            exit_code = proc.returncode
+        except Exception, err:
+            return ExecuteResult(command, "An error occured while executing command %s: %s" % (command, err), 1)
         return ExecuteResult(command, log, exit_code)
 
 class ExecuteResult(object):
