@@ -3,6 +3,7 @@
 
 import sys
 from os.path import dirname, abspath, join, exists
+import os
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
@@ -32,11 +33,11 @@ class GitRepository(object):
             raise ValueError("The specified directory(%s) is not empty and is not a git repository")
         if not is_repo_created:
             if not exists(self.base_dir):
-                result = executer.execute("mkdir %s" % self.base_dir, self.base_dir, change_dir=False)
-                if result.exit_code != 0:
+                try:
+                    os.mkdir(self.base_dir)
+                except:
                     raise ValueError("Could not create folder %s" % self.base_dir)
-                else:
-                    self.log("Directory successfully created.")
+                self.log("Directory successfully created.")
 
             self.log("Retrieving scm data for project %s in repository %s (creating new repository - clone)" % (project_name, project.scm_repository))
             result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
@@ -95,8 +96,11 @@ class GitRepository(object):
         commit_number = None
         author = None
         committer = None
-        
-        command = "git rev-parse master | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
+
+        if os.name == "nt":
+            command = "git show -s --pretty=format:\"%H||%an||%ae||%ai||%cn||%ce||%ci||%s\""
+        else:
+            command = "git rev-parse master | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
         
