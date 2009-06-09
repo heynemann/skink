@@ -8,18 +8,12 @@ class ShellExecuter(object):
     def execute(self, command, base_path, change_dir=True):
         print ("Executing command: %s" % command)
         complement=""
-        if change_dir:
-            oldpath = os.path.abspath(os.curdir)
-            if os.path.exists(base_path):
-                os.chdir(base_path)
-
         arguments = os.name == "nt" and command.split(" ") or [command]
 
-        proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE)
+        proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, cwd=base_path)
         log = "\n".join(proc.communicate())
         exit_code = proc.returncode
-        if change_dir:
-            os.chdir(oldpath)
+
         return ExecuteResult(command, log, exit_code)
 
 class ExecuteResult(object):

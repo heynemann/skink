@@ -97,10 +97,7 @@ class GitRepository(object):
         author = None
         committer = None
 
-        if os.name == "nt":
-            command = "git show -s --pretty=format:\"%H||%an||%ae||%ai||%cn||%ce||%ci||%s\""
-        else:
-            command = "git rev-parse master | git show -s --pretty=format:'%H||%an||%ae||%ai||%cn||%ce||%ci||%s'"
+        command = "git show -s --pretty=format:\"%H||%an||%ae||%ai||%cn||%ce||%ci||%s\""
         executer = ShellExecuter()
         result = executer.execute(command, repository_path)
         
