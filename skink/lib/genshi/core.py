@@ -540,10 +540,10 @@ class Markup(unicode):
         return Markup(striptags(self))
 
 
-try:
-    from genshi._speedups import Markup
-except ImportError:
-    pass # just use the Python implementation
+#try:
+#    from genshi._speedups import Markup
+#except ImportError:
+#    pass  #just use the Python implementation
 
 escape = Markup.escape
 
