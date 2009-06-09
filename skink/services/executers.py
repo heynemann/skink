@@ -14,9 +14,11 @@ class ShellExecuter(object):
             proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, cwd=base_path)
             log = "\n".join(proc.communicate())
             exit_code = proc.returncode
+
+            return ExecuteResult(command, log, exit_code)
         except Exception, err:
-            return ExecuteResult(command, "An error occured while executing command %s: %s" % (command, err), 1)
-        return ExecuteResult(command, log, exit_code)
+            error_message = "An error occured while executing command %s: %s" % (command, err)
+            return ExecuteResult(command, error_message, 1)
 
 class ExecuteResult(object):
     def __init__(self, command, run_log, exit_code):
