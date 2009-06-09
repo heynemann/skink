@@ -40,7 +40,7 @@ class GitRepository(object):
                 self.log("Directory successfully created.")
 
             self.log("Retrieving scm data for project %s in repository %s (creating new repository - clone)" % (project_name, project.scm_repository))
-            result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
+            result = executer.execute("git clone \"%s\" \"%s\"" % (project.scm_repository, project_name), self.base_dir)
             if result.exit_code == 0:
                 self.log("SCM Data retrieved successfully")
             else:
