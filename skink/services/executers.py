@@ -11,7 +11,7 @@ class ShellExecuter(object):
         arguments = os.name == "nt" and command.split(" ") or [command]
 
         try:
-            proc = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, cwd=base_path)
+            proc = Popen(arguments, stdout=PIPE, stderr=PIPE, cwd=base_path)
             log = "\n".join(proc.communicate())
             exit_code = proc.returncode
 
