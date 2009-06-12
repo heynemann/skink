@@ -7,11 +7,13 @@ from subprocess import Popen, PIPE
 class ShellExecuter(object):
     def execute(self, command, base_path, change_dir=True):
         print ("Executing command: %s" % command)
-        complement=""
-        arguments = os.name == "nt" and command.split(" ") or [command]
 
         try:
-            proc = Popen(arguments, stdout=PIPE, stderr=PIPE, cwd=base_path)
+            if os.name == "nt":
+                proc = Popen(command, stdout=PIPE, stderr=PIPE, cwd=base_path, shell=True)
+            else:
+                proc = Popen(command, stdout=PIPE, stderr=PIPE, cwd=base_path)
+                
             log = "\n".join(proc.communicate())
             exit_code = proc.returncode
 
