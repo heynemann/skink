@@ -61,6 +61,7 @@ class Project(Entity):
 class ProjectTab(Entity):
     name = Field(Unicode(255))
     command = Field(Unicode(2000))
+    content_type = Field(Unicode(100))
     project = ManyToOne('Project')
     using_options(tablename="project_tabs")
 
@@ -99,6 +100,7 @@ class Build(Entity):
 class BuildTab(Entity):
     name = Field(Unicode(255))
     command = Field(Unicode(2000))
+    content_type = Field(Unicode(100))
     build = ManyToOne('Build')
     log = Field(UnicodeText)
     using_options(tablename="build_tabs")

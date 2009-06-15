@@ -7,6 +7,7 @@ sys.path.insert(0, root_path)
 
 from skink.context import SkinkContext
 from skink.imports import *
+from skink.models import ProjectTab
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services import BuildService
 from skink.errors import *
@@ -82,7 +83,17 @@ class ProjectController(BaseController):
         if data.has_key("additional_tab_name"):
             tab_names = [name for name in data["additional_tab_name"] if name != u'']
             tab_commands = [command for command in data["additional_tab_command"] if command != u'']
-            tabs = dict(zip(tab_names, tab_commands))
+            tab_content_types = [content_type for content_type in data["additional_tab_content_type"] if command != u''][1:]
+
+            if (len(tab_names) != len(tab_commands) or len(tab_names) != len(tab_content_types)):
+                raise ValueError("The number of tabs, commands and content types MUST be the same.")
+
+            tabs = []
+            for tab_index in range(len(tab_names)):
+                tab = ProjectTab(name=tab_names[tab_index], 
+                                 command=tab_commands[tab_index], 
+                                 content_type=tab_content_types[tab_index])
+                tabs.append(tab)
         return tabs
 
     @authenticated()
@@ -141,7 +152,10 @@ class ProjectController(BaseController):
     @template.output("project_details.html")
     def build_details(self, project_id, build_id):
         return self.render_details(project_id, build_id)
-        
+
+    def build_tab_details(self, build_tab_id):
+        return self.repository.get_build_tab_by_id(build_tab_id=build_tab_id).log
+
     def get_all_status(self, **data):
         projects = self.repository.get_all()
         serialized_projects = []
@@ -163,7 +177,7 @@ class ProjectController(BaseController):
         if build and build.log:
             build_log = highlight(build.log, BashLexer(), HtmlFormatter())
         return template.render(authenticated=self.authenticated(), project=project, current_build=build, build_log=build_log)
-        
+
 class PipelineController(BaseController):
     def __init__(self):
         self.repository = PipelineRepository()

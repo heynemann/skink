@@ -19,6 +19,7 @@ import sqlalchemy
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.types import *
 from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm.scoping import ScopedSession
 import elixir
 from elixir import *
 

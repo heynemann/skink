@@ -27,3 +27,5 @@ class BaseFunctionalTest(TestCase):
         setup_all(create_tables=True)
         create_all()
 
+    def tearDown(self):
+        elixir.session.commit()

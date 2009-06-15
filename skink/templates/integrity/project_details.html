@@ -44,7 +44,12 @@
                         <pre class='output'>${build.log}</pre>
                     </div>
                     <div id="additional_tab_${tab.id}" py:for="tab in build.tabs">
-                        <pre class='output'>${tab.log}</pre>
+                        <py:if test="tab.content_type == 'text'">
+                            <pre class='output'>${tab.log}</pre>
+                        </py:if>
+                        <py:if test="tab.content_type == 'html'">
+                            <iframe class="html_tab" src="/tabs/${tab.id}"></iframe>
+                        </py:if>
                     </div>
                 </div>
             </div>

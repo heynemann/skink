@@ -352,3 +352,10 @@ a.failed {
 .ui-tabs .ui-tabs-hide {
      display: none;
 }
+
+.html_tab{
+    border: none;
+    padding: .5em;
+    overflow: auto;
+    height: 360px;
+}

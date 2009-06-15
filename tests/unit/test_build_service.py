@@ -69,8 +69,7 @@ class TestBuildService(BaseUnitTest):
         service = BuildService(repository=repository_mock, 
                                pipeline_repository=pipeline_repository_mock,
                                scm=scm_mock, 
-                               executer=executer_mock, 
-                               flush_action=self.do_nothing)
+                               executer=executer_mock)
         
         build = service.build_project(1)
         

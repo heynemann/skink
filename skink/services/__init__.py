@@ -18,12 +18,8 @@ from skink.plugins import PluginEvents
 class BuildService(object):
     Success = u"SUCCESS"
     Failure = u"FAILURE"
-    
-    def default_flush(self):
-        elixir.session.flush()
-        elixir.session.commit()
 
-    def __init__(self, repository=None, pipeline_repository=None, scm=None, executer=None, flush_action=None, base_path=join(root_path, SkinkContext.current().build_path)):
+    def __init__(self, repository=None, pipeline_repository=None, scm=None, executer=None, base_path=join(root_path, SkinkContext.current().build_path)):
         self.repository = repository
         if not repository:
             self.repository = ProjectRepository()
@@ -40,10 +36,6 @@ class BuildService(object):
         if not executer:
             self.executer = ShellExecuter()    
 
-        self.flush_action = flush_action
-        if not flush_action:
-            self.flush_action = self.default_flush
-        
         self.base_path = base_path
 
     def build_project(self, project_id):
@@ -82,7 +74,7 @@ class BuildService(object):
             status = execute_result.exit_code == 0 and BuildService.Success or BuildService.Failure
 
         for command in project.tabs:
-            build_tab = BuildTab(name=command.name, command=command.command, build=build)
+            build_tab = BuildTab(name=command.name, command=command.command, content_type=command.content_type, build=build)
             result = self.executer.execute(command.command, scm_creation_result.repository_path)
             build_tab.log = result.run_log
 
@@ -97,8 +89,6 @@ class BuildService(object):
         build.commit_text = force_unicode(scm_creation_result.last_commit["subject"])
         
         self.repository.update(project, None)
-        
-        self.flush_action()
         
         ctx.projects_being_built.remove(project_id)
 

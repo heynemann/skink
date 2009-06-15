@@ -14,11 +14,16 @@ from skink.repositories import ProjectRepository
 from skink.services import BuildService
 from skink.services.executers import ShellExecuter, ExecuteResult
 from skink.services.scm import GitRepository, ScmResult
+from skink.imports import *
 
 class TestBuildService(BaseFunctionalTest):
 
     def test_build_successfully(self):
         project = self.create_project(name="pyoc", build_script="nosetests", scm_repository="git://github.com/heynemann/pyoc.git", monitor_changes=True)
+
+        elixir.session.flush()
+        elixir.session.commit()
+
         repo_path = join(root_path, "tests", "functional", "repo")
         
         try:

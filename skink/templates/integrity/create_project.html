@@ -50,7 +50,15 @@
                     <label for='additional_tab_command'>
                         Tab Command:
                     </label>
-                    <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' /><br /><br />
+                    <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' /><br />
+                    <label for='additional_tab_command'>
+                        Tab Content:
+                    </label>
+                    <select class='text' name="additional_tab_content_type" id="additional_tab_content_type">
+                        <option value="text" selected="selected">Text</option>
+                        <option value="html">HTML</option>
+                    </select>
+                    <br /><br />
                 </div>
                 <div id="additional_tabs">
                     <py:if test="not project">
@@ -61,7 +69,15 @@
                         <label for='additional_tab_command'>
                             Tab Command:
                         </label>
-                        <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' />
+                        <input class='text' name="additional_tab_command" value="" id="additional_tab_command" type='text' /><br />
+                        <label for='additional_tab_command'>
+                            Tab Content:
+                        </label>
+                        <select class='text' name="additional_tab_content_type" id="additional_tab_content_type">
+                            <option value="text" selected="selected">Text</option>
+                            <option value="html">HTML</option>
+                        </select>
+                        <br /><br />
                     </py:if>
                     <py:if test="project">
                         <div class="additional_tab" py:for="tab in project.tabs">
@@ -72,7 +88,17 @@
                             <label for='additional_tab_command'>
                                 Tab Command:
                             </label>
-                            <input class='text' name="additional_tab_command" value="${tab.command}" id="additional_tab_command" type='text' /><br /><br />
+                            <input class='text' name="additional_tab_command" value="${tab.command}" id="additional_tab_command" type='text' /><br />
+                            <label for='additional_tab_command'>
+                                Tab Content:
+                            </label>
+                            <select class='text' name="additional_tab_content_type" id="additional_tab_content_type">
+                                <option value="text" selected="selected" if="tab.content_type == 'text'">Text</option>
+                                <option value="text" if="tab.content_type != 'text'">Text</option>
+                                <option value="html" selected="selected" if="tab.content_type == 'html'">HTML</option>
+                                <option value="html" if="tab.content_type != 'html'">HTML</option>
+                            </select>
+                            <br /><br />
                         </div>
                     </py:if>
                 </div>
