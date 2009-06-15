@@ -12,6 +12,7 @@ sys.path.insert(0, root_path)
 from skink.imports import *
 from skink.models import *
 from skink.controllers import IndexController, ProjectController, PipelineController
+from skink.controllers.elixir_tool import ElixirTransaction
 from skink.context import SkinkContext
 from skink.repositories import ProjectRepository
 from skink.services import BuildService
@@ -63,6 +64,7 @@ class Server(object):
                 'tools.decode.on': True,
                 'tools.trailing_slash.on': True,
                 'tools.staticdir.root': join(root_path, "skink/"),
+                'tools.ElixirTransaction.on': True,
                 'log.screen': ctx.webserver_verbose,
                 'tools.sessions.on': True
             })
@@ -114,5 +116,6 @@ class Db(object):
         except Exception, err:
             return False
         return True
+
 if __name__ == '__main__':
     Server.start()

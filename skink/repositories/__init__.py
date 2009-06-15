@@ -13,10 +13,10 @@ from skink.errors import ProjectNotFoundError
 
 class BaseRepository(object):
     def commit(self):
-        elixir.session.flush()
-        elixir.session.commit()
+        pass
+
     def rollback(self):
-        elixir.session.rollback()
+        pass
 
 class ProjectRepository(BaseRepository):
     def create(self, name, build_script, scm_repository, monitor_changes, tabs):

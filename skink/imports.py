@@ -11,12 +11,14 @@ sys.path.insert(0, lib_path)
 
 #cherrypy
 import cherrypy
+from cherrypy import request
 from cherrypy.process import plugins
 
 #elixir and sql alchemy
 import sqlalchemy
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.types import *
-from sqlalchemy.orm.scoping import ScopedSession
+from sqlalchemy.orm import scoped_session, sessionmaker
 import elixir
 from elixir import *
 

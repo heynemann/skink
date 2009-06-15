@@ -3,6 +3,7 @@
 
 import os
 from subprocess import Popen, PIPE
+import commands
 
 class ShellExecuter(object):
     def execute(self, command, base_path, change_dir=True):
@@ -11,11 +12,15 @@ class ShellExecuter(object):
         try:
             if os.name == "nt":
                 proc = Popen(command, stdout=PIPE, stderr=PIPE, cwd=base_path, shell=True)
+                log = "\n".join(proc.communicate())
+                exit_code = proc.returncode
             else:
-                proc = Popen(command, stdout=PIPE, stderr=PIPE, cwd=base_path)
-                
-            log = "\n".join(proc.communicate())
-            exit_code = proc.returncode
+                complement=""
+                if change_dir:
+                    complement = "cd %s && " % base_path
+                result = commands.getstatusoutput("%s%s" % (complement, command))
+                log = result[1]
+                exit_code = result[0]
 
             return ExecuteResult(command, log, exit_code)
         except Exception, err:
