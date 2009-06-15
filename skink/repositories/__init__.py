@@ -47,9 +47,11 @@ class ProjectRepository(object):
 
     def update(self, project, tabs):
         elixir.session.merge(project)
+
+        for tab in project.tabs:
+            tab.delete()
+
         if tabs:
-            for tab in project.tabs:
-                tab.delete()
             for tab in tabs:
                 tab.project = project
 
