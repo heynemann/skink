@@ -83,7 +83,7 @@ class ProjectController(BaseController):
         if data.has_key("additional_tab_name"):
             tab_names = [name for name in data["additional_tab_name"] if name != u'']
             tab_commands = [command for command in data["additional_tab_command"] if command != u'']
-            tab_content_types = [content_type for content_type in data["additional_tab_content_type"] if command != u''][1:]
+            tab_content_types = [content_type for content_type in data["additional_tab_content_type"] if content_type != u''][1:]
 
             if (len(tab_names) != len(tab_commands) or len(tab_names) != len(tab_content_types)):
                 raise ValueError("The number of tabs, commands and content types MUST be the same.")
