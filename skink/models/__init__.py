@@ -115,7 +115,7 @@ class BuildTab(Entity):
 class BuildFile(Entity):
     name = Field(Unicode(255))
     original_path = Field(Unicode(2000))
-    content = Field(Binary, deferred=True)
+    content = Field(Binary)
     build = ManyToOne('Build')
     using_options(tablename="build_files")
 

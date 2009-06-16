@@ -87,7 +87,9 @@ class BuildService(object):
             for f in files:
                 print "Adding file %s" % f
                 filename = split(f)[-1]
-                content = open(f, 'rb').read()
+                stream = open(f, 'rb')
+                content = stream.read()
+                stream.close()
                 build_file = BuildFile(name=filename, original_path=f, content=content, build=build)
 
         build.number = last_build_number + 1
