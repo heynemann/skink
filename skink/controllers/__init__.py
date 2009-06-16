@@ -167,8 +167,8 @@ class ProjectController(BaseController):
         build_file = self.repository.get_build_file_by_id(build_file_id=build_file_id)
         response.headers['Content-Type'] = "application/x-download"
         response.headers["Content-Disposition"] = 'attachment; filename="%s"' % build_file.name
-        response.headers["Accept-Ranges"] = "bytes"
-        response.headers['Content-Length'] = len(build_file.content)
+        #response.headers["Accept-Ranges"] = "bytes"
+        #response.headers['Content-Length'] = len(build_file.content)
         response.body = build_file.content
         return response.body
 
