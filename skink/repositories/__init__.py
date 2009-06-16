@@ -53,21 +53,21 @@ class ProjectRepository(object):
         return BuildFile.query.filter_by(id=build_file_id).one()
 
     def update(self, project, tabs, file_locators):
-        elixir.session.merge(project)
 
-        for tab in project.tabs:
-            tab.delete()
-
-        for file_locator in project.file_locators:
-            file_locator.delete()
+        while project.tabs:
+            project.tabs.pop()
+        while project.file_locators:
+            project.file_locators.pop()
 
         if tabs:
             for tab in tabs:
-                tab.project = project
+                project.tabs.append(tab)
 
         if file_locators:
             for locator in file_locators:
-                file_locator = ProjectFileLocator(locator=locator, project=project)
+                project.file_locators.append(ProjectFileLocator(locator=locator, project=project))
+
+        elixir.session.merge(project)
 
     def delete(self, project_id):
         pipeline_repository = PipelineRepository()
