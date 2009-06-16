@@ -83,7 +83,7 @@ class BuildService(object):
             files = glob.glob(join(self.base_path, project.name, file_locator.locator))
             for f in files:
                 filename = split(f)[-1]
-                content = "".join(open(f, 'rb').readlines())
+                content = open(f, 'rb').read()
                 build_file = BuildFile(name=filename, original_path=f, content=content, build=build)
 
         build.number = last_build_number + 1
