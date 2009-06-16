@@ -121,7 +121,7 @@ class ProjectController(BaseController):
         project.build_script = build_script
         project.scm_repository = scm_repository
         project.monitor_changes = not monitor_changes is None
-        self.repository.update(project, self.__process_tabs_for(data))
+        self.repository.update(project, self.__process_tabs_for(data), file_locators=self.__process_file_locators_for(data))
         PluginEvents.on_project_updated(project)
         raise cherrypy.HTTPRedirect('/')
 
