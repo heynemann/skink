@@ -2,13 +2,14 @@
 #-*- coding:utf-8 -*-
 from datetime import datetime
 import sys
-from os.path import dirname, abspath, join, exists
+import glob
+from os.path import dirname, abspath, join, exists, split
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
 
 from skink.imports import *
 from skink.common import force_unicode
-from skink.models import Build, BuildTab
+from skink.models import Build, BuildTab, BuildFile
 from skink.repositories import ProjectRepository, PipelineRepository
 from skink.services.scm import GitRepository, ScmResult
 from skink.services.executers import ShellExecuter
@@ -77,6 +78,13 @@ class BuildService(object):
             build_tab = BuildTab(name=command.name, command=command.command, content_type=command.content_type, build=build)
             result = self.executer.execute(command.command, scm_creation_result.repository_path)
             build_tab.log = result.run_log
+
+        for file_locator in project.file_locators:
+            files = glob.glob(join(self.base_path, project.name, file_locator.locator))
+            for f in files:
+                filename = split(f)[-1]
+                content = "".join(open(f, 'rb').readlines())
+                build_file = BuildFile(name=filename, original_path=f, content=content, build=build)
 
         build.number = last_build_number + 1
         build.status = status

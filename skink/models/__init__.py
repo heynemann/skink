@@ -15,6 +15,7 @@ class Project(Entity):
     scm_repository = Field(Unicode(1500))
     builds = OneToMany('Build', order_by="-date")
     tabs = OneToMany('ProjectTab', order_by="name")
+    file_locators = OneToMany('ProjectFileLocator')
     pipeline_items = OneToMany('PipelineItem')
     monitor_changes = Field(Boolean)
     build_status = Field(Unicode(15), default="UNKNOWN")
@@ -65,6 +66,11 @@ class ProjectTab(Entity):
     project = ManyToOne('Project')
     using_options(tablename="project_tabs")
 
+class ProjectFileLocator(Entity):
+    locator = Field(Unicode(255))
+    project = ManyToOne('Project')
+    using_options(tablename="project_file_locators")
+
 class Build(Entity):
     number = Field(Integer)
     date = Field(DateTime)
@@ -79,6 +85,7 @@ class Build(Entity):
     commit_committer_date = Field(DateTime)
     project = ManyToOne('Project')
     tabs = OneToMany('BuildTab', order_by="name")
+    files = OneToMany('BuildFile', order_by="name")
     using_options(tablename="builds")
 
     def html_commit_text(self):
@@ -105,11 +112,18 @@ class BuildTab(Entity):
     log = Field(UnicodeText)
     using_options(tablename="build_tabs")
 
+class BuildFile(Entity):
+    name = Field(Unicode(255))
+    original_path = Field(Unicode(2000))
+    content = Field(Binary, deferred=True)
+    build = ManyToOne('Build')
+    using_options(tablename="build_files")
+
 class Pipeline(Entity):
     name = Field(Unicode(100))
     items = OneToMany('PipelineItem')
     using_options(tablename="pipelines")
-    
+
     def load_pipeline_items(self, pipeline_definition, all_projects):
         pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
         
@@ -148,4 +162,5 @@ class Pipeline(Entity):
 class PipelineItem(Entity):
     pipeline = ManyToOne('Pipeline')
     project = ManyToOne('Project')
+    using_options(tablename="pipeline_items")
 

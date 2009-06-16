@@ -39,6 +39,11 @@
                         <li py:for="tab in build.tabs">
                             <a href="#additional_tab_${tab.id}" style="font-size:12px;">${tab.name}</a>
                         </li>
+                        <py:if test="build.files">
+                            <li>
+                                <a href="#additional_tab_files" style="font-size:12px;">Files</a>
+                            </li>
+                        </py:if>
                     </ul>
                     <div id="buildlog">
                         <pre class='output'>${build.log}</pre>
@@ -50,6 +55,13 @@
                         <py:if test="tab.content_type == 'html'">
                             <iframe class="html_tab" src="/tabs/${tab.id}"></iframe>
                         </py:if>
+                    </div>
+                    <div id="additional_tab_files" py:if="build.files">
+                        <ul>
+                            <li py:for="file in build.files">
+                                <a href="/buildfiles/${file.id}">${file.name}</a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

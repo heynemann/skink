@@ -8,11 +8,11 @@ sys.path.insert(0, root_path)
 
 from skink.imports import *
 
-from skink.models import Project, ProjectTab, Pipeline, PipelineItem, BuildTab
+from skink.models import Project, ProjectTab, Pipeline, PipelineItem, BuildTab, ProjectFileLocator, BuildFile
 from skink.errors import ProjectNotFoundError
 
 class ProjectRepository(object):
-    def create(self, name, build_script, scm_repository, monitor_changes, tabs):
+    def create(self, name, build_script, scm_repository, monitor_changes, tabs, file_locators):
         '''Creates a new project.'''
         project = Project(name=name,
                           build_script=build_script,
@@ -22,6 +22,10 @@ class ProjectRepository(object):
         if tabs:
             for tab in tabs:
                 tab.project = project
+
+        if file_locators:
+            for locator in file_locators:
+                file_locator = ProjectFileLocator(locator=locator, project=project)
 
         return project
 
@@ -44,6 +48,9 @@ class ProjectRepository(object):
 
     def get_build_tab_by_id(self, build_tab_id):
         return BuildTab.query.filter_by(id=build_tab_id).one()
+
+    def get_build_file_by_id(self, build_file_id):
+        return BuildFile.query.filter_by(id=build_file_id).one()
 
     def update(self, project, tabs):
         elixir.session.merge(project)

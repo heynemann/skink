@@ -96,6 +96,12 @@ class ProjectController(BaseController):
                 tabs.append(tab)
         return tabs
 
+    def __process_file_locators_for(self, data):
+        locators = None
+        if data.has_key("additional_file_locator"):
+            locators = [locator for locator in data["additional_file_locator"] if locator != u'']
+        return locators
+
     @authenticated()
     def create(self, name, build_script, scm_repository, monitor_changes=None, **data):
         project = self.repository.create(
@@ -103,7 +109,8 @@ class ProjectController(BaseController):
                                 build_script=build_script, 
                                 scm_repository=scm_repository, 
                                 monitor_changes=not monitor_changes is None,
-                                tabs=self.__process_tabs_for(data))
+                                tabs=self.__process_tabs_for(data),
+                                file_locators=self.__process_file_locators_for(data))
         PluginEvents.on_project_created(project)
         raise cherrypy.HTTPRedirect('/')
 
@@ -155,6 +162,15 @@ class ProjectController(BaseController):
 
     def build_tab_details(self, build_tab_id):
         return self.repository.get_build_tab_by_id(build_tab_id=build_tab_id).log
+
+    def build_file_details(self, build_file_id):
+        build_file = self.repository.get_build_file_by_id(build_file_id=build_file_id)
+        response.headers['Content-Type'] = "application/x-download"
+        response.headers["Content-Disposition"] = 'attachment; filename="%s"' % build_file.name
+        response.headers["Accept-Ranges"] = "bytes"
+        response.headers['Content-Length'] = len(build_file.content)
+        response.body = build_file.content
+        return response.body
 
     def get_all_status(self, **data):
         projects = self.repository.get_all()

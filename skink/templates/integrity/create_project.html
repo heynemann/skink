@@ -104,6 +104,35 @@
                 </div>
             </p>
 
+            <p class='required'>
+                <h3>
+                    Files to add
+                </h3>
+                <p>The files in this area will be added to each build.<br/> You should specify here locator wildcards like: *.log or build/*.html.</p><br />
+                <a class="integrity_link" href="javascript:" id="lnkAddFileLocator">Add new file locator</a>
+                <div style="display:none;" id="additional_file_locator_template">
+                    <label for='additional_file_locator'>
+                        File locator:
+                    </label>
+                    <input class='text' name="additional_file_locator" value="" id="additional_file_locator" type='text' /><br />
+                </div>
+                <div id="additional_file_locators">
+                    <py:if test="not project">
+                        <label for='additional_file_locator'>
+                            File locator:
+                        </label>
+                        <input class='text' name="additional_file_locator" value="" id="additional_file_locator" type='text' /><br />
+                    </py:if>
+                    <py:if test="project">
+                        <div class="additional_file_locator" py:for="file_locator in project.file_locators">
+                            <label for='additional_file_locator'>
+                                File locator:
+                            </label>
+                            <input class='text' name="additional_file_locator" value="${file_locator.locator}" id="additional_file_locator" type='text' /><br />
+                        </div>
+                    </py:if>
+                </div>
+            </p>
 
             <p class='submit'>
                 <button class='positive' type='submit'>${project and 'Update' or 'Create'} Project</button>
