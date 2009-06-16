@@ -80,8 +80,12 @@ class BuildService(object):
             build_tab.log = result.run_log
 
         for file_locator in project.file_locators:
-            files = glob.glob(join(self.base_path, project.name, file_locator.locator))
+            file_locator_path = join(self.base_path, project.name, file_locator.locator)
+            print "Finding files for locator %s" % file_locator_path
+            files = glob.glob(file_locator_path)
+            print "%d files found" % len(files)
             for f in files:
+                print "Adding file %s" % f
                 filename = split(f)[-1]
                 content = open(f, 'rb').read()
                 build_file = BuildFile(name=filename, original_path=f, content=content, build=build)
