@@ -100,7 +100,7 @@ class BuildService(object):
         build.commit_committer_date = scm_creation_result.last_commit["committer_date"]
         build.commit_text = force_unicode(scm_creation_result.last_commit["subject"])
         
-        self.repository.update(project, None, None)
+        self.repository.update(project, project.tabs, [locator.locator for locator in project.file_locators])
         
         ctx.projects_being_built.remove(project_id)
 
