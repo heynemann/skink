@@ -19,7 +19,8 @@ class BaseFunctionalTest(TestCase):
                                               build_script=build_script, 
                                               scm_repository=scm_repository, 
                                               monitor_changes=monitor_changes, 
-                                              tabs=tabs)
+                                              tabs=tabs,
+                                              file_locators=None)
         
     def setUp(self):
         metadata.bind = 'sqlite:///:memory:'

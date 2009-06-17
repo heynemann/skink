@@ -45,7 +45,7 @@ class TestProjectRepository(BaseFunctionalTest):
         update.build_script = u"make build"
         update.scm_repository = u"new_repo"
 
-        repository.update(update, None)
+        repository.update(update, [], [])
 
         elixir.session.flush()
         elixir.session.commit()
