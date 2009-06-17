@@ -60,6 +60,9 @@ class ElixirTransaction(cherrypy.Tool):
         cherrypy.request.hooks.attach('on_end_resource', self.on_end_resource)
     
     def on_end_resource(self):
+        if "buildstatus" in request.path_info:
+            return
+
         typ, value, trace = exc_info()
 
         if value is not None and not typ in self.passable_exceptions:

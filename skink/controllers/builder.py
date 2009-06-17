@@ -40,11 +40,6 @@ class BuilderPlugin(plugins.SimplePlugin):
     def stop(self):
         print "Killing builder..."
         self.should_die = True
-        #try:
-            #self.thread.join()
-        #except RuntimeError, err:
-            #if err.message != "cannot join current thread":
-                #raise
         print "Builder dead."
 
     def process_build_queue(self):
@@ -55,7 +50,12 @@ class BuilderPlugin(plugins.SimplePlugin):
                 if ctx.build_queue:
                     item = ctx.build_queue.pop()
                     self.do_log("Found %s to build. Building..." % item)
-                    self.build_service.build_project(item)
+                    try:
+                        self.build_service.build_project(item)
+                    except Exception:
+                        elixir.session.rollback()
+                        raise
+                    elixir.session.commit()
                     self.do_log("Project %s finished building." % item)
                 time.sleep(ctx.build_polling_interval)
             except Exception:
