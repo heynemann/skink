@@ -106,7 +106,7 @@ class Db(object):
         metadata.bind = ctx.db_connection
         metadata.bind.echo = ctx.db_verbose
         setup_all()
-        
+
         if not cls.is_db_created():
             create_all()
 

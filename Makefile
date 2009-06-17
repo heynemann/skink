@@ -28,6 +28,8 @@ help:
 	@echo "    targets:"
 	@echo "    help             displays this help text"
 	@echo "    all              compiles the code and runs all tests"
+	@echo "    createdb         drops the database and runs all migrations"
+	@echo "    upgradedb        runs all migrations without dropping the db"
 	@echo "    compile          compiles the python code"
 	@echo "    test             runs all tests (unit, functional and acceptance)"
 	@echo "    run_unit         runs all unit tests"
@@ -54,6 +56,12 @@ run_acceptance: prepare_build compile acceptance report_success
 clean: remove_build_dir
 
 # action targets
+
+createdb:
+	@skink/skink_console.py createdb
+
+upgradedb:
+	@skink/skink_console.py upgradedb
 
 report_success:
 	@echo "Build succeeded!"

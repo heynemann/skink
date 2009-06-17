@@ -15,6 +15,11 @@ root_path = abspath(join(dirname(__file__), "../"))
 sys.path.insert(0, root_path)
 
 from skink.controllers.infra import Server
+from skink.context import SkinkContext
+
+from skink.lib.simple_db_migrate.cli import CLI
+from skink.lib.simple_db_migrate.core import InPlaceConfig
+from skink.lib.simple_db_migrate.main import Main
 
 def main():
     """ Main function - parses args and runs action """
@@ -34,8 +39,27 @@ def main():
             Server.start()
         except KeyboardInterrupt:
             Server.stop()
-    
+
+    if action.lower() == "createdb":
+        run_migrations(drop_db=True)
+
+    if action.lower() == "upgradedb":
+        run_migrations(drop_db=False)
+
     sys.exit(0)
+
+def run_migrations(drop_db=False):
+    ctx = SkinkContext.current()
+    config = InPlaceConfig(db_host=ctx.db_host, db_user=ctx.db_user, db_password=ctx.db_pass, db_name=ctx.db_name, migrations_dir=join(root_path, "db"))
+
+    config.put("schema_version", None)
+    config.put("show_sql", False)
+    config.put("show_sql_only", False)
+    config.put("new_migration", None)
+
+    config.put("drop_db_first", drop_db)
+
+    Main(config).execute()
 
 if __name__ == "__main__":
     main()

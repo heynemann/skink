@@ -1,0 +1,209 @@
+SQL_UP = """
+CREATE DATABASE IF NOT EXISTS skink;
+USE skink;
+
+--
+-- Definition of table `skink`.`build_files`
+--
+
+DROP TABLE IF EXISTS `skink`.`build_files`;
+CREATE TABLE  `skink`.`build_files` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(255) default NULL,
+  `original_path` varchar(2000) default NULL,
+  `content` longblob,
+  `build_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ix_build_files_build_id` (`build_id`)
+);
+
+--
+-- Dumping data for table `skink`.`build_files`
+--
+
+/*!40000 ALTER TABLE `build_files` DISABLE KEYS */;
+LOCK TABLES `build_files` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `build_files` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`build_tabs`
+--
+
+DROP TABLE IF EXISTS `skink`.`build_tabs`;
+CREATE TABLE  `skink`.`build_tabs` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(255) default NULL,
+  `command` varchar(2000) default NULL,
+  `content_type` varchar(100) default NULL,
+  `build_id` int(11) default NULL,
+  `log` text,
+  PRIMARY KEY  (`id`),
+  KEY `ix_build_tabs_build_id` (`build_id`)
+);
+
+--
+-- Dumping data for table `skink`.`build_tabs`
+--
+
+/*!40000 ALTER TABLE `build_tabs` DISABLE KEYS */;
+LOCK TABLES `build_tabs` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `build_tabs` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`builds`
+--
+
+DROP TABLE IF EXISTS `skink`.`builds`;
+CREATE TABLE  `skink`.`builds` (
+  `id` int(11) NOT NULL auto_increment,
+  `number` int(11) default NULL,
+  `date` datetime default NULL,
+  `status` varchar(20) default NULL,
+  `scm_status` varchar(20) default NULL,
+  `log` text,
+  `commit_number` varchar(40) default NULL,
+  `commit_author` varchar(400) default NULL,
+  `commit_committer` varchar(400) default NULL,
+  `commit_text` text,
+  `commit_author_date` datetime default NULL,
+  `commit_committer_date` datetime default NULL,
+  `project_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ix_builds_project_id` (`project_id`)
+);
+
+--
+-- Dumping data for table `skink`.`builds`
+--
+
+/*!40000 ALTER TABLE `builds` DISABLE KEYS */;
+LOCK TABLES `builds` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `builds` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`pipeline_items`
+--
+
+DROP TABLE IF EXISTS `skink`.`pipeline_items`;
+CREATE TABLE  `skink`.`pipeline_items` (
+  `id` int(11) NOT NULL auto_increment,
+  `pipeline_id` int(11) default NULL,
+  `project_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ix_pipeline_items_pipeline_id` (`pipeline_id`),
+  KEY `ix_pipeline_items_project_id` (`project_id`)
+);
+
+--
+-- Dumping data for table `skink`.`pipeline_items`
+--
+
+/*!40000 ALTER TABLE `pipeline_items` DISABLE KEYS */;
+LOCK TABLES `pipeline_items` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `pipeline_items` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`pipelines`
+--
+
+DROP TABLE IF EXISTS `skink`.`pipelines`;
+CREATE TABLE  `skink`.`pipelines` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(100) default NULL,
+  PRIMARY KEY  (`id`)
+);
+
+--
+-- Dumping data for table `skink`.`pipelines`
+--
+
+/*!40000 ALTER TABLE `pipelines` DISABLE KEYS */;
+LOCK TABLES `pipelines` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `pipelines` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`project_file_locators`
+--
+
+DROP TABLE IF EXISTS `skink`.`project_file_locators`;
+CREATE TABLE  `skink`.`project_file_locators` (
+  `id` int(11) NOT NULL auto_increment,
+  `locator` varchar(255) default NULL,
+  `project_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ix_project_file_locators_project_id` (`project_id`)
+);
+
+--
+-- Dumping data for table `skink`.`project_file_locators`
+--
+
+/*!40000 ALTER TABLE `project_file_locators` DISABLE KEYS */;
+LOCK TABLES `project_file_locators` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `project_file_locators` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`project_tabs`
+--
+
+DROP TABLE IF EXISTS `skink`.`project_tabs`;
+CREATE TABLE  `skink`.`project_tabs` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(255) default NULL,
+  `command` varchar(2000) default NULL,
+  `content_type` varchar(100) default NULL,
+  `project_id` int(11) default NULL,
+  PRIMARY KEY  (`id`),
+  KEY `ix_project_tabs_project_id` (`project_id`)
+);
+
+--
+-- Dumping data for table `skink`.`project_tabs`
+--
+
+/*!40000 ALTER TABLE `project_tabs` DISABLE KEYS */;
+LOCK TABLES `project_tabs` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `project_tabs` ENABLE KEYS */;
+
+
+--
+-- Definition of table `skink`.`projects`
+--
+
+DROP TABLE IF EXISTS `skink`.`projects`;
+CREATE TABLE  `skink`.`projects` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(255) default NULL,
+  `build_script` varchar(2000) default NULL,
+  `scm_repository` varchar(1500) default NULL,
+  `monitor_changes` tinyint(1) default NULL,
+  `build_status` varchar(15) default NULL,
+  PRIMARY KEY  (`id`)
+);
+
+--
+-- Dumping data for table `skink`.`projects`
+--
+
+/*!40000 ALTER TABLE `projects` DISABLE KEYS */;
+LOCK TABLES `projects` WRITE;
+UNLOCK TABLES;
+/*!40000 ALTER TABLE `projects` ENABLE KEYS */;
+"""
+
+SQL_DOWN = """
+DROP DATABASE SKINK
+"""

@@ -36,6 +36,10 @@ class SkinkContext:
             cls.instance.webserver_verbose = config.get("General", "webserver_verbose") == "True"
             cls.instance.db_verbose = config.get("Database", "db_verbose") == "True"
             cls.instance.db_connection = config.get("Database", "db_connection")
+            cls.instance.db_host = config.get("Database", "db_host")
+            cls.instance.db_name = config.get("Database", "db_name")
+            cls.instance.db_user = config.get("Database", "db_user")
+            cls.instance.db_pass = config.get("Database", "db_pass")
 
             cls.instance.plugin_path = config.get("General", "plugin_path")
             
