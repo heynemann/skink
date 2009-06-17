@@ -29,16 +29,17 @@ class MonitorPlugin(plugins.SimplePlugin):
 
     def start(self):
         self.thread = Thread(target = self.process_monitored_projects)
+        self.thread.setDaemon(True)
         self.thread.start()
 
     def stop(self):
         print "Killing monitor..."
         self.should_die = True
-        try:
-            self.thread.join()
-        except RuntimeError, err:
-            if err.message != "cannot join current thread":
-                raise
+#        try:
+#            self.thread.join()
+#        except RuntimeError, err:
+#            if err.message != "cannot join current thread":
+#                raise
         print "Monitor dead."
 
     def process_monitored_projects(self):

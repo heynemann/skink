@@ -34,16 +34,17 @@ class BuilderPlugin(plugins.SimplePlugin):
 
     def start(self):
         self.thread = Thread(target=self.process_build_queue)
+        self.thread.setDaemon(True)
         self.thread.start()
-        
+
     def stop(self):
         print "Killing builder..."
         self.should_die = True
-        try:
-            self.thread.join()
-        except RuntimeError, err:
-            if err.message != "cannot join current thread":
-                raise
+        #try:
+            #self.thread.join()
+        #except RuntimeError, err:
+            #if err.message != "cannot join current thread":
+                #raise
         print "Builder dead."
 
     def process_build_queue(self):
