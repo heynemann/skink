@@ -66,7 +66,10 @@ class BuildService(object):
         else:
             log.append("Downloaded code from %s (%s)" % (project.scm_repository, scm_creation_result.status))
             
-            execute_result = self.executer.execute(project.build_script, scm_creation_result.repository_path)
+            execute_result = self.executer.execute(project.build_script, 
+                                                   scm_creation_result.repository_path, 
+                                                   timeout=ctx.build_timeout)
+
             log.append("Executed %s" % project.build_script)
             log.append("Exit Code: %s" % execute_result.exit_code)
             log.append("Run Log:")
