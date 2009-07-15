@@ -22,6 +22,10 @@ function query_status(){
                 project_status = item_data[1];
 
                 $image = $('#build_status_' + project_id);
+                $row = $image.parent().parent();
+                $last_build_row = $image.parent().parent().parent();
+                $row.removeClass('doing-build');
+                $last_build_row.removeClass('doing-build');
                 
                 if ($image.length>0){
                     if (project_status == 'UNKNOWN') { 
@@ -29,8 +33,10 @@ function query_status(){
                         new_title = 'This project has never been built.';
                     }
                     if (project_status == 'BUILDING') { 
-                        new_image = building_image; 
+                        new_image = building_image;
                         new_title = 'Currently in the process of building...';
+                        $row.addClass('doing-build');
+                        $last_build_row.addClass('doing-build');
                     }
                     if (project_status == 'BUILT') { 
                         new_image = built_image; 

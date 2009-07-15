@@ -245,6 +245,14 @@ a.integrity_link {
       color: #77b466; }
     #content #projects li.success a:hover,     #content #previous_builds li.success a:hover {
       background-color: #ddffcc; }
+  #content #projects li.doing-build a,   #content #previous_builds li.doing-build a {
+    background-color: #feffcc;
+    border-color: #cdae00;
+    color: #191919; }
+    #content #projects li.doing-build a .attribution,     #content #previous_builds li.doing-build a .attribution {
+      color: #191919; }
+    #content #projects li.doing-build a:hover,     #content #previous_builds li.doing-build a:hover {
+      background-color: #fffeec; }
   #content #projects li.failed a,   #content #previous_builds li.failed a {
     background-color: #ffbbaa;
     border-color: #dd9988;
@@ -270,6 +278,13 @@ a.integrity_link {
       color: #337022; }
     #content #build.success .meta,     #content #last_build.success .meta {
       color: #77b466; }
+    #content #build.doing-build h1, #content #build.doing-build blockquote,     #content #last_build.doing-build h1, #content #last_build.doing-build blockquote {
+      background-color: #feffcc;
+      border-color: #cdae00; }
+    #content #build.doing-build h1,     #content #last_build.doing-build h1 {
+      color: #191919; }
+    #content #build.doing-build .meta,     #content #last_build.doing-build .meta {
+      color: #C0C0C0; }      
     #content #build.failed h1, #content #build.failed blockquote,     #content #last_build.failed h1, #content #last_build.failed blockquote {
       background-color: #ffbbaa;
       border-color: #dd9988 #ffccbb #ffccbb #dd9988; }
