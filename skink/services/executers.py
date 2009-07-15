@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+import sys
 import os
+import time
 from subprocess import Popen, PIPE
+import popen2
 import commands
 
 class ShellExecuter(object):
@@ -18,9 +21,17 @@ class ShellExecuter(object):
                 complement=""
                 if change_dir:
                     complement = "cd %s && " % base_path
-                result = commands.getstatusoutput("%s%s" % (complement, command))
-                log = result[1]
-                exit_code = result[0]
+                #result = commands.getstatusoutput("%s%s" % (complement, command))
+                #log = result[1]
+                #exit_code = result[0]
+                fd = popen2.Popen4('%s%s' % (complement, command))
+                exit_code = fd.poll()
+                while exit_code == -1:
+                    time.sleep(0.5)
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    exit_code = fd.poll()
+                log = fd.fromchild.read()
 
             return ExecuteResult(command, log, exit_code)
         except Exception, err:
