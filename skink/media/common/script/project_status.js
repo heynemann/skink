@@ -4,7 +4,7 @@ built_image = '/media/common/images/accept.png'
 unknown_image = '/media/common/images/error.png'
 
 $(function(){
-    $(this).everyTime(4000, query_status);
+    $(this).everyTime(10000, query_status);
 });
 
 function query_status(){
