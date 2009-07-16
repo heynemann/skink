@@ -121,7 +121,7 @@ class BuildFile(Entity):
 
 class Pipeline(Entity):
     name = Field(Unicode(100))
-    items = OneToMany('PipelineItem')
+    items = OneToMany('PipelineItem', order_by='id')
     using_options(tablename="pipelines")
 
     def load_pipeline_items(self, pipeline_definition, all_projects):
