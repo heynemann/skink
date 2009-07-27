@@ -373,4 +373,5 @@ a.failed {
     padding: .5em;
     overflow: auto;
     height: 360px;
+    width: 98%;
 }
