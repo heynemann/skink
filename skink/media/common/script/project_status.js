@@ -5,6 +5,7 @@ unknown_image = '/media/common/images/error.png'
 
 $(function(){
     $(this).everyTime(10000, query_status);
+    query_status();
 });
 
 function query_status(){
