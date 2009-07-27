@@ -53,14 +53,14 @@ class ProjectRepository(object):
         return BuildFile.query.filter_by(id=build_file_id).one()
 
     def update(self, project, tabs, file_locators):
-
+        new_tabs = [tab for tab in tabs]
         while project.tabs:
             project.tabs.pop()
         while project.file_locators:
             project.file_locators.pop()
 
-        if tabs:
-            for tab in tabs:
+        if new_tabs:
+            for tab in new_tabs:
                 project.tabs.append(tab)
 
         if file_locators:

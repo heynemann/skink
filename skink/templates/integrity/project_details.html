@@ -21,13 +21,13 @@
                 <h1><img src="/media/common/images/accept.png" 
                      class="project_status" 
                      title="This project has been built." 
-                     id="build_status_${project.id}" align="absMiddle" />Build ${build.commit_number[:7]} ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
+                     id="build_status_${project.id}" align="absMiddle" />Build <py:if test="build.commit_number">${build.commit_number[:7]}</py:if> ${build.status == "SUCCESS" and "succeeded" or "failed"}</h1>
 
                 <blockquote>
                     <p>${HTML(build.commit_text)}</p>
                     <p class='meta'><span class='who'>by ${build.commit_committer}</span>
                     |
-                    <span class='when' title='${build.commit_committer_date}'>on ${build.commit_committer_date.strftime("%d/%m/%Y %H:%M")}</span>
+                    <span class='when' title='${build.commit_committer_date}' py:if="build.commit_committer_date">on ${build.commit_committer_date.strftime("%d/%m/%Y %H:%M")}</span>
                     <br />
                     <span class='what'># ${build.commit_number}</span></p>
                 </blockquote>
@@ -83,8 +83,8 @@
         <ul id='previous_builds' py:if="project.builds">
             <li class="${build.status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
                 <a class="integrity_link" href="/project/${project.id}/builds/${build.id}">
-                    <strong class='build'>Build ${build.commit_number[:7]}</strong>
-                    <span class='attribution'>by ${build.commit_committer}, on ${build.commit_committer_date.strftime("%b %d")}</span>
+                    <strong class='build'>Build <py:if test="build.commit_number">${build.commit_number[:7]}</py:if><py:if test="not build.commit_number">UNKNOWN</py:if></strong>
+                    <span class='attribution'>by ${build.commit_committer}, on <py:if test="build.commit_committer_date">${build.commit_committer_date.strftime("%b %d")}</py:if></span>
                 </a>
             </li>
         </ul>
