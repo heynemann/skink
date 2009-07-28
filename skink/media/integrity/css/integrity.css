@@ -217,7 +217,7 @@ a.integrity_link {
       #content #projects li .meta {
         position: absolute;
         right: .6em;
-        top: 1.5em;
+        top: 1.1em;
         font-size: 0.8em;
         color: #999999;
         text-align: right; }
@@ -227,6 +227,15 @@ a.integrity_link {
         color: #337022; }
       #content #projects li.failed .meta {
         color: #ff1100; }
+      #content #projects .build_details {
+        margin-right: 5px;
+        float: left;
+        font-size: .75em;
+      }
+      #content #projects .project_status {
+       margin-top: .4em;
+        float:left;
+      }
   #content #previous_builds li a {
     display: block;
     padding: .25em;

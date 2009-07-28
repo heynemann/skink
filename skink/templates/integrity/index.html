@@ -15,7 +15,10 @@
               <?python index = index + 1 ?>
               <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
               <div class="meta" py:if="project.builds">
-                Build <py:if test="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</py:if><py:if test="not project.builds[0].commit_number">UNKNOWN</py:if> ${project.builds[0].status == "SUCCESS" and "succeeded" or "failed"} 
+                <div class="build_details">
+                    <py:if test="project.builds[0].commit_author">${project.builds[0].commit_author}</py:if><br />
+                    <i><py:if test="project.builds[0].commit_text">${project.builds[0].commit_text[:75]}</py:if></i>
+                </div>
                 <img src="/media/common/images/${project.build_status=='BUILDING' and 'building.gif' or 'accept.png'}" 
                      class="project_status" title="${project.build_status=='BUILDING' and 'Currently in the process of building...' or 'This project has been built.'}" 
                      id="build_status_${project.id}" align="absMiddle" />
