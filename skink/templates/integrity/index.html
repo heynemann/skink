@@ -26,7 +26,10 @@
                      id="build_status_${project.id}" align="absMiddle" />
               </div>
               <div class="meta" py:if="not project.builds">
-                Never built <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
+                <div class="build_details">
+                    Never built
+                </div>
+                <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
               </div>
             </li>
         </ul>
