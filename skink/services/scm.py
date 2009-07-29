@@ -49,7 +49,9 @@ class GitRepository(object):
             return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path, last_commit, result.run_log)
         else:
             self.log("Retrieving scm data for project %s in repository %s (updating repository - pull)" % (project_name, project.scm_repository))
-            result = executer.execute("git pull", repository_path)
+            result = executer.execute("git reset --hard", repository_path)
+            result = executer.execute("git clean -df", repository_path)
+            result = executer.execute("git pull origin master", repository_path)
             if result.exit_code == 0:
                 self.log("SCM Data retrieved successfully")
             else:

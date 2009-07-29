@@ -63,7 +63,7 @@ class TestBuildService(BaseUnitTest):
         repository_mock.get(1).AndReturn(project)
         repository_mock.update(project, [], [])
         scm_mock.create_or_update(project).AndReturn(scm_result)
-        executer_mock.execute(project.build_script, "some/path/").AndReturn(execute_result)
+        executer_mock.execute(project.build_script, "some/path/", timeout=1200).AndReturn(execute_result)
         pipeline_repository_mock.get_all_pipelines_for(project).AndReturn((pipeline,))
         
         self.mock.ReplayAll()
