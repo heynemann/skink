@@ -4,9 +4,8 @@
 import sys
 import os
 import time
-from subprocess import Popen, PIPE
-import popen2
-import commands
+
+from skink.imports import *
 
 class ShellExecuter(object):
     def ellapsed(self, start_time=None, end_time=None):
@@ -22,29 +21,23 @@ class ShellExecuter(object):
     def execute(self, command, base_path, change_dir=True, timeout=None):
         try:
             start_time = time.time()
-            if os.name == "nt":
-                proc = Popen(command, stdout=PIPE, stderr=PIPE, cwd=base_path, shell=True)
-                log = "\n".join(proc.communicate())
-                exit_code = proc.returncode
-            else:
-                complement=""
-                if change_dir:
-                    complement = "cd %s && " % base_path
 
-                fd = popen2.Popen4('%s%s' % (complement, command))
-                exit_code = fd.poll()
-                while exit_code == -1:
-                    time.sleep(0.5)
-                    print "[%s] - %.2f secs" % (command, self.ellapsed(start_time=start_time)) 
-                    exit_code = fd.poll()
-                    if timeout and self.ellapsed(start_time=start_time) > timeout:
-                        os.kill(fd.pid, 9)
-                        error_message = "\nThe build timed out after %d seconds!!! \n\nLOG: \n%s" % (timeout, fd.fromchild.read())
-                        return ExecuteResult(command, error_message, 1)
-                log = fd.fromchild.read()
-                print "[%s] - Finished after %.2f secs" % (command, self.ellapsed(start_time=start_time)) 
+            executer = Executer(command=command, working_dir=base_path)
+            executer.execute()
 
-            return ExecuteResult(command, log, exit_code)
+            while not executer.poll():
+                time.sleep(0.5)
+                print "[%s] - %.2f secs" % (command, self.ellapsed(start_time=start_time)) 
+
+                if timeout and self.ellapsed(start_time=start_time) > timeout:
+                    executer.kill()
+                    error_message = "\nThe build timed out after %d seconds!!! \n\nLOG: \n%s" % (timeout, executer.result.log)
+                    return ExecuteResult(command, error_message, 1)
+
+            log = executer.result.log
+            print "[%s] - Finished after %.2f secs" % (command, self.ellapsed(start_time=start_time)) 
+
+            return ExecuteResult(command, log, executer.result.exit_code)
         except Exception, err:
             error_message = "An error occured while executing command %s: %s" % (command, err)
             return ExecuteResult(command, error_message, 1)

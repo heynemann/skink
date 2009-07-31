@@ -44,3 +44,6 @@ from pyoc.config import InPlaceConfig
 
 #demjson
 import demjson
+
+#cleese
+from cleese.executer import Executer, Status
