@@ -93,10 +93,10 @@
                                 Tab Content:
                             </label>
                             <select class='text' name="additional_tab_content_type" id="additional_tab_content_type">
-                                <option value="text" selected="selected" if="tab.content_type == 'text'">Text</option>
-                                <option value="text" if="tab.content_type != 'text'">Text</option>
-                                <option value="html" selected="selected" if="tab.content_type == 'html'">HTML</option>
-                                <option value="html" if="tab.content_type != 'html'">HTML</option>
+                                <option value="text" selected="selected" py:if="tab.content_type == 'text'">Text</option>
+                                <option value="text" py:if="tab.content_type != 'text'">Text</option>
+                                <option value="html" selected="selected" py:if="tab.content_type == 'html'">HTML</option>
+                                <option value="html" py:if="tab.content_type != 'html'">HTML</option>
                             </select>
                             <br /><br />
                         </div>
