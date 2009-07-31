@@ -397,3 +397,12 @@ a.failed {
     height: 360px;
     width: 98%;
 }
+
+#current_log pre.output {
+  background: #111;
+  color: #fff;
+  padding: .5em;
+  overflow: auto;
+  height: 360px;
+  font-size: .825em; }
+

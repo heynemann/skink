@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <?python from genshi import HTML ?>
+    <head>
+        <title>Current Build</title>
+        <script type="text/javascript" language="javascript" src="/media/common/script/current_build.js"></script>
+    </head>
+    <body>
+        <div id="no_current_builds">There are currently no projects being built.</div>
+        <div id="current_project"></div>
+        <div id="current_command"></div>
+        <div id="current_log"></div>
+    </body>
+</html>

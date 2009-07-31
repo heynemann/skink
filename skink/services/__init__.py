@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 from datetime import datetime
+import time
 import sys
 import glob
 from os.path import dirname, abspath, join, exists, split
@@ -39,6 +40,25 @@ class BuildService(object):
 
         self.base_path = base_path
 
+    def start_execute(self, executer):
+        ctx = SkinkContext.current()
+        ctx.current_command = executer.command
+        ctx.current_start_time = time.time()
+        ctx.current_project = self.current_project
+        ctx.current_log = None
+
+    def execute_beat(self, executer):
+        ctx = SkinkContext.current()
+        ctx.current_command = executer.command
+        ctx.current_log = executer.result.log
+
+    def finish_execute(self, executer):
+        ctx = SkinkContext.current()
+        ctx.current_command = None
+        ctx.current_start_time = None
+        ctx.current_project = None
+        ctx.current_log = None
+
     def build_project(self, project_id):
         ctx = SkinkContext.current()
         
@@ -47,6 +67,7 @@ class BuildService(object):
         status = BuildService.Failure
         scm_status = ScmResult.Failed
         project = self.repository.get(project_id)
+        self.current_project = project
         PluginEvents.on_before_build(project)
         ctx.projects_being_built.append(project_id)
         last_build_number = project.get_last_build_number()
@@ -65,10 +86,18 @@ class BuildService(object):
             status = BuildService.Failure
         else:
             log.append("Downloaded code from %s (%s)" % (project.scm_repository, scm_creation_result.status))
-            
+
+            self.executer.start_execute = self.start_execute
+            self.executer.finish_execute = self.finish_execute
+            self.executer.execute_beat = self.execute_beat
+
             execute_result = self.executer.execute(project.build_script, 
                                                    scm_creation_result.repository_path, 
                                                    timeout=ctx.build_timeout)
+
+            self.executer.start_execute = None
+            self.executer.finish_execute = None
+            self.executer.execute_beat = None
 
             log.append("Executed %s" % project.build_script)
             log.append("Exit Code: %s" % execute_result.exit_code)

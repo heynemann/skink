@@ -43,6 +43,8 @@ class Server(object):
         d.connect('delete_pipeline', 'pipeline/:pipeline_id/delete', controller=PipelineController(), action='delete')
 
         d.connect('status', 'status', controller=ProjectController(), action='get_all_status')
+        d.connect('current_status', 'currentstatus', controller=ProjectController(), action='current_status')
+        d.connect('currentbuild', 'currentbuild', controller=ProjectController(), action='current_build_report')
 
         d.connect('login', 'login', controller=IndexController(), action='login')
         d.connect('login_error', 'loginerror', controller=IndexController(), action='login_error')

@@ -138,7 +138,21 @@ class ProjectController(BaseController):
         print "Adding project %s to the queue" % project_id
         SkinkContext.current().build_queue.append(project_id)
         raise cherrypy.HTTPRedirect('/project/%s' % project_id)
-            
+
+    @template.output("current_build.html")
+    def current_build_report(self, **data):
+        return template.render(authenticated=self.authenticated())
+
+    def current_status(self, **data):
+        ctx = SkinkContext.current()
+        result = {}
+        result['project'] = ctx.current_project and ctx.current_project.name or ''
+        result['project_id'] = ctx.current_project and ctx.current_project.id or ''
+        result['command'] = ctx.current_command
+        result['log'] = ctx.current_log and "<br />".join(ctx.current_log.splitlines()[-40:]) or ''
+
+        return demjson.encode(result)
+
     def build_status(self, **data):
         ctx = SkinkContext.current()
         projects = self.repository.get_all()

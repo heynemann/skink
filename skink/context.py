@@ -18,6 +18,11 @@ class SkinkContext:
             cls.instance = cls()
             config = ConfigParser()
             config.read(join(root_path, "config.ini"))
+
+            cls.instance.current_command = None
+            cls.instance.current_log = None
+            cls.instance.current_project = None
+
             cls.instance.current_template = config.get("General", "current_template")
             cls.instance.build_path = config.get("General", "build_path")
             cls.instance.host = config.get("General", "host")
