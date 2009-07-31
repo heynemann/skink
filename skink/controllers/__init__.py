@@ -146,11 +146,11 @@ class ProjectController(BaseController):
         result = {}
         for project in projects:
             if project.id in projects_being_built:
-                result[project.id] = "BUILDING" 
+                result[project.id] = (project.name, "BUILDING")
             else:
-                result[project.id] = (project.builds is not None and len(project.builds) > 0) and "BUILT" or "UNKNOWN"
+                result[project.id] = (project.name, (project.builds is not None and len(project.builds) > 0) and "BUILT" or "UNKNOWN")
 
-        return "\n".join(["%s=%s" % (k,v) for k,v in result.items()])
+        return "\n".join(["%s=%s@@%s" % (k, v[0],v[1]) for k,v in result.items()])
 
     @template.output("project_details.html")
     def details(self, project_id):

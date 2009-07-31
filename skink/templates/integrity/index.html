@@ -6,9 +6,11 @@
     <head>
         <title>Home</title>
         <script src="/media/common/script/project_status.js"></script>
+        <script src="/media/common/script/currently_building.js"></script>
         <meta http-equiv="refresh" content="20" />
     </head>
     <body>
+        <div id="currently_building"></div>
         <ul id="projects" py:if="projects">
             <?python index = 0 ?>
             <li class="${index % 2 == 0 and 'even' or 'odd'} ${project.get_status() == 'SUCCESS' and 'success' or 'failed'}" py:for="project in projects">

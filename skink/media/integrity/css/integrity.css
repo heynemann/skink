@@ -352,6 +352,19 @@ a.failed {
     background-color: #ffbbaa;
     color: white; }
 
+#currently_building {
+  padding: 1.5em 2.5em;
+  font-size: .8em;
+  width: 50em !important;
+  color: #666;
+  text-align: center;
+}
+#currently_building a {
+  color: #323232; }
+  #currently_building a:hover {
+    background-color: #161616;
+    color: white; }
+
 #footer {
   padding: 1.5em 2.5em;
   border-top: 1px solid #ccc;

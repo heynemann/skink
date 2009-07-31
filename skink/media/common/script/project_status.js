@@ -20,13 +20,17 @@ function query_status(){
                 item = data_items[i];
                 item_data = item.split("=");
                 project_id = item_data[0];
-                project_status = item_data[1];
+
+                name_and_status = item_data[1].split("@@");
+                project_name = name_and_status[0];
+                project_status = name_and_status[1];
 
                 $image = $('#build_status_' + project_id);
                 $row = $image.parent().parent();
                 $last_build_row = $image.parent().parent().parent();
                 $row.removeClass('doing-build');
                 $last_build_row.removeClass('doing-build');
+                $('#currently_building').hide();
                 
                 if ($image.length>0){
                     if (project_status == 'UNKNOWN') { 
@@ -38,6 +42,8 @@ function query_status(){
                         new_title = 'Currently in the process of building...';
                         $row.addClass('doing-build');
                         $last_build_row.addClass('doing-build');
+                        $('#currently_building').html('currently building project ' + project_name + '. <a href="/currentbuild">[more info]</a>');
+                        $('#currently_building').show()
                     }
                     if (project_status == 'BUILT') { 
                         new_image = built_image; 
