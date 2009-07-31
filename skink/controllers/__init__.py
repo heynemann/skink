@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 import sys
+import codecs
+
 from os.path import dirname, abspath, join, exists
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
@@ -149,7 +151,7 @@ class ProjectController(BaseController):
         result['project'] = ctx.current_project and ctx.current_project.name or ''
         result['project_id'] = ctx.current_project and ctx.current_project.id or ''
         result['command'] = ctx.current_command
-        result['log'] = ctx.current_log and "<br />".join(ctx.current_log.splitlines()[-40:]) or ''
+        result['log'] = ctx.current_log and u"<br />".join(unicode(ctx.current_log.splitlines()[-40:])) or ''
 
         return demjson.encode(result)
 
