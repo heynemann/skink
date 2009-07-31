@@ -9,6 +9,7 @@ $(function(){
 });
 
 function query_status(){
+    $('#currently_building').hide();
     $.ajax({
         type: "GET",
         url: "/buildstatus",
@@ -18,6 +19,7 @@ function query_status(){
             data_items = data.split('\n');
             for (i=0; i < data_items.length; i++){
                 item = data_items[i];
+
                 item_data = item.split("=");
                 project_id = item_data[0];
 
@@ -30,14 +32,13 @@ function query_status(){
                 $last_build_row = $image.parent().parent().parent();
                 $row.removeClass('doing-build');
                 $last_build_row.removeClass('doing-build');
-                $('#currently_building').hide();
-                
+               
                 if ($image.length>0){
-                    if (project_status == 'UNKNOWN') { 
-                        new_image = unknown_image; 
+                    if (project_status == 'UNKNOWN') {
+                        new_image = unknown_image;
                         new_title = 'This project has never been built.';
                     }
-                    if (project_status == 'BUILDING') { 
+                    if (project_status == 'BUILDING') {
                         new_image = building_image;
                         new_title = 'Currently in the process of building...';
                         $row.addClass('doing-build');
@@ -45,8 +46,8 @@ function query_status(){
                         $('#currently_building').html('currently building project ' + project_name + '. <a href="/currentbuild">[more info]</a>');
                         $('#currently_building').show()
                     }
-                    if (project_status == 'BUILT') { 
-                        new_image = built_image; 
+                    if (project_status == 'BUILT') {
+                        new_image = built_image;
                         new_title = 'This project has been built.';
                     }
 
