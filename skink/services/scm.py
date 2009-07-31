@@ -78,7 +78,7 @@ class GitRepository(object):
         
         self.log("Verifying if the repository at %s needs to be updated" % repository_path)
         executer.execute("git remote update", repository_path)
-        result = executer.execute("git rev-parse origin master", repository_path)
+        result = executer.execute("git rev-parse origin/master master", repository_path)
         commits = result.run_log.split()
         return len(commits) != 2 or commits[0]!=commits[1]
 
