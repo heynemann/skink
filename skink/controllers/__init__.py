@@ -151,7 +151,7 @@ class ProjectController(BaseController):
         result['project'] = ctx.current_project and ctx.current_project.name or ''
         result['project_id'] = ctx.current_project and ctx.current_project.id or ''
         result['command'] = ctx.current_command
-        result['log'] = ctx.current_log and u"<br />".join(unicode(ctx.current_log).splitlines()[-40:]) or ''
+        result['log'] = ctx.current_log and u"<br />".join(unicode(ctx.current_log).splitlines()[-20:]) or ''
 
         return demjson.encode(result)
 

@@ -43,7 +43,7 @@ function current_build(){
                 $('#current_project').show()
                 $('#current_log').show();
                 $('#current_project').html('<b>Project</b>: <a href="/project/' + project_id + '">' + project + '</a>');
-                $('#current_command').html('<b>Command</b>:<br />' + command +'<br /><br />Please note that these are the last 40 lines of the command log.');
+                $('#current_command').html('<b>Command</b>:<br />' + command +'<br /><br />Please note that these are the last 20 lines of the command log.');
                 $('#current_log').html('<pre class="output">' + log + '</pre>');
             }
         }
