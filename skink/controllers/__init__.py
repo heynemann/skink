@@ -29,6 +29,12 @@ class IndexController(BaseController):
         projects = repository.get_all()
         return template.render(authenticated=self.authenticated(), projects=projects)
 
+    @template.output("dashboard.html")
+    def dashboard(self):
+        repository = ProjectRepository()
+        projects = repository.get_all()
+        return template.render(authenticated=self.authenticated(), projects=projects)
+
     @template.output("login.html")
     def login(self, cancel=False, **data):
         return self.do_login(cancel, data)
