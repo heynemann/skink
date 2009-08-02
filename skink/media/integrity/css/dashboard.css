@@ -1,0 +1,10 @@
+pre.log {
+  background: #111;
+  color: #fff;
+  padding: .5em;
+  overflow: auto;
+  height: 92%;
+  width: 98%;
+  font-size: .825em; 
+}
+

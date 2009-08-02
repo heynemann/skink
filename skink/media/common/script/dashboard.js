@@ -3,11 +3,77 @@ $(function(){
     query_status();
 
     $('a.build_project').click(build_project);
+
+    $('#more_info_dialog').dialog({
+                        modal: true,
+                        width: 720,
+                        height:580,
+                        minWidth: 500,
+                        minHeight:380,
+                        autoOpen: false,
+                        close: function(event, ui) {
+                            $(document).stopTime('current_build_status');
+                            $('#more_info_current_log').html('');
+                        }
+                });
+
+    $('#not_authenticated_dialog').dialog({
+                modal: true,
+                width: 350,
+                height:170,
+                resizable: false,
+                autoOpen: false
+        });
+
+    $('img.img_more_info').click(show_more_info);
 });
+
+function show_more_info() {
+    $img = $(this);
+    project_id = parseInt($img.attr('id').replace('more_info_', ''));
+
+    $('#more_info_dialog').dialog('open');
+    $('#more_info_dialog').dialog('option', 'title', 'Retrieving Project Information');
+
+    $(document).everyTime(1000, 'current_build_status', function(){ current_build(project_id); });
+    current_build(project_id);
+}
+
+function current_build(project_id){
+    $.ajax({
+        type: "GET",
+        url: "/currentstatus",
+        dataType: "json",
+        cache: false,
+        success: function(data){
+            command = data.command;
+            log = data.log;
+            project = data.project;
+            current_project_id = data.project_id;
+
+            if (current_project_id != project_id){
+                $('#more_info_dialog').dialog('option', 'title', 'This project is not currently being built');
+                return;
+            }
+            else{
+                $('#more_info_dialog').dialog('option', 'title', 'Building project ' + project + '...');
+            }
+
+            if (log != null){
+                $('#more_info_current_log').html(log);
+            }
+        }
+    });
+}
 
 function build_project(){
     $link = $(this);
     url = $link.attr('href');
+
+    if (!document.authenticated){
+        $('#not_authenticated_dialog').dialog('open');
+        return false;
+    }
 
     $.ajax({
         type: "POST",
@@ -18,7 +84,7 @@ function build_project(){
         success: function(data){
             alert('build queued!');
         }
-        });
+    });
 
     return false;
 }

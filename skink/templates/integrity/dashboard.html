@@ -5,6 +5,7 @@
     <xi:include href="default.html" />
     <head>
         <title>Home</title>
+        <link rel="stylesheet" href="/media/integrity/css/dashboard.css" type="text/css" />
         <script type="text/javascript" language="javascript" src="/media/common/script/dashboard.js"></script>
     </head>
     <body>
@@ -48,6 +49,18 @@
         <div id="projects" py:if="not projects">
             Looks like you don't have any projects!<br />
             How about <a class="integrity_link" href="/project/new">creating one now</a>?
+        </div>
+
+        <div id="more_info_dialog" title="More Info" style="display:none;">
+            <p class="more_info_text">Please notice that these are only the last 30 lines from the command log.</p>
+            <pre id="more_info_current_log" class="log"></pre>
+        </div>
+
+        <div id="not_authenticated_dialog" title="You need to be authenticated" style="display:none;">
+            <p class="not_authenticated_text">You need to be authenticated before executing this commmand.</p>
+            <br />
+            <p class="not_authenticated_text"><a class="integrity_link" href="/login">Log In</a>
+                    if you have a user.</p>
         </div>
 
     </body>

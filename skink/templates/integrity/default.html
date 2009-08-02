@@ -12,6 +12,11 @@
             <script src="/media/common/script/lib/jquery-min.js"></script>
             <script src="/media/common/script/lib/jquery-ui.min.js"></script>
             <script src="/media/common/script/lib/jquery.timers-1.1.2.js"></script>
+            <script language="javascript" type="text/javascript">
+                $(function(){
+                    document.authenticated = '${authenticated}' != '';
+                });
+            </script>
           ${select('*[local-name()!="title"]')}
         </head>
     </py:match>
