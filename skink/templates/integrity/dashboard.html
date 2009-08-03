@@ -11,23 +11,22 @@
     <body>
         <div class="dashboard_content">
             <div class="project" id="project_${project.id}" py:for="project in projects">
-                <h2 class="project_header">
-                    <a class="project_name" href="/project/${project.id}">${project.name}</a>
-                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+                <div class="project_header">
+					<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
                     <ul class="project_actions">
                         <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
                         <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
                         <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
                     </ul>
-                </h2>
+                </div>
                 <div class="project_log">
                     <div py:if="project.builds">
                         <div class="project_built">
                             <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
-                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author}</p>
+                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
                             <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
                         </div>
-                        <div class="project_building" style="display:block">
+                        <div class="project_building">
                             <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
                         </div>
                     </div>
@@ -39,6 +38,153 @@
                     </div>
                 </div>
             </div>
+			<div py:for="project in projects">
+				<div class="project" id="project_${project.id}">
+	                <div class="project_header">
+						<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
+		                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+		                    <ul class="project_actions">
+		                        <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
+		                        <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
+		                        <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
+		                    </ul>
+	                </div>
+	                <div class="project_log">
+	                    <div py:if="project.builds">
+	                        <div class="project_built">
+	                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
+	                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
+	                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+	                        </div>
+	                        <div class="project_building">
+	                            <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
+	                        </div>
+	                    </div>
+	                    <div py:if="not project.builds">
+	                        <p class="project_never_built">Never built!</p>
+	                    </div>
+	                    <div class="start_build">
+	                        <a href="/project/${project.id}/build" class="build_project">build project</a>
+	                    </div>
+	                </div>
+	            </div><!-- end project -->
+								<div class="project" id="project_${project.id}">
+	                <div class="project_header">
+						<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
+		                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+		                    <ul class="project_actions">
+		                        <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
+		                        <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
+		                        <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
+		                    </ul>
+	                </div>
+	                <div class="project_log">
+	                    <div py:if="project.builds">
+	                        <div class="project_built">
+	                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
+	                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
+	                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+	                        </div>
+	                        <div class="project_building">
+	                            <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
+	                        </div>
+	                    </div>
+	                    <div py:if="not project.builds">
+	                        <p class="project_never_built">Never built!</p>
+	                    </div>
+	                    <div class="start_build">
+	                        <a href="/project/${project.id}/build" class="build_project">build project</a>
+	                    </div>
+	                </div>
+	            </div><!-- end project -->
+								<div class="project" id="project_${project.id}">
+	                <div class="project_header">
+						<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
+		                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+		                    <ul class="project_actions">
+		                        <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
+		                        <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
+		                        <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
+		                    </ul>
+	                </div>
+	                <div class="project_log">
+	                    <div py:if="project.builds">
+	                        <div class="project_built">
+	                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
+	                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
+	                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+	                        </div>
+	                        <div class="project_building">
+	                            <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
+	                        </div>
+	                    </div>
+	                    <div py:if="not project.builds">
+	                        <p class="project_never_built">Never built!</p>
+	                    </div>
+	                    <div class="start_build">
+	                        <a href="/project/${project.id}/build" class="build_project">build project</a>
+	                    </div>
+	                </div>
+	            </div><!-- end project -->
+								<div class="project" id="project_${project.id}">
+	                <div class="project_header">
+						<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
+		                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+		                    <ul class="project_actions">
+		                        <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
+		                        <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
+		                        <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
+		                    </ul>
+	                </div>
+	                <div class="project_log">
+	                    <div py:if="project.builds">
+	                        <div class="project_built">
+	                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
+	                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
+	                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+	                        </div>
+	                        <div class="project_building">
+	                            <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
+	                        </div>
+	                    </div>
+	                    <div py:if="not project.builds">
+	                        <p class="project_never_built">Never built!</p>
+	                    </div>
+	                    <div class="start_build">
+	                        <a href="/project/${project.id}/build" class="build_project">build project</a>
+	                    </div>
+	                </div>
+	            </div><!-- end project -->
+								<div class="project" id="project_${project.id}">
+	                <div class="project_header">
+						<h2><a class="project_name" href="/project/${project.id}">${project.name}</a></h2>
+		                    <!-- The class in the images here is used for JQuery selectors only and thus do not exist. -->
+		                    <ul class="project_actions">
+		                        <li><img src="/media/integrity/images/control_pause.png" alt="Stop monitoring this project" border="0" id="stop_monitoring_${project.id}" class="img_stop_monitoring" /></li>
+		                        <li><img src="/media/integrity/images/control_stop.png" alt="Stop current build" border="0" id="stop_current_build_${project.id}" class="img_stop_current_build" /></li>
+		                        <li><img src="/media/integrity/images/information.png" alt="Check the current build log" border="0" id="more_info_${project.id}" class="img_more_info" /></li>
+		                    </ul>
+	                </div>
+	                <div class="project_log">
+	                    <div py:if="project.builds">
+	                        <div class="project_built">
+	                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
+	                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author[:17]}</p>
+	                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+	                        </div>
+	                        <div class="project_building">
+	                            <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
+	                        </div>
+	                    </div>
+	                    <div py:if="not project.builds">
+	                        <p class="project_never_built">Never built!</p>
+	                    </div>
+	                    <div class="start_build">
+	                        <a href="/project/${project.id}/build" class="build_project">build project</a>
+	                    </div>
+	                </div>
+	            </div><!-- end project -->
+			</div>
         </div>
 
 <br /><br />

@@ -8,3 +8,71 @@ pre.log {
   font-size: .825em; 
 }
 
+.project_building {
+	display: none;
+}
+
+.dashboard_content {
+	min-height: 500px;
+}
+
+.project {
+	border: 1px solid gray;
+	float: left;
+	margin: 8px;
+	width: 190px;
+	background-color: #E4FFDF;
+	-moz-border-radius: 3px;
+	-moz-opacity: .9;
+}
+
+.project a {
+	text-decoration: none;
+}
+
+.project_built {
+	font-size: 0.7em;
+	margin: 8px; 
+}
+
+.project_header {
+	background-color: #B9CFB5;
+	min-height: 35px;
+}
+
+.project_actions {
+	float: right;
+	width: 30%;
+	margin-top: 8px;
+}
+
+.project_actions li {
+	float: left;
+}
+
+.project h2 {
+	margin: 0 !important;
+	width: 68%;
+	float: left;
+}
+
+.project h2 a {
+	margin-left: 8px;
+}
+
+.last_build_commit_author {
+	font-size: 1.4em;
+	font-weight: bold;
+	margin: 6px 0;
+	
+}
+
+.last_build_commit_text {
+	font-style: italic;
+}
+
+.start_build a {
+	float: right;
+	margin-right: 8px;
+}
+
