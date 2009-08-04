@@ -17,7 +17,7 @@ a.integrity_link {
     background-color: #ed1556; }
 
 #header, #content, #footer {
-  width: 40em;
+  width: 960px;
   margin: 0 auto;
   background: #eeeeee;
   padding: 0 2em;
@@ -369,7 +369,6 @@ a.failed {
   padding: 1.5em 2.5em;
   border-top: 1px solid #ccc;
   font-size: .8em;
-  width: 50em !important;
   color: #666;
   text-align: right; }
   #footer strong {

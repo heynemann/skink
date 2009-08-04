@@ -20,7 +20,8 @@ pre.log {
 	border: 1px solid gray;
 	float: left;
 	margin: 8px;
-	width: 190px;
+	width: 31%;
+	min-height: 136px;
 	background-color: #E4FFDF;
 	-moz-border-radius: 3px;
 	-moz-opacity: .9;
@@ -28,6 +29,7 @@ pre.log {
 
 .project a {
 	text-decoration: none;
+	color: #8F0808;
 }
 
 .project_built {
@@ -43,11 +45,11 @@ pre.log {
 .project_actions {
 	float: right;
 	width: 30%;
-	margin-top: 8px;
+	margin: 8px 5px 0 0;
 }
 
 .project_actions li {
-	float: left;
+	float: right;
 }
 
 .project h2 {
@@ -71,8 +73,18 @@ pre.log {
 	font-style: italic;
 }
 
-.start_build a {
+.start_build {
 	float: right;
-	margin-right: 8px;
+	background: url('../images/build.png') no-repeat;
+	margin-right: -8px;
+	
+}
+
+.start_build a {
+	display: block;
+	margin: 8px 0 0 20px;
+	width: 110px;
+	height: 38px;
+	
 }
 

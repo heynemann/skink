@@ -3,7 +3,7 @@ $(function(){
     query_status();
 
     $('a.build_project').click(build_project);
-
+	
     $('#more_info_dialog').dialog({
                         modal: true,
                         width: 720,
