@@ -10,6 +10,9 @@ pre.log {
 
 .project_building {
 	display: none;
+	width: 66px;
+	height: 66px;
+	margin: auto;
 }
 
 .dashboard_content {
@@ -17,14 +20,32 @@ pre.log {
 }
 
 .project {
-	border: 1px solid gray;
 	float: left;
 	margin: 8px;
-	width: 31%;
+	width: 48%;
 	min-height: 136px;
-	background-color: #E4FFDF;
 	-moz-border-radius: 3px;
 	-moz-opacity: .9;
+	background-color: #bbf8aa;
+    border-color: #99d688;
+    color: #337022;
+}
+
+.project_header {
+	background-color: #B3DFA7;
+	min-height: 35px;
+}
+
+.project_building {
+	background-color: #feffcc;
+    border-color: #cdae00;
+    color: #191919;
+}
+
+.project_fail {
+	background-color: #ffbbaa;
+    border-color: #dd9988;
+    color: #ff1100;
 }
 
 .project a {
@@ -35,11 +56,6 @@ pre.log {
 .project_built {
 	font-size: 0.7em;
 	margin: 8px; 
-}
-
-.project_header {
-	background-color: #B9CFB5;
-	min-height: 35px;
 }
 
 .project_actions {
@@ -75,16 +91,14 @@ pre.log {
 
 .start_build {
 	float: right;
-	background: url('../images/build.png') no-repeat;
-	margin-right: -8px;
-	
+	margin: 10px;
 }
 
 .start_build a {
-	display: block;
-	margin: 8px 0 0 20px;
-	width: 110px;
-	height: 38px;
-	
+	padding: 5px;
 }
 
+.start_build a:hover {
+	padding: 5px;
+	background-color: #DFB5B5;
+}
