@@ -2,6 +2,7 @@
 #-*- coding:utf-8 -*-
 
 import sys
+import re
 from os.path import dirname, abspath, join
 root_path = abspath(join(dirname(__file__), "../../"))
 sys.path.insert(0, root_path)
@@ -87,6 +88,10 @@ class Build(Entity):
     tabs = OneToMany('BuildTab', order_by="name")
     files = OneToMany('BuildFile', order_by="name")
     using_options(tablename="builds")
+
+    def commit_author_name(self):
+        regex = r'\s[<][^<]+[>]$'
+        return re.sub(regex, '', self.commit_author)
 
     def html_commit_text(self):
         return self.commit_text and self.commit_text.strip().replace("\n","<br />") or ""

@@ -23,7 +23,7 @@
                     <div py:if="project.builds">
                         <div class="project_built">
                             <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
-                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author}</p>
+                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author_name()}</p>
                             <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
                         </div>
                         <div class="project_building">
