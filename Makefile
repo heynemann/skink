@@ -55,6 +55,10 @@ run_acceptance: prepare_build compile acceptance report_success
 
 clean: remove_build_dir
 
+kill:
+	-@ps aux | egrep skink | egrep -v egrep | awk {'print $$2'} | xargs kill -9
+	@echo "Skink killed!"
+
 # action targets
 
 createdb:
