@@ -24,8 +24,11 @@ class Project(Entity):
     
     @property
     def last_builds(self):
-        return Build.query.filter_by(project=self).order_by('-date').all()[:10]
-            
+        if not hasattr(self, 'last_build_cache') or not self.last_build_cache:
+            self.last_build_cache = Build.query.filter_by(project=self).order_by('-date').all()[:10]
+        
+        return self.last_build_cache
+
     def get_build_by_id(self, build_id):
         for build in self.last_builds:
             if build.id == build_id:
