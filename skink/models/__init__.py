@@ -33,22 +33,21 @@ class Project(Entity):
         return None
     
     def get_last_build_number(self):
-        if not hasattr(self, 'builds') or not self.last_builds:
             return 0
         return len(self.last_builds)
 
     def get_last_build(self):
-        if not hasattr(self, 'builds') or not self.last_builds:
+        if not hasattr(self, 'last_builds') or not self.last_builds:
             return None
         return self.last_builds[0]
 
     def get_status(self):
-        if not hasattr(self, 'builds') or not self.last_builds:
+        if not hasattr(self, 'last_builds') or not self.last_builds:
             return "UNKNOWN"
         return self.last_builds[0].status
     
     def get_last_successful_build(self):
-        if not hasattr(self, 'builds') or not self.last_builds:
+        if not hasattr(self, 'last_builds') or not self.last_builds:
             return "UNKNOWN"
         for build in self.last_builds:
             if build.status=="SUCCESS":
