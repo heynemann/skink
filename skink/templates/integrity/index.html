@@ -15,18 +15,18 @@
             <li class="${index % 2 == 0 and 'even' or 'odd'} ${project.get_status() == 'SUCCESS' and 'success' or 'failed'}" py:for="project in projects">
               <?python index = index + 1 ?>
               <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
-              <div class="meta" py:if="project.builds">
+              <div class="meta" py:if="project.last_builds">
                 <div class="build_details">
-                    <py:if test="project.builds[0].commit_author">${project.builds[0].commit_author}</py:if><br />
-                    <py:if test="project.builds[0].commit_text">
-                        <i>${project.builds[0].commit_text[:50]}<span py:if="len(project.builds[0].commit_text)>50">...</span></i>
+                    <py:if test="project.last_builds[0].commit_author">${project.last_builds[0].commit_author}</py:if><br />
+                    <py:if test="project.last_builds[0].commit_text">
+                        <i>${project.last_builds[0].commit_text[:50]}<span py:if="len(project.last_builds[0].commit_text)>50">...</span></i>
                     </py:if>
                 </div>
                 <img src="/media/common/images/${project.build_status=='BUILDING' and 'building.gif' or 'accept.png'}" 
                      class="project_status" title="${project.build_status=='BUILDING' and 'Currently in the process of building...' or 'This project has been built.'}" 
                      id="build_status_${project.id}" align="absMiddle" />
               </div>
-              <div class="meta" py:if="not project.builds">
+              <div class="meta" py:if="not project.last_builds">
                 <div class="build_details">
                     Never built
                 </div>

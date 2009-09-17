@@ -20,17 +20,17 @@
                     </ul>
                 </div>
                 <div class="project_log">
-                    <div py:if="project.builds">
+                    <div py:if="project.last_builds">
                         <div class="project_built">
-                            <p class="last_build_commit_hash" py:if="project.builds[0].commit_number">${project.builds[0].commit_number[:7]}</p>
-                            <p class="last_build_commit_author" py:if="project.builds[0].commit_author">${project.builds[0].commit_author_name()}</p>
-                            <p class="last_build_commit_text" py:if="project.builds[0].commit_text">${project.builds[0].commit_text}</p>
+                            <p class="last_build_commit_hash" py:if="project.last_builds[0].commit_number">${project.last_builds[0].commit_number[:7]}</p>
+                            <p class="last_build_commit_author" py:if="project.last_builds[0].commit_author">${project.last_builds[0].commit_author_name()}</p>
+                            <p class="last_build_commit_text" py:if="project.last_builds[0].commit_text">${project.last_builds[0].commit_text}</p>
                         </div>
                         <div class="project_building">
                             <img src="/media/integrity/images/ajax-loader.gif" alt="Currently building..." border="0" id="currently_building_${project.id}" class="img_currently_building" />
                         </div>
                     </div>
-                    <div py:if="not project.builds">
+                    <div py:if="not project.last_builds">
                         <p class="project_never_built">Never built!</p>
                     </div>
                     <div class="start_build">

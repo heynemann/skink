@@ -16,7 +16,7 @@
         <div id='administrative'>
             <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/${project.id}/build">Build Project</a>
         </div>
-        <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.builds">
+        <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.last_builds">
             <div py:with="build = current_build">
                 <h1><img src="/media/common/images/accept.png" 
                      class="project_status" 
@@ -67,7 +67,7 @@
             </div>
         </div>
         
-        <div py:if="not project.builds">
+        <div py:if="not project.last_builds">
             <br />
             <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />No builds happened so far.
         </div>
@@ -80,15 +80,15 @@
         </form>
         
         <h2>Previous builds</h2>
-        <ul id='previous_builds' py:if="project.builds">
-            <li class="${build.status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.builds[0:10]">
+        <ul id='previous_builds' py:if="project.last_builds">
+            <li class="${build.status == 'SUCCESS' and 'success' or 'failed'}" py:for="build in project.last_builds[0:10]">
                 <a class="integrity_link" href="/project/${project.id}/builds/${build.id}">
                     <strong class='build'>Build <py:if test="build.commit_number">${build.commit_number[:7]}</py:if><py:if test="not build.commit_number">UNKNOWN</py:if></strong>
                     <span class='attribution'>by ${build.commit_committer}, on <py:if test="build.commit_committer_date">${build.commit_committer_date.strftime("%b %d")}</py:if></span>
                 </a>
             </li>
         </ul>
-        <p id='previous_builds' py:if="not project.builds">
+        <p id='previous_builds' py:if="not project.last_builds">
             No builds happened so far
         </p>
     </body>

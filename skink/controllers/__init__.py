@@ -170,7 +170,7 @@ class ProjectController(BaseController):
             if project.id in projects_being_built:
                 result[project.id] = (project.name, "BUILDING")
             else:
-                result[project.id] = (project.name, (project.builds is not None and len(project.builds) > 0) and "BUILT" or "UNKNOWN")
+                result[project.id] = (project.name, (project.last_builds is not None and len(project.last_builds) > 0) and "BUILT" or "UNKNOWN")
 
         return "\n".join(["%s=%s@@%s" % (k, v[0],v[1]) for k,v in result.items()])
 
@@ -208,7 +208,7 @@ class ProjectController(BaseController):
     def render_details(self, project_id, build_id = None):
         project = self.repository.get(project_id)
         if not build_id:
-            build = project.builds and project.builds[0] or None
+            build = project.last_builds and project.last_builds[0] or None
         else:
             build = project.get_build_by_id(int(build_id))
         build_log = ""

@@ -14,39 +14,43 @@ class Project(Entity):
     name = Field(Unicode(255))
     build_script = Field(Unicode(2000))
     scm_repository = Field(Unicode(1500))
-    builds = OneToMany('Build', order_by="-date")
+    #builds = OneToMany('Build', order_by="-date", lazy=True)
     tabs = OneToMany('ProjectTab', order_by="name")
     file_locators = OneToMany('ProjectFileLocator')
     pipeline_items = OneToMany('PipelineItem')
     monitor_changes = Field(Boolean)
     build_status = Field(Unicode(15), default="UNKNOWN")
     using_options(tablename="projects")
+    
+    @property
+    def last_builds(self):
+        return Build.query.filter_by(project=self).order_by('-date').all()[:10]
             
     def get_build_by_id(self, build_id):
-        for build in self.builds:
+        for build in self.last_builds:
             if build.id == build_id:
                 return build
         return None
     
     def get_last_build_number(self):
-        if not hasattr(self, 'builds') or not self.builds:
+        if not hasattr(self, 'builds') or not self.last_builds:
             return 0
-        return len(self.builds)
+        return len(self.last_builds)
 
     def get_last_build(self):
-        if not hasattr(self, 'builds') or not self.builds:
+        if not hasattr(self, 'builds') or not self.last_builds:
             return None
-        return self.builds[0]
+        return self.last_builds[0]
 
     def get_status(self):
-        if not hasattr(self, 'builds') or not self.builds:
+        if not hasattr(self, 'builds') or not self.last_builds:
             return "UNKNOWN"
-        return self.builds[0].status
+        return self.last_builds[0].status
     
     def get_last_successful_build(self):
-        if not hasattr(self, 'builds') or not self.builds:
+        if not hasattr(self, 'builds') or not self.last_builds:
             return "UNKNOWN"
-        for build in self.builds:
+        for build in self.last_builds:
             if build.status=="SUCCESS":
                 return "#%s (%s)" % (build.number, build.date.strftime("%m/%d/%Y %H:%M:%S"))
 
@@ -77,10 +81,10 @@ class Build(Entity):
     date = Field(DateTime)
     status = Field(Unicode(20))
     scm_status = Field(Unicode(20))
-    log = Field(UnicodeText)
+    log = Field(UnicodeText, deferred=True)
     commit_number = Field(Unicode(40))
     commit_author = Field(Unicode(400))
-    commit_committer = Field(Unicode(400))
+    commit_committer = Field(Unicode(400), deferred=True)
     commit_text = Field(UnicodeText)
     commit_author_date = Field(DateTime)
     commit_committer_date = Field(DateTime)
