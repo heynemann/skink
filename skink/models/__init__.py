@@ -33,6 +33,7 @@ class Project(Entity):
         return None
     
     def get_last_build_number(self):
+        if not hasattr(self, 'last_builds') or not self.last_builds:
             return 0
         return len(self.last_builds)
 
