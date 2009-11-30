@@ -30,11 +30,8 @@ class Project(Entity):
         return self.last_build_cache
 
     def get_build_by_id(self, build_id):
-        for build in self.last_builds:
-            if build.id == build_id:
-                return build
-        return None
-    
+        return Build.get(build_id)
+
     def get_last_build_number(self):
         if not hasattr(self, 'last_builds') or not self.last_builds:
             return 0
