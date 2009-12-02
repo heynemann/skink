@@ -42,7 +42,7 @@ class ShellExecuter(object):
                 print "[%s] - %.2f secs" % (command, self.ellapsed(start_time=start_time)) 
 
                 if timeout and self.ellapsed(start_time=start_time) > timeout:
-                    executer.kill()
+                    os.kill(executer.get_pid(), 9)
                     if self.timed_out:
                         self.timed_out(executer=executer)
 
