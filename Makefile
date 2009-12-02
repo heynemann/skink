@@ -85,7 +85,7 @@ compile:
 unit: compile
 	@echo "Running unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
 	@echo "============="
 	@echo "Unit coverage"
 	@echo "============="
@@ -96,7 +96,7 @@ unit: compile
 func: compile
 	@echo "Running functional tests..."
 	@rm -f ${functional_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; fi
 
 	@echo "==================="
 	@echo "Functional coverage"
