@@ -31,10 +31,10 @@ help:
 	@echo "    createdb         drops the database and runs all migrations"
 	@echo "    upgradedb        runs all migrations without dropping the db"
 	@echo "    compile          compiles the python code"
-	@echo "    test             runs all tests (unit, functional and acceptance)"
-	@echo "    run_unit         runs all unit tests"
-	@echo "    run_functional   runs all functional tests"
-	@echo "    run_acceptance   runs all acceptance tests"
+	@echo "    test             runs all tests (unit, run_functional and run_acceptance)"
+	@echo "    run_unit         runs all run_unit tests"
+	@echo "    run_functional   runs all run_functional tests"
+	@echo "    run_acceptance   runs all run_acceptance tests"
 	@echo "    run              runs the skink server"
 	@echo
 	@echo "    to run the tests with no coverage add nocoverage to the make script"
@@ -45,13 +45,13 @@ help:
 
 prepare_build: clean create_build_dir
 
-test: unit func acceptance
+test: prepare_build compile run_unit run_functional run_acceptance
 
 all: prepare_build compile test report_success
 
-run_unit: prepare_build compile unit report_success
-run_functional: prepare_build compile func report_success
-run_acceptance: prepare_build compile acceptance report_success
+unit: prepare_build compile run_unit report_success
+functional: prepare_build compile run_functional report_success
+acceptance: prepare_build compile run_acceptance report_success
 
 clean: remove_build_dir
 
@@ -82,8 +82,8 @@ compile:
 	@rm -f -r ${src_dir}/*.pyc >> /dev/null
 	@python -m compileall ${src_dir} >> ${compile_log_file} 2>> ${compile_log_file}
 
-unit: compile
-	@echo "Running unit tests..."
+run_unit: compile
+	@echo "Running run_unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
 	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
 	@echo "============="
@@ -93,8 +93,8 @@ unit: compile
 	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
 	@echo
 	
-func: compile
-	@echo "Running functional tests..."
+run_functional: compile
+	@echo "Running run_functional tests..."
 	@rm -f ${functional_log_file} >> /dev/null
 	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; fi
 
@@ -105,8 +105,8 @@ func: compile
 	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
 	@echo
 	
-acceptance: compile
-	@echo "Running acceptance tests..."
+run_acceptance: compile
+	@echo "Running run_acceptance tests..."
 	@rm -f ${acceptance_log_file} >> /dev/null
 	@nosetests ${acceptance_tests_dir} >> ${acceptance_log_file} 2>> ${acceptance_log_file}
 	
