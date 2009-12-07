@@ -62,7 +62,7 @@ compile:
 run_unit: compile
 	@echo "Running run_unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -d -s --verbose ${unit_tests_dir}; else nosetests -d -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir}; fi
 
 run_functional: compile
 	@echo "Running run_functional tests..."

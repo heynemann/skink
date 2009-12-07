@@ -8,7 +8,7 @@ Grabbing the Code
 
 In order to get the code, you need to have Git installed. There are several tutorials on the web that teach how to install git, so we'll skip that.
 
-After git is installed just clone skink from git@github.com:heynemann/skink.git and you are good to go (git clone git@github.com:heynemann/skink.git).
+After git is installed just clone skink from `git@github.com:heynemann/skink.git <git@github.com:heynemann/skink.git>`_ and you are good to go (git clone `git@github.com:heynemann/skink.git <git@github.com:heynemann/skink.git>`_).
 
 Creating the Database
 ---------------------
@@ -46,7 +46,7 @@ Next Steps
 
 There are some very interesting concepts in skink that you might want to take a look:
 
-    * [pipelines]
-    * [plugin_authoring]
-    * [skinning_skink]
+    * :doc:`pipelines`
+    * :doc:`plugin_authoring`
+    * :doc:`skinning_skink`
 

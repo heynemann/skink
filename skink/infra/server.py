@@ -35,4 +35,6 @@ class Server(object):
 
         self.status = ServerStatus.Started
 
+    def subscribe(self, subject, handler):
+        self.context.bus.subscribe(subject, handler)
 
