@@ -18,29 +18,6 @@ functional_log_file=${build_dir}/functional.log
 acceptance_log_file=${build_dir}/acceptance.log
 nocoverage=false
 
-.PHONY: help all compile test run_unit run_functional run_acceptance run
-
-help:
-	@echo
-	@echo "    skink Makefile v${file_version}"
-	@echo "    usage: make <target>"
-	@echo
-	@echo "    targets:"
-	@echo "    help             displays this help text"
-	@echo "    all              compiles the code and runs all tests"
-	@echo "    createdb         drops the database and runs all migrations"
-	@echo "    upgradedb        runs all migrations without dropping the db"
-	@echo "    compile          compiles the python code"
-	@echo "    test             runs all tests (unit, run_functional and run_acceptance)"
-	@echo "    run_unit         runs all run_unit tests"
-	@echo "    run_functional   runs all run_functional tests"
-	@echo "    run_acceptance   runs all run_acceptance tests"
-	@echo "    run              runs the skink server"
-	@echo
-	@echo "    to run the tests with no coverage add nocoverage to the make script"
-	@echo "    like this: make build nocoverage"
-	@echo
-
 # orchestrator targets
 
 prepare_build: clean create_build_dir
@@ -85,31 +62,22 @@ compile:
 run_unit: compile
 	@echo "Running run_unit tests..."
 	@rm -f ${unit_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir} >> ${unit_log_file} 2>> ${unit_log_file}; fi
-	@echo "============="
-	@echo "Unit coverage"
-	@echo "============="
-	@if [ "$(nocoverage)" != "true" ]; then cat ${unit_log_file} | egrep '(Name)|(TOTAL)'; fi
-	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
-	@echo
-	
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${unit_tests_dir}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${unit_tests_dir}; fi
+
 run_functional: compile
 	@echo "Running run_functional tests..."
 	@rm -f ${functional_log_file} >> /dev/null
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${functional_tests_dir} >> ${functional_log_file} 2>> ${functional_log_file}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir}; else nosetests -s --verbose --with-coverage --cover-package=skink --cover-erase --cover-inclusive ${functional_tests_dir}; fi
 
-	@echo "==================="
-	@echo "Functional coverage"
-	@echo "==================="
-	@if [ "$(nocoverage)" != "true" ]; then cat ${functional_log_file} | egrep '(Name)|(TOTAL)'; fi
-	@if [ "$(nocoverage)" = "true" ]; then echo 'Coverage Disabled.'; fi
-	@echo
-	
 run_acceptance: compile
 	@echo "Running run_acceptance tests..."
 	@rm -f ${acceptance_log_file} >> /dev/null
-	@nosetests ${acceptance_tests_dir} >> ${acceptance_log_file} 2>> ${acceptance_log_file}
-	
+	@nosetests ${acceptance_tests_dir}
+
+documentation:
+	cd docs && make html
+	firefox `pwd`/docs/build/html/index.html &
+
 run:
 	@python skink/skink_console.py run
 	
