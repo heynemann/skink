@@ -16,4 +16,17 @@
 # limitations under the License.
 
 class Bus(object):
-    pass
+    def __init__(self):
+        self.subscriptions = {}
+
+    def subscribe(self, subject, func):
+        if not subject in self.subscriptions:
+            self.subscriptions[subject] = []
+        self.subscriptions[subject].append(func)
+
+    def publish(self, subject, data, *args, **kw):
+        if subject not in self.subscriptions:
+            return
+
+        for subscription in self.subscriptions[subject]:
+            subscription(data, *args, **kw)
