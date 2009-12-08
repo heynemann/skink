@@ -7,6 +7,24 @@
 		{% block extrahead %}{% endblock %}
 	</head>
   	<body>
-		{% block content %}{% endblock %}
+		<div id="header">
+			<div id="menu">
+				<ul>
+					<li><a href="#">Projects</a></li>
+					<li><a href="#">Pipelines</a></li>
+				</ul>
+			</div>
+			<div id="login">
+				Login <input type="text" value="username" /><input type="text" value="password" /> <input type="submit" value="ok" />
+			</div>
+		</div>
+		<div id="content">
+			{% block content %}{% endblock %}
+		</div>
+		<div id="footer">
+			<p>
+                built with <a href="http://www.skinkci.org" target="_blank">Skink ci</a>
+            </p>
+		</div>
   	</body>
 </html>
