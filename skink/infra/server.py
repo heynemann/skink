@@ -30,11 +30,11 @@ class Server(object):
         self.context = Context()
 
     def start(self):
-        self.context.bus.publish('on_before_server_start', {'server':self, 'context':self.context})
+        self.publish('on_before_server_start', {'server':self, 'context':self.context})
         self.status = ServerStatus.Starting
         
         self.status = ServerStatus.Started
-        self.context.bus.publish('on_after_server_start', {'server':self, 'context':self.context})
+        self.publish('on_after_server_start', {'server':self, 'context':self.context})
         
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
