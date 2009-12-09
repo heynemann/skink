@@ -15,6 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from skink.infra.server import *
-from skink.infra.context import *
-from skink.infra.bus import *
+import fudge
+
+def clear(func):
+    def dec(*args, **kw):
+        fudge.clear_expectations()
+        func(*args, **kw)
+
+    dec.__name__ = func.__name__
+    dec.__doc__ = func.__doc__
+    return dec

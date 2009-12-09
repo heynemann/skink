@@ -1,30 +1,30 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-	<head>
-    	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
         <title>Skink {% block title %}{% endblock %}</title>
-		{% block extrahead %}{% endblock %}
-	</head>
-  	<body>
-		<div id="header">
-			<div id="menu">
-				<ul>
-					<li><a href="#">Projects</a></li>
-					<li><a href="#">Pipelines</a></li>
-				</ul>
-			</div>
-			<div id="login">
-				Login <input type="text" value="username" /><input type="text" value="password" /> <input type="submit" value="ok" />
-			</div>
-		</div>
-		<div id="content">
-			{% block content %}{% endblock %}
-		</div>
-		<div id="footer">
-			<p>
+        {% block extrahead %}{% endblock %}
+    </head>
+      <body>
+        <div id="header">
+            <div id="menu">
+                <ul>
+                    <li><a href="#">Projects</a></li>
+                    <li><a href="#">Pipelines</a></li>
+                </ul>
+            </div>
+            <div id="login">
+                Login <input type="text" value="username" /><input type="text" value="password" /> <input type="submit" value="ok" />
+            </div>
+        </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+        <div id="footer">
+            <p>
                 built with <a href="http://www.skinkci.org" target="_blank">Skink ci</a>
             </p>
-		</div>
-  	</body>
+        </div>
+      </body>
 </html>

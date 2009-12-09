@@ -15,9 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from mock import *
+from fudge import Fake, with_fakes
+from fudge.inspector import arg
+from fudge_extensions import clear
 
-from skink.infra import Server, ServerStatus, Context
+from skink.lib.ion import Server, ServerStatus, Context
 
 def test_server_status_statuses():
     assert ServerStatus.Unknown == 0
@@ -27,44 +29,47 @@ def test_server_status_statuses():
     assert ServerStatus.Stopped == 4
 
 def test_server_should_have_unknown_status_by_default():
-    server = Server()
+    server = Server(root_dir="some")
     assert server.status == ServerStatus.Unknown
 
 def test_server_should_start():
-    server = Server()
+    server = Server(root_dir="some")
     server.start()
 
     assert server.status == ServerStatus.Started
 
 def test_server_should_have_context():
-    server = Server()
+    server = Server(root_dir="some")
 
     assert server.context
 
 def test_server_should_have_context_of_type_context():
-    server = Server()
+    server = Server(root_dir="some")
 
     assert isinstance(server.context, Context)
 
+context = Fake('context').has_attr(bus=Fake('bus'))
+
+@with_fakes
+@clear
 def test_server_subscribe_calls_bus_subscribe():
     #mocks
-    server = Server()
-    server.context = Mock()
+    context.bus.expects('subscribe').with_args("anything", arg.any_value())
 
-    func = lambda server, bus, arguments: None
+    server = Server(root_dir="some")
+    server.context = context
 
     #test
-    server.subscribe('anything', func)
+    server.subscribe('anything', lambda server, bus, arguments: None)
 
-    assert server.context.bus.subscribe.called
-
+@with_fakes
+@clear
 def test_server_start_should_publish_on_before_and_after_server_start_event():
-    server = Server()
-    server.context = Mock()
-    server.context.bus = Mock()
+    context.bus.expects('publish').with_args("on_before_server_start", arg.any_value())
+    context.bus.next_call(for_method='publish').with_args("on_after_server_start", arg.any_value())
+
+    server = Server(root_dir="some")
+    server.context = context
 
     server.start()
-
-    assert server.context.bus.publish.call_args_list[0] == (('on_before_server_start', {'server':server, 'context':server.context}), {})
-    assert server.context.bus.publish.call_args_list[1] == (('on_after_server_start', {'server':server, 'context':server.context}), {})
 

@@ -15,16 +15,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from skink.lib.ion import Context
 
-def test_can_create_context():
-    ctx = Context(root_dir="some")
-    assert ctx
-
-def test_context_contains_bus_of_events():
-    ctx = Context(root_dir="some")
-    assert ctx.bus
-
-def test_context_contains_settings():
-    ctx = Context(root_dir="some")
-    assert ctx.settings

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from skink.infra import Bus
+from skink.lib.ion import Bus
 
 def test_can_create_bus():
     bus = Bus()

@@ -15,8 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from skink.infra.bus import Bus
+from bus import Bus
+from settings import Settings
 
 class Context(object):
-    def __init__(self):
+    def __init__(self, root_dir):
         self.bus = Bus()
+        self.settings = Settings(root_dir=root_dir)

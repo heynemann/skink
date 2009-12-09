@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from skink.infra.context import Context
+from context import Context
 
 class ServerStatus(object):
     Unknown = 0
@@ -25,17 +25,46 @@ class ServerStatus(object):
     Stopped = 4
 
 class Server(object):
-    def __init__(self):
+    def __init__(self, root_dir):
         self.status = ServerStatus.Unknown
-        self.context = Context()
+        self.context = Context(root_dir=root_dir)
 
     def start(self):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
         self.status = ServerStatus.Starting
-        
+
+        #self.run_server()
+
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
-        
+
+#    def run_server(self):
+#        cherrypy.config.update({
+#                'server.socket_host': ctx.host,
+#                'server.socket_port': ctx.port,
+#                'request.base': ctx.root,
+#                'tools.encode.on': True, 
+#                'tools.encode.encoding': 'utf-8',
+#                'tools.decode.on': True,
+#                'tools.trailing_slash.on': True,
+#                'tools.staticdir.root': join(root_path, "skink/"),
+#                'tools.ElixirTransaction.on': True,
+#                'log.screen': ctx.webserver_verbose,
+#                'tools.sessions.on': True
+#            })
+
+#        conf = {
+#            '/': {
+#                'request.dispatch': cls.__setup_routes(),
+#            },
+#            '/media': {
+#                'tools.staticdir.on': True,
+#                'tools.staticdir.dir': 'media'
+#            }
+#        }
+
+#        app = cherrypy.tree.mount(None, config=conf)
+
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
 
