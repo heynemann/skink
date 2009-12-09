@@ -58,18 +58,13 @@ def test_server_subscribe_calls_bus_subscribe():
 
     assert server.context.bus.subscribe.called
 
-def __test_server_start_should_publish_on_before_server_start_event():
+def test_server_start_should_publish_on_before_and_after_server_start_event():
     server = Server()
-
-    on_before_started_called = False
-
-    def on_before_started(server, bus, arguments):
-        on_before_started_called = True
-
-    server.subscribe("on_before_started", on_before_started)
+    server.context = Mock()
+    server.context.bus = Mock()
 
     server.start()
 
-    assert on_before_started_called
-
+    assert server.context.bus.publish.call_args_list[0] == (('on_before_server_start', {'server':server, 'context':server.context}), {})
+    assert server.context.bus.publish.call_args_list[1] == (('on_after_server_start', {'server':server, 'context':server.context}), {})
 
