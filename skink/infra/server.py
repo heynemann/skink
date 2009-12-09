@@ -30,7 +30,7 @@ class Server(object):
         self.context = Context()
 
     def start(self):
-        #self.context.bus.publish('on_before_server_start', {'self':self, 'context':self.context})
+        self.context.bus.publish('on_before_server_start', {'self':self, 'context':self.context})
         self.status = ServerStatus.Starting
 
         self.status = ServerStatus.Started

@@ -50,7 +50,6 @@ def test_server_subscribe_calls_bus_subscribe():
     #mocks
     server = Server()
     server.context = Mock()
-    server.context.bus = Mock()
 
     func = lambda server, bus, arguments: None
 
@@ -58,7 +57,6 @@ def test_server_subscribe_calls_bus_subscribe():
     server.subscribe('anything', func)
 
     assert server.context.bus.subscribe.called
-    assert server.context.bus.subscribe.call_args[0] == ('anything', func)
 
 def __test_server_start_should_publish_on_before_server_start_event():
     server = Server()
