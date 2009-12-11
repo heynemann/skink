@@ -43,6 +43,7 @@ class BuildService(object):
     def start_execute(self, executer):
         ctx = SkinkContext.current()
         ctx.current_command = executer.command
+        ctx.current_process = executer
         ctx.current_start_time = time.time()
         ctx.current_project = self.current_project
         ctx.current_log = None

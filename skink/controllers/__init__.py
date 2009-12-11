@@ -216,6 +216,17 @@ class ProjectController(BaseController):
             build_log = highlight(build.log, BashLexer(), HtmlFormatter())
         return template.render(authenticated=self.authenticated(), project=project, current_build=build, build_log=build_log)
 
+    def stop_build(self, project_id):
+        try:
+            ctx = SkinkContext.current()
+            if hasattr(ctx, 'current_process') and ctx.current_process and not ctx.current_process.process.killed:
+                ctx.current_process.process.stop()
+            else:
+                return "NOTRUNNING"
+            return "OK"
+        except:
+            return "ERROR"
+
 class PipelineController(BaseController):
     def __init__(self):
         self.repository = PipelineRepository()

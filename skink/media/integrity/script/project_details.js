@@ -4,4 +4,18 @@ $(function(){
     });
     
     $("#current-build-tabs").tabs();
+    
+    $('#stop_project').click(function(){
+        link = $(this);
+        href = link.attr('href');
+        $.get(href, function(data){
+            if (data == "NOTRUNNING"){
+                alert('This project is not being built');
+            }
+            else{
+                alert('Build stopped!');
+            }
+        });
+        return false;
+    });
 });

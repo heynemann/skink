@@ -35,6 +35,7 @@ class Server(object):
         d.connect('build_details', 'project/:project_id/builds/:build_id', controller=ProjectController(), action='build_details')
         d.connect('build_tab', 'tabs/:build_tab_id', controller=ProjectController(), action='build_tab_details')
         d.connect('build_file', 'buildfiles/:build_file_id', controller=ProjectController(), action='build_file_details')
+        d.connect('stop_build', 'project/:project_id/stopbuild', controller=ProjectController(), action='stop_build')
         d.connect('project_build_status', 'buildstatus', controller=ProjectController(), action='build_status')
         d.connect('pipeline_index', 'pipeline', controller=PipelineController(), action='index')
         d.connect('create_pipeline', 'pipeline/create', controller=PipelineController(), action='create')

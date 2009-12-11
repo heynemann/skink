@@ -14,7 +14,7 @@
             / <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
         </span>
         <div id='administrative'>
-            <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/${project.id}/build">Build Project</a>
+            <a class="integrity_link" href='/project/${project.id}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/${project.id}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/${project.id}/build">Build Project</a> | <a class="integrity_link" id="stop_project" href="/project/${project.id}/stopbuild">Stop Project</a>
         </div>
         <div class="${current_build and (current_build.status == 'SUCCESS' and 'success' or 'failed')}" id='last_build' py:if="project.last_builds">
             <div py:with="build = current_build">
