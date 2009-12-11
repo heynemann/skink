@@ -51,14 +51,14 @@ def test_settings_will_load_config_ini_retains_config():
 
 custom_file_parser = (Fake("ConfigParser").expects("__init__")
                                           .expects("read")
-                                          .with_args(arg.endswith("config.ini")))
+                                          .with_args(arg.endswith("custom.ini")))
 
 @with_fakes
 @with_patched_object(sets, "ConfigParser", custom_file_parser)
 def test_settings_can_load_custom_file():
     settings = Settings("some_dir")
 
-    settings.load()
+    settings.load("custom.ini")
 
     assert settings.config
 
