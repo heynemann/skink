@@ -22,11 +22,12 @@ from fudge_extensions import clear
 import skink.lib.ion.settings as sets
 from skink.lib.ion import Settings
 
-parser = Fake(callable=True).with_args().returns_fake()
+parser = (Fake("ConfigParser").expects("__init__")
+                              .expects("read")
+                              .with_args(arg.endswith("config.ini")))
 
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
-@clear
 def test_can_create_settings():
     settings = Settings("some_dir")
 
@@ -34,20 +35,28 @@ def test_can_create_settings():
 
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
-@clear
 def test_settings_will_load_config_ini():
     settings = Settings("some_dir")
-    parser.expects("__init__").expects("read").with_args(arg.endswith("config.ini"))
 
     settings.load()
 
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
-@clear
-def test_settings_will_load_config_ini():
+def test_settings_will_load_config_ini_retains_config():
     settings = Settings("some_dir")
 
-    parser.provides("__init__").returns_fake().provides("read").with_args(arg.endswith("config.ini")).returns_fake()
+    settings.load()
+
+    assert settings.config
+
+custom_file_parser = (Fake("ConfigParser").expects("__init__")
+                                          .expects("read")
+                                          .with_args(arg.endswith("config.ini")))
+
+@with_fakes
+@with_patched_object(sets, "ConfigParser", custom_file_parser)
+def test_settings_can_load_custom_file():
+    settings = Settings("some_dir")
 
     settings.load()
 
