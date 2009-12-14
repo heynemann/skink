@@ -29,6 +29,12 @@ class IndexController(BaseController):
         projects = repository.get_all()
         return template.render(authenticated=self.authenticated(), projects=projects)
 
+    @template.output("mini.html")
+    def mini(self):
+        repository = ProjectRepository()
+        projects = repository.get_all()
+        return template.render(authenticated=self.authenticated(), projects=projects)
+
     @template.output("dashboard.html")
     def dashboard(self):
         repository = ProjectRepository()
@@ -149,6 +155,10 @@ class ProjectController(BaseController):
 
     @template.output("current_build.html")
     def current_build_report(self, **data):
+        return template.render(authenticated=self.authenticated())
+
+    @template.output("current_build_mini.html")
+    def current_build_report_mini(self, **data):
         return template.render(authenticated=self.authenticated())
 
     def current_status(self, **data):

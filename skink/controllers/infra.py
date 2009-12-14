@@ -46,6 +46,7 @@ class Server(object):
         d.connect('status', 'status', controller=ProjectController(), action='get_all_status')
         d.connect('current_status', 'currentstatus', controller=ProjectController(), action='current_status')
         d.connect('currentbuild', 'currentbuild', controller=ProjectController(), action='current_build_report')
+        d.connect('currentbuild_mini', 'currentbuild_mini', controller=ProjectController(), action='current_build_report_mini')
 
         d.connect('login', 'login', controller=IndexController(), action='login')
         d.connect('login_error', 'loginerror', controller=IndexController(), action='login_error')

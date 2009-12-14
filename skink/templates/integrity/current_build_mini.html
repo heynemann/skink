@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <?python from genshi import HTML ?>
+    <head>
+        <title>Current Build</title>
+        <script type="text/javascript" language="javascript" src="/media/common/script/current_build.js"></script>
+    </head>
+    <style>
+	html{background-color:#111}
+	a{text-decoration:none;color:#C0C0C0;}
+	#no_current_builds, #current_project{margin 5px;background-color:#111;color:#C0C0C0;text-align:center;font-size:1.4em;height:55px;margin-top:10px;}
+	#current_log pre.output {padding:0; font-size: 1em; 
+overflow-y:auto;
+overflow-x:hidden;
+overflow:hidden; height:100%}	
+	#header, #footer, #current_project, #current_command {display:none;}
+	#content {margin:0;padding:0;width:100%}
+    </style>
+    <body>
+        <div id="no_current_builds">There are currently no projects being built.</div>
+        <div id="current_project"></div>
+        <div id="current_log"></div>
+	<div id="focus" onload="this.focus()"></div>
+    </body>
+</html>

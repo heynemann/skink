@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/">
+    <xi:include href="default.html" />
+    <head>
+        <title>Home</title>
+        <script src="/media/common/script/project_status.js"></script>
+        <meta http-equiv="refresh" content="20" />
+    </head>
+    <style>
+	html{background-color:#000}
+	#header, #footer, #currently_building, #new {display:none; }
+	#content {margin:0;padding:0;width:100%}
+	.build_details {float:left; font-size:1.3em !important; margin-right:5px; margin-top:-15px;}
+    </style>
+    <body>
+        <!--<div id="currently_building"></div>-->
+        <ul id="projects" py:if="projects">
+            <?python index = 0 ?>
+            <li class="${index % 2 == 0 and 'even' or 'odd'} ${project.get_status() == 'SUCCESS' and 'success' or 'failed'}" py:for="project in projects">
+              <?python index = index + 1 ?>
+              <a class="integrity_link" href="/project/${project.id}">${project.name}</a>
+              <div class="meta" py:if="project.last_builds">
+                <div class="build_details">
+                    <py:if test="project.last_builds[0].commit_author">${project.last_builds[0].commit_author}</py:if><br />
+                    <py:if test="project.last_builds[0].commit_text">
+                        <i>${project.last_builds[0].commit_text[:50]}<span py:if="len(project.last_builds[0].commit_text)>50">...</span></i>
+                    </py:if>
+                </div>
+                <img src="/media/common/images/${project.build_status=='BUILDING' and 'building.gif' or 'accept.png'}" 
+                     class="project_status" title="${project.build_status=='BUILDING' and 'Currently in the process of building...' or 'This project has been built.'}" 
+                     id="build_status_${project.id}" align="absMiddle" />
+              </div>
+              <div class="meta" py:if="not project.last_builds">
+                <div class="build_details">
+                    Never built
+                </div>
+                <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
+              </div>
+            </li>
+        </ul>
+        <p id="new" py:if="projects">
+            <a class="integrity_link" href="/project/new">Add a new project</a>
+        </p>
+
+        <div id="projects" py:if="not projects">
+            Looks like you don't have any projects!<br />
+            How about <a class="integrity_link" href="/project/new">creating one now</a>?
+        </div>
+
+    </body>
+</html>
