@@ -33,37 +33,37 @@ class Server(object):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
         self.status = ServerStatus.Starting
 
-        #self.run_server()
+        self.run_server()
 
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
 
-#    def run_server(self):
-#        cherrypy.config.update({
-#                'server.socket_host': ctx.host,
-#                'server.socket_port': ctx.port,
-#                'request.base': ctx.root,
-#                'tools.encode.on': True, 
-#                'tools.encode.encoding': 'utf-8',
-#                'tools.decode.on': True,
-#                'tools.trailing_slash.on': True,
-#                'tools.staticdir.root': join(root_path, "skink/"),
-#                'tools.ElixirTransaction.on': True,
-#                'log.screen': ctx.webserver_verbose,
-#                'tools.sessions.on': True
-#            })
+    def run_server(self):
+        cherrypy.config.update({
+                'server.socket_host': ctx.host,
+                'server.socket_port': ctx.port,
+                'request.base': ctx.root,
+                'tools.encode.on': True, 
+                'tools.encode.encoding': 'utf-8',
+                'tools.decode.on': True,
+                'tools.trailing_slash.on': True,
+                'tools.staticdir.root': join(root_path, "skink/"),
+                'tools.ElixirTransaction.on': True,
+                'log.screen': ctx.webserver_verbose,
+                'tools.sessions.on': True
+            })
 
-#        conf = {
-#            '/': {
-#                'request.dispatch': cls.__setup_routes(),
-#            },
-#            '/media': {
-#                'tools.staticdir.on': True,
-#                'tools.staticdir.dir': 'media'
-#            }
-#        }
+        conf = {
+            '/': {
+                'request.dispatch': cls.__setup_routes(),
+            },
+            '/media': {
+                'tools.staticdir.on': True,
+                'tools.staticdir.dir': 'media'
+            }
+        }
 
-#        app = cherrypy.tree.mount(None, config=conf)
+        app = cherrypy.tree.mount(None, config=conf)
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)

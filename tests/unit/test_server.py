@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fudge import Fake, with_fakes
+from fudge import Fake, with_fakes, with_patched_object
 from fudge.inspector import arg
 from fudge_extensions import clear
 
 from skink.lib.ion import Server, ServerStatus, Context
+
+custom_run_server = Fake(callable=True)
 
 def test_server_status_statuses():
     assert ServerStatus.Unknown == 0
@@ -32,8 +34,12 @@ def test_server_should_have_unknown_status_by_default():
     server = Server(root_dir="some")
     assert server.status == ServerStatus.Unknown
 
+@with_fakes
+@with_patched_object(Server, "run_server", custom_run_server)
+@clear
 def test_server_should_start():
     server = Server(root_dir="some")
+    server.context = default_context
     server.start()
 
     assert server.status == ServerStatus.Started
@@ -49,27 +55,36 @@ def test_server_should_have_context_of_type_context():
     assert isinstance(server.context, Context)
 
 context = Fake('context').has_attr(bus=Fake('bus'))
+context.bus.expects('subscribe').with_args("anything", arg.any_value())
 
 @with_fakes
+@with_patched_object(Server, "run_server", custom_run_server)
 @clear
 def test_server_subscribe_calls_bus_subscribe():
-    #mocks
-    context.bus.expects('subscribe').with_args("anything", arg.any_value())
-
     server = Server(root_dir="some")
     server.context = context
 
-    #test
     server.subscribe('anything', lambda server, bus, arguments: None)
 
+default_context = Fake('context').has_attr(bus=Fake('bus'))
+default_context.bus.expects('publish').with_args("on_before_server_start", arg.any_value())
+default_context.bus.next_call(for_method='publish').with_args("on_after_server_start", arg.any_value())
+
 @with_fakes
+@with_patched_object(Server, "run_server", custom_run_server)
 @clear
 def test_server_start_should_publish_on_before_and_after_server_start_event():
-    context.bus.expects('publish').with_args("on_before_server_start", arg.any_value())
-    context.bus.next_call(for_method='publish').with_args("on_after_server_start", arg.any_value())
-
     server = Server(root_dir="some")
-    server.context = context
+    server.context = default_context
+
+    server.start()
+
+@with_fakes
+@with_patched_object(Server, "run_server", custom_run_server)
+@clear
+def test_server_start_calls_run_server():
+    server = Server(root_dir="some")
+    server.context = default_context
 
     server.start()
 
