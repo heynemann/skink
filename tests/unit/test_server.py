@@ -34,6 +34,10 @@ def test_server_should_have_unknown_status_by_default():
     server = Server(root_dir="some")
     assert server.status == ServerStatus.Unknown
 
+def test_server_keeps_root_dir():
+    server = Server(root_dir="some_other")
+    assert server.root_dir == "some_other"
+
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
 @clear

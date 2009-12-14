@@ -62,3 +62,31 @@ def test_settings_can_load_custom_file():
 
     assert settings.config
 
+@with_fakes
+@with_patched_object(sets, "ConfigParser", custom_file_parser)
+def test_read_attribute_before_load_gives_error():
+    settings = Settings("some_dir")
+
+    try:
+        assert settings.SomeSection.SomeAttribute
+    except RuntimeError, err:
+        assert str(err) == "You can't use any settings before loading a config file. Please use the load method."
+        return
+
+    assert False, "Should not have gotten this far"
+
+get_attr_parser = (Fake("ConfigParser").expects("__init__")
+                                          .expects("read")
+                                          .with_args(arg.endswith("config.ini"))
+                                          .expects("get")
+                                          .with_args("SomeSection", "SomeAttribute")
+                                          .returns("attribute_value"))
+
+@with_fakes
+@with_patched_object(sets, "ConfigParser", get_attr_parser)
+def test_settings_read_attribute_returns_config_read():
+    settings = Settings("some_dir")
+    settings.load()
+
+    assert settings.SomeSection.SomeAttribute == "attribute_value"
+
