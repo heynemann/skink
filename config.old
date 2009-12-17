@@ -1,0 +1,85 @@
+[General]
+#The template to be loaded as the skin
+current_template=integrity
+
+#The path where the files are downloaded and built
+build_path=ci_tmp
+
+#Host and port where skink will run
+host=0.0.0.0
+port=8082
+root=http://localhost:8082
+
+#Number of seconds to wait before trying to get a new build from the build queue
+build_polling_interval = 10
+
+#Number of seconds to wait before failing a build
+build_timeout = 1200
+
+#Number of build worker processes. If you are not sure about this, leave it as one.
+worker_processes = 1
+
+#Indicate whether to show verbosity log for web server
+webserver_verbose = False
+
+#Indicate whether to show verbosity log for build processes
+build_verbose = True
+
+#Username and password to login in skink
+username = admin
+password = admin
+
+#Path to where the plugins are - related to skink.
+#It is not recommended to change this. If you want to add plug-ins, 
+#just put their files in the plugin folder
+plugin_path = plugins
+
+[SCM]
+#Interval in seconds to query the source control for changes
+polling_interval = 15
+
+#Indicate whether to show verbosity log for scm monitor
+scm_verbose = False
+
+[Database]
+#Indicate whether to show verbosity log for database operations
+db_verbose = False
+
+#What db to connect to
+#db_connection = sqlite:///skinkdb.db
+db_connection = mysql://skinkuser:skinkpass@localhost/skink
+db_host = localhost
+db_name = skink
+db_user = skinkuser
+db_pass = skinkpass
+
+#Plugins
+[EmailPlugin]
+#Indicates whether the plugin is enabled
+enabled=False
+
+#SMTP settings to send the e-mail to
+smtp_host=
+smtp_user=
+smtp_pass=
+
+#Sender and Recipients to the notifications (Separate recipients using ;)
+email_sender=
+email_recipients=
+
+[SoundPlugin]
+#Indicates whether the plugin is enabled
+enabled=False
+
+#Audio file to play (doh.wav is included in the plugins folder)
+audiofile=doh.wav
+
+#Duration to play the audio file
+duration=10
+
+[CoveragePlugin]
+#Plugin that tracks coverage over time
+
+#Indicates whether the plugin is enabled
+enabled=False
+

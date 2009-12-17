@@ -30,6 +30,16 @@ class Server(object):
         self.root_dir = root_dir
         self.context = Context(root_dir=root_dir)
 
+    def __setup_routes(cls, context):
+        d = cherrypy.dispatch.RoutesDispatcher()
+        for controller_type in Controller.all():
+            controller = controller_type()
+            controller.context = context
+            controller.register_routes(d)
+
+        dispatcher = d
+        return dispatcher
+
     def start(self):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
         self.status = ServerStatus.Starting
@@ -40,20 +50,19 @@ class Server(object):
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
 
     def run_server(self):
-        pass
-#        cherrypy.config.update({
-#                'server.socket_host': ctx.host,
-#                'server.socket_port': ctx.port,
-#                'request.base': ctx.root,
-#                'tools.encode.on': True, 
-#                'tools.encode.encoding': 'utf-8',
-#                'tools.decode.on': True,
-#                'tools.trailing_slash.on': True,
-#                'tools.staticdir.root': join(self.root_dir, "skink/"),
-#                'tools.ElixirTransaction.on': True,
-#                'log.screen': ctx.webserver_verbose,
-#                'tools.sessions.on': True
-#            })
+        sets = self.context.settings
+        cherrypy.config.update({
+                'server.socket_host': sets.Ion.host,
+                'server.socket_port': sets.Ion.port,
+                'request.base': sets.Ion.baseurl,
+                'tools.encode.on': True, 
+                'tools.encode.encoding': 'utf-8',
+                'tools.decode.on': True,
+                'tools.trailing_slash.on': True,
+                'tools.staticdir.root': join(self.root_dir, "skink/"),
+                'log.screen': sets.Ion.verbose,
+                'tools.sessions.on': True
+            })
 
 #        conf = {
 #            '/': {

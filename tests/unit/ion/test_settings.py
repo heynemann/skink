@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fudge import Fake, with_fakes, with_patched_object
+from fudge import Fake, with_fakes, with_patched_object, clear_expectations
+
 from fudge.inspector import arg
-from fudge_extensions import clear
 
 import skink.lib.ion.settings as sets
 from skink.lib.ion import Settings
@@ -29,6 +29,7 @@ parser = (Fake("ConfigParser").expects("__init__")
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
 def test_can_create_settings():
+    clear_expectations()
     settings = Settings("some_dir")
 
     assert settings
@@ -36,6 +37,7 @@ def test_can_create_settings():
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
 def test_settings_will_load_config_ini():
+    clear_expectations()
     settings = Settings("some_dir")
 
     settings.load()
@@ -43,6 +45,7 @@ def test_settings_will_load_config_ini():
 @with_fakes
 @with_patched_object(sets, "ConfigParser", parser)
 def test_settings_will_load_config_ini_retains_config():
+    clear_expectations()
     settings = Settings("some_dir")
 
     settings.load()
@@ -56,6 +59,7 @@ custom_file_parser = (Fake("ConfigParser").expects("__init__")
 @with_fakes
 @with_patched_object(sets, "ConfigParser", custom_file_parser)
 def test_settings_can_load_custom_file():
+    clear_expectations()
     settings = Settings("some_dir")
 
     settings.load("custom.ini")
@@ -65,6 +69,7 @@ def test_settings_can_load_custom_file():
 @with_fakes
 @with_patched_object(sets, "ConfigParser", custom_file_parser)
 def test_read_attribute_before_load_gives_error():
+    clear_expectations()
     settings = Settings("some_dir")
 
     try:
@@ -85,6 +90,7 @@ get_attr_parser = (Fake("ConfigParser").expects("__init__")
 @with_fakes
 @with_patched_object(sets, "ConfigParser", get_attr_parser)
 def test_settings_read_attribute_returns_config_read():
+    clear_expectations()
     settings = Settings("some_dir")
     settings.load()
 

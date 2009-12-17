@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from fudge import Fake, with_fakes, with_patched_object
+from fudge import Fake, with_fakes, with_patched_object, clear_expectations
+
 from fudge.inspector import arg
-from fudge_extensions import clear
 
 from skink.lib.ion import Server, ServerStatus, Context
 
@@ -40,8 +40,8 @@ def test_server_keeps_root_dir():
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
-@clear
 def test_server_should_start():
+    clear_expectations()
     server = Server(root_dir="some")
     server.context = default_context
     server.start()
@@ -49,11 +49,13 @@ def test_server_should_start():
     assert server.status == ServerStatus.Started
 
 def test_server_should_have_context():
+    clear_expectations()
     server = Server(root_dir="some")
 
     assert server.context
 
 def test_server_should_have_context_of_type_context():
+    clear_expectations()
     server = Server(root_dir="some")
 
     assert isinstance(server.context, Context)
@@ -63,8 +65,8 @@ context.bus.expects('subscribe').with_args("anything", arg.any_value())
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
-@clear
 def test_server_subscribe_calls_bus_subscribe():
+    clear_expectations()
     server = Server(root_dir="some")
     server.context = context
 
@@ -76,8 +78,8 @@ default_context.bus.next_call(for_method='publish').with_args("on_after_server_s
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
-@clear
 def test_server_start_should_publish_on_before_and_after_server_start_event():
+    clear_expectations()
     server = Server(root_dir="some")
     server.context = default_context
 
@@ -85,8 +87,8 @@ def test_server_start_should_publish_on_before_and_after_server_start_event():
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
-@clear
 def test_server_start_calls_run_server():
+    clear_expectations()
     server = Server(root_dir="some")
     server.context = default_context
 
