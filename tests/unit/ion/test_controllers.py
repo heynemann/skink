@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from fudge import Fake, with_fakes, with_patched_object, clear_expectations
+from fudge.inspector import arg
 import skink.lib.ion.controllers as ctrl
 from skink.lib.ion.controllers import Controller, route
 
@@ -30,6 +32,11 @@ def test_controller_has_null_context_by_default():
     ctrl = Controller()
 
     assert not ctrl.context
+
+def test_controller_has_null_server_by_default():
+    ctrl = Controller()
+
+    assert not ctrl.server
 
 def test_controller_has_empty_routes_by_default():
     clear()
@@ -80,4 +87,18 @@ def test_route_decorator_registers_route_with_custom_name():
     assert TestController.__routes__[0][0] == 'named_route'
     assert TestController.__routes__[0][1]['route'] == '/something'
     assert TestController.__routes__[0][1]['method'] == 'SomeAction'
+
+dispatcher = Fake("dispatcher")
+dispatcher.expects("connect").with_args("test_SomeAction", "/something", controller=arg.any_value(), action="SomeAction")
+def test_register_routes():
+    clear()
+
+    class TestController(Controller):
+        @route("/something")
+        def SomeAction(self):
+            pass
+
+    ctrl = TestController()
+
+    ctrl.register_routes(dispatcher)
 

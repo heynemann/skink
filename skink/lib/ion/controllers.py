@@ -50,14 +50,21 @@ class MetaController(type):
 class Controller(object):
     __metaclass__ = MetaController
     __routes__ = None
-    context = None
+
+    def __init__(self):
+        self.context = None
+        self.server = None
 
     @classmethod
     def all(self):
         return __CONTROLLERS__
 
-#    def register_routes(self, dispatcher):
-#        for route in self.__routes__:
-#            route_name = "%s_%s" % (get_controller_name(self.__class__.__name__), route[0])
-#            dispatcher.connect(route_name, route[1]["route"], controller=self, action=route[1]["method"])
+    @property
+    def name(self):
+        return self.__class__.__name__.lower().replace("controller", "")
+
+    def register_routes(self, dispatcher):
+        for route in self.__routes__:
+            route_name = "%s_%s" % (self.name, route[0])
+            dispatcher.connect(route_name, route[1]["route"], controller=self, action=route[1]["method"])
 

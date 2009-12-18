@@ -15,4 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+from os.path import abspath, dirname, join
+
+lib_path = abspath(dirname(__file__))
+sys.path.insert(0, lib_path)
 

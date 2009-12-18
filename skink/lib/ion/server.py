@@ -15,6 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from os.path import join, abspath, dirname
+
+import skink.lib.cherrypy as cherrypy
+from skink.lib.ion.controllers import Controller
+
 from context import Context
 
 class ServerStatus(object):
@@ -25,20 +30,10 @@ class ServerStatus(object):
     Stopped = 4
 
 class Server(object):
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, context=None):
         self.status = ServerStatus.Unknown
         self.root_dir = root_dir
-        self.context = Context(root_dir=root_dir)
-
-    def __setup_routes(cls, context):
-        d = cherrypy.dispatch.RoutesDispatcher()
-        for controller_type in Controller.all():
-            controller = controller_type()
-            controller.context = context
-            controller.register_routes(d)
-
-        dispatcher = d
-        return dispatcher
+        self.context = context or Context(root_dir=root_dir)
 
     def start(self):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
@@ -49,32 +44,52 @@ class Server(object):
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
 
-    def run_server(self):
+    def get_server_settings(self):
         sets = self.context.settings
-        cherrypy.config.update({
-                'server.socket_host': sets.Ion.host,
-                'server.socket_port': sets.Ion.port,
-                'request.base': sets.Ion.baseurl,
-                'tools.encode.on': True, 
-                'tools.encode.encoding': 'utf-8',
-                'tools.decode.on': True,
-                'tools.trailing_slash.on': True,
-                'tools.staticdir.root': join(self.root_dir, "skink/"),
-                'log.screen': sets.Ion.verbose,
-                'tools.sessions.on': True
-            })
+        return {
+                   'server.socket_host': sets.Ion.host,
+                   'server.socket_port': sets.Ion.port,
+                   'request.base': sets.Ion.baseurl,
+                   'tools.encode.on': True, 
+                   'tools.encode.encoding': 'utf-8',
+                   'tools.decode.on': True,
+                   'tools.trailing_slash.on': True,
+                   'tools.staticdir.root': join(self.root_dir, "skink/"),
+                   'log.screen': sets.Ion.verbose,
+                   'tools.sessions.on': True
+               }
 
-#        conf = {
-#            '/': {
-#                'request.dispatch': cls.__setup_routes(),
-#            },
-#            '/media': {
-#                'tools.staticdir.on': True,
-#                'tools.staticdir.dir': 'media'
-#            }
-#        }
+    def get_mounts(self, dispatcher):
+        conf = {
+            '/': {
+                'request.dispatch': dispatcher,
+            },
+            '/media': {
+                'tools.staticdir.on': True,
+                'tools.staticdir.dir': 'media'
+            }
+        }
 
-#        app = cherrypy.tree.mount(None, config=conf)
+        return conf
+
+    def get_dispatcher(self):
+        routes_dispatcher = cherrypy.dispatch.RoutesDispatcher()
+
+        for controller_type in Controller.all():
+            controller = controller_type()
+            controller.server = self
+            controller.context = self.context
+            controller.register_routes(routes_dispatcher)
+
+        dispatcher = routes_dispatcher
+        return dispatcher
+
+    def run_server(self):
+        cherrypy.config.update(self.get_server_settings())
+        dispatcher = self.get_dispatcher()
+        mounts = self.get_mounts(dispatcher)
+
+        self.app = cherrypy.tree.mount(None, config=mounts)
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
