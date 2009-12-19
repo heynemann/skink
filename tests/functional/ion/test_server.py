@@ -22,6 +22,8 @@ import ion.controllers as ctrl
 from ion import Server, ServerStatus, Context
 from ion.controllers import Controller, route
 
+from client import HttpClient
+
 def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
@@ -37,3 +39,24 @@ def test_server_can_start():
 
     assert server.status == ServerStatus.Started
     server.stop()
+
+def test_server_responds_for_controller_action():
+    clear()
+
+    class TestController(Controller):
+        @route("/")
+        def SomeAction(self):
+            return "Hello World"
+
+    server = Server(root_dir=root_dir)
+
+    server.start(config_path=config_path, non_block=True)
+
+    status_code, content = HttpClient.get(server.context.settings.Ion.baseurl)
+
+    assert status_code == 200
+    assert content == "Hello World"
+
+    server.stop()
+
+
