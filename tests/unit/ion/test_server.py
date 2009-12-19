@@ -183,12 +183,14 @@ custom_config.expects('update').with_args({"some":"settings"})
 fake_tree = Fake('tree')
 fake_tree.expects('mount').with_args(None, config="mounts").returns("app")
 
-fake_quickstart = Fake(callable=True).with_args("app")
+fake_engine = Fake("engine")
+fake_engine.expects('start')
+fake_engine.expects('block')
 
 @with_fakes
 @with_patched_object("cherrypy", "config", custom_config)
 @with_patched_object("cherrypy", "tree", fake_tree)
-@with_patched_object("cherrypy", "quickstart", fake_quickstart)
+@with_patched_object("cherrypy", "engine", fake_engine)
 @with_patched_object(Server, "get_server_settings", fake_get_server_settings)
 @with_patched_object(Server, "get_dispatcher", fake_get_dispatcher)
 @with_patched_object(Server, "get_mounts", fake_get_mounts)
@@ -201,4 +203,21 @@ def test_run_server_updates_config_and_starts_cherrypy():
 
     assert server.app
     assert server.app == "app"
+
+stop_context = Fake('context').has_attr(bus=Fake('bus'))
+stop_context.bus.expects('publish').with_args("on_before_server_stop", arg.any_value())
+stop_context.bus.next_call(for_method='publish').with_args("on_after_server_stop", arg.any_value())
+
+stop_engine_fake = Fake('engine')
+stop_engine_fake.expects('exit')
+
+@with_fakes
+@with_patched_object('cherrypy', "engine", stop_engine_fake)
+def test_server_stop_should_publish_on_before_and_after_server_stop_event():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = stop_context
+
+    server.stop()
+
 

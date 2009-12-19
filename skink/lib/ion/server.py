@@ -38,16 +38,25 @@ class Server(object):
         self.root_dir = root_dir
         self.context = context or Context(root_dir=root_dir)
 
-    def start(self, config_path):
-        self.publish('on_before_server_start', {'server':self, 'context':self.context})
+    def start(self, config_path, non_block=False):
         self.status = ServerStatus.Starting
-        
+        self.publish('on_before_server_start', {'server':self, 'context':self.context})
+
         self.context.load_settings(abspath(join(self.root_dir, config_path)))
 
-        self.run_server()
+        self.run_server(non_block)
 
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
+
+    def stop(self):
+        self.status = ServerStatus.Stopping
+        self.publish('on_before_server_stop', {'server':self, 'context':self.context})
+
+        cherrypy.engine.exit()
+
+        self.status = ServerStatus.Stopped
+        self.publish('on_after_server_stop', {'server':self, 'context':self.context})
 
     def get_server_settings(self):
         sets = self.context.settings
@@ -89,13 +98,16 @@ class Server(object):
         dispatcher = routes_dispatcher
         return dispatcher
 
-    def run_server(self):
+    def run_server(self, non_block=False):
         cherrypy.config.update(self.get_server_settings())
         dispatcher = self.get_dispatcher()
         mounts = self.get_mounts(dispatcher)
 
         self.app = cherrypy.tree.mount(None, config=mounts)
-        cherrypy.quickstart(self.app)
+        
+        cherrypy.engine.start()
+        if not non_block:
+            cherrypy.engine.block()
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
