@@ -17,8 +17,11 @@
 
 from os.path import join, abspath, dirname
 
-import skink.lib.cherrypy as cherrypy
-from skink.lib.ion.controllers import Controller
+#this import is required in order to include the lib folder in pythonpath
+import skink.lib
+
+import cherrypy
+from ion.controllers import Controller
 
 from context import Context
 
@@ -35,9 +38,11 @@ class Server(object):
         self.root_dir = root_dir
         self.context = context or Context(root_dir=root_dir)
 
-    def start(self):
+    def start(self, config_path):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
         self.status = ServerStatus.Starting
+        
+        self.context.load_settings(abspath(join(self.root_dir, config_path)))
 
         self.run_server()
 
@@ -48,14 +53,14 @@ class Server(object):
         sets = self.context.settings
         return {
                    'server.socket_host': sets.Ion.host,
-                   'server.socket_port': sets.Ion.port,
+                   'server.socket_port': int(sets.Ion.port),
                    'request.base': sets.Ion.baseurl,
                    'tools.encode.on': True, 
                    'tools.encode.encoding': 'utf-8',
                    'tools.decode.on': True,
                    'tools.trailing_slash.on': True,
                    'tools.staticdir.root': join(self.root_dir, "skink/"),
-                   'log.screen': sets.Ion.verbose,
+                   'log.screen': sets.Ion.verbose == "True",
                    'tools.sessions.on': True
                }
 
@@ -90,6 +95,7 @@ class Server(object):
         mounts = self.get_mounts(dispatcher)
 
         self.app = cherrypy.tree.mount(None, config=mounts)
+        cherrypy.quickstart(self.app)
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)

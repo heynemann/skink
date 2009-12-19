@@ -15,6 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from fudge import Fake, with_fakes, with_patched_object, clear_expectations
+from fudge.inspector import arg
+
 from skink.lib.ion import Context
 
 def test_can_create_context():
@@ -28,3 +31,11 @@ def test_context_contains_bus_of_events():
 def test_context_contains_settings():
     ctx = Context(root_dir="some")
     assert ctx.settings
+
+def test_context_load_settings():
+    ctx = Context(root_dir="some")
+
+    ctx.settings = Fake('settings')
+    ctx.settings.expects('load').with_args('config.ini')
+
+    ctx.load_settings('config.ini')

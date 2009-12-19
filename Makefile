@@ -79,5 +79,5 @@ documentation:
 	firefox `pwd`/docs/build/html/index.html &
 
 run:
-	@python skink/skink_console.py run
+	@python skink_console.py run
 	
