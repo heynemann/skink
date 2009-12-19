@@ -29,16 +29,17 @@ def clear():
     ctrl.__CONTROLLERSDICT__ = {}
 
 root_dir = abspath(dirname(__file__))
-config_path = join(root_dir, 'config.ini')
+config_path = 'config.ini'
 
 def test_server_can_start():
     clear()
     server = Server(root_dir=root_dir)
+    try:
+        server.start(config_path=config_path, non_block=True)
 
-    server.start(config_path=config_path, non_block=True)
-
-    assert server.status == ServerStatus.Started
-    server.stop()
+        assert server.status == ServerStatus.Started
+    finally:
+        server.stop()
 
 def test_server_responds_for_controller_action():
     clear()
@@ -50,13 +51,14 @@ def test_server_responds_for_controller_action():
 
     server = Server(root_dir=root_dir)
 
-    server.start(config_path=config_path, non_block=True)
+    try:
+        server.start(config_path=config_path, non_block=True)
 
-    status_code, content = HttpClient.get(server.context.settings.Ion.baseurl)
+        status_code, content = HttpClient.get(server.context.settings.Ion.baseurl)
 
-    assert status_code == 200
-    assert content == "Hello World"
-
-    server.stop()
+        assert status_code == 200
+        assert content == "Hello World"
+    finally:
+        server.stop()
 
 
