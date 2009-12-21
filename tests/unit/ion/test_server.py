@@ -26,6 +26,8 @@ def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
 
+fake_import_controllers = Fake(callable=True)
+fake_test_db = Fake(callable=True)
 custom_run_server = Fake(callable=True)
 
 def test_server_status_statuses():
@@ -45,6 +47,7 @@ def test_server_keeps_root_dir():
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
+@with_patched_object(Server, "import_controllers", fake_import_controllers)
 def test_server_should_start():
     clear_expectations()
     server = Server(root_dir="some")
@@ -84,6 +87,7 @@ default_context.expects('load_settings').with_args(arg.endswith('/some/config.in
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
+@with_patched_object(Server, "import_controllers", fake_import_controllers)
 def test_server_start_should_publish_on_before_and_after_server_start_event():
     clear_expectations()
     server = Server(root_dir="some")
@@ -93,6 +97,7 @@ def test_server_start_should_publish_on_before_and_after_server_start_event():
 
 @with_fakes
 @with_patched_object(Server, "run_server", custom_run_server)
+@with_patched_object(Server, "import_controllers", fake_import_controllers)
 def test_server_start_calls_run_server():
     clear_expectations()
     server = Server(root_dir="some")
@@ -119,7 +124,8 @@ def test_get_server_settings():
                    'tools.trailing_slash.on': True,
                    'tools.staticdir.root': "some/skink/",
                    'log.screen': True,
-                   'tools.sessions.on': True
+                   'tools.sessions.on': True,
+                   'tools.storm.on': True
                }
 
     assert server_settings == expected_settings
@@ -184,6 +190,9 @@ fake_tree = Fake('tree')
 fake_tree.expects('mount').with_args(None, config="mounts").returns("app")
 
 fake_engine = Fake("engine")
+fake_engine.expects('subscribe').with_args('start_thread', arg.any_value())
+fake_engine.next_call('subscribe').with_args('stop_thread', arg.any_value())
+
 fake_engine.expects('start')
 fake_engine.expects('block')
 
@@ -194,6 +203,8 @@ fake_engine.expects('block')
 @with_patched_object(Server, "get_server_settings", fake_get_server_settings)
 @with_patched_object(Server, "get_dispatcher", fake_get_dispatcher)
 @with_patched_object(Server, "get_mounts", fake_get_mounts)
+@with_patched_object(Server, "import_controllers", fake_import_controllers)
+@with_patched_object(Server, "test_connection", fake_test_db)
 def test_run_server_updates_config_and_starts_cherrypy():
     clear()
 

@@ -15,13 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from os.path import join, abspath, dirname
+import sys
+import os
+from os.path import join, abspath, dirname, splitext
 
 #this import is required in order to include the lib folder in pythonpath
 import skink.lib
 
 import cherrypy
 from ion.controllers import Controller
+from ion.storm_tool import *
+from ion.db import Db
 
 from context import Context
 
@@ -33,10 +37,13 @@ class ServerStatus(object):
     Stopped = 4
 
 class Server(object):
+    imp = __import__
+
     def __init__(self, root_dir, context=None):
         self.status = ServerStatus.Unknown
         self.root_dir = root_dir
         self.context = context or Context(root_dir=root_dir)
+        self.storm_stores = {}
 
     def start(self, config_path, non_block=False):
         self.status = ServerStatus.Starting
@@ -44,10 +51,23 @@ class Server(object):
 
         self.context.load_settings(abspath(join(self.root_dir, config_path)))
 
+        self.import_controllers()
+
         self.run_server(non_block)
 
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
+
+    def import_controllers(self):
+        controller_path = self.context.settings.Ion.controllers_path
+        controller_path = controller_path or "controllers"
+        controller_path = abspath(join(self.root_dir, controller_path))
+
+        sys.path.append(controller_path)
+
+        for filename in os.listdir(controller_path):
+            if filename.endswith(".py"):
+                imp(splitext(filename)[0])
 
     def stop(self):
         self.status = ServerStatus.Stopping
@@ -70,7 +90,8 @@ class Server(object):
                    'tools.trailing_slash.on': True,
                    'tools.staticdir.root': join(self.root_dir, "skink/"),
                    'log.screen': sets.Ion.verbose == "True",
-                   'tools.sessions.on': True
+                   'tools.sessions.on': True,
+                   'tools.storm.on': True
                }
 
     def get_mounts(self, dispatcher):
@@ -99,19 +120,45 @@ class Server(object):
         return dispatcher
 
     def run_server(self, non_block=False):
+        cherrypy.engine.subscribe('start_thread', self.connect_db)
+        cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
+
         cherrypy.config.update(self.get_server_settings())
         dispatcher = self.get_dispatcher()
         mounts = self.get_mounts(dispatcher)
 
         self.app = cherrypy.tree.mount(None, config=mounts)
-        
+
+        self.test_connection()
+
         cherrypy.engine.start()
         if not non_block:
             cherrypy.engine.block()
+
+    def test_connection(self):
+        self.db = Db(self.context)
+        self.db.connect()
+        self.db.disconnect()
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
 
     def publish(self, subject, data):
         self.context.bus.publish(subject, data)
+
+    def connect_db(self, thread_index):
+        self.db = Db(self.context)
+        self.db.connect()
+        local_store = self.db.store
+        self.storm_stores[thread_index] = local_store
+        cherrypy.thread_data.store = local_store
+    
+    def disconnect_db(self, thread_index):
+        self.db.disconnect()
+        s = self.storm_stores.pop(thread_index, None)
+        if s is not None:
+            cherrypy.log("Cleaning up store.", "STORM")
+            s.close()
+        else:
+            cherrypy.log("Could not find store.", "STORM")
 

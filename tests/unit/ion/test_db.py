@@ -34,7 +34,7 @@ def test_db_is_not_connected_by_default():
 
 connection_context = Fake('context').has_attr(settings=Fake('Settings'))
 connection_context.settings.has_attr(Db=Fake('Db'))
-connection_context.settings.Db.has_attr(host="host", user="user", password="pass", name="name", protocol="mysql", port=20)
+connection_context.settings.Db.has_attr(host="host", user="user", password="pass", database="name", protocol="mysql", port=20)
 
 database_fake = Fake('database')
 create_database = Fake(callable=True).with_args("mysql://user:pass@host:20/name").returns(database_fake)

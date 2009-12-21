@@ -181,3 +181,16 @@ def test_render_template_in_folder_with_null_package():
     content = ctrl.render_template("some_file.html", some="args")
 
     assert content == "expected"
+
+fake_thread_data = Fake('thread_data')
+fake_thread_data.has_attr(store="store")
+
+@with_fakes
+@with_patched_object(ctrl, "thread_data", fake_thread_data)
+def test_controller_returns_store_from_cherrypy_thread_data():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+    assert ctrl.store == "store"
+

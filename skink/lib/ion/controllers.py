@@ -19,6 +19,7 @@ from os.path import split, abspath, join, dirname
 
 import skink.lib
 from jinja2 import Environment, FileSystemLoader
+from cherrypy import thread_data
 
 __CONTROLLERS__ = []
 __CONTROLLERSDICT__ = {}
@@ -63,6 +64,10 @@ class Controller(object):
     @classmethod
     def all(self):
         return __CONTROLLERS__
+
+    @property
+    def store(self):
+        return thread_data.store
 
     @property
     def name(self):

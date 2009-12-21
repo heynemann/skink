@@ -46,8 +46,8 @@ class Db(object):
         username = self.context.settings.Db.user
         password = self.context.settings.Db.password
         host = self.context.settings.Db.host
-        port = self.context.settings.Db.port
-        name = self.context.settings.Db.name
+        port = int(self.context.settings.Db.port)
+        database = self.context.settings.Db.database
 
         return "%s://%s:%s@%s:%d/%s" % (
             protocol,
@@ -55,5 +55,5 @@ class Db(object):
             password,
             host,
             port,
-            name
+            database
         )
