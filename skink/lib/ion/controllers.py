@@ -15,6 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from os.path import split, abspath, join, dirname
+
+import skink.lib
+from jinja2 import Environment, FileSystemLoader
+
 __CONTROLLERS__ = []
 __CONTROLLERSDICT__ = {}
 
@@ -67,4 +72,13 @@ class Controller(object):
         for route in self.__routes__:
             route_name = "%s_%s" % (self.name, route[0])
             dispatcher.connect(route_name, route[1]["route"], controller=self, action=route[1]["method"])
+
+    def render_template(self, template_file, **kw):
+        template_path = self.context.settings.Ion.template_path.lstrip("/")
+        template_path = template_path and abspath(join(self.server.root_dir, template_path)) or abspath(join(self.server.root_dir, 'templates'))
+
+        env = Environment(loader=FileSystemLoader(template_path))
+
+        template = env.get_template(template_file)
+        return template.render(**kw)
 
