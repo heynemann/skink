@@ -19,6 +19,8 @@ from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
 import skink.lib
 import ion.controllers as ctrl
+
+import ion
 from ion import Server, ServerStatus, Context
 from ion.controllers import Controller, route
 
@@ -231,4 +233,16 @@ def test_server_stop_should_publish_on_before_and_after_server_stop_event():
 
     server.stop()
 
+fake_db = Fake('db')
+fake_db.expects('connect')
+fake_db.expects('disconnect')
+db_engine = Fake(callable=True).with_args(None).returns(fake_db)
 
+@with_fakes
+@with_patched_object(ion.server, "Db", db_engine)
+def test_server_test_connection():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+
+    server.test_connection()

@@ -67,7 +67,7 @@ class Server(object):
 
         for filename in os.listdir(controller_path):
             if filename.endswith(".py"):
-                imp(splitext(filename)[0])
+                Server.imp(splitext(filename)[0])
 
     def stop(self):
         self.status = ServerStatus.Stopping
