@@ -31,9 +31,15 @@ def main():
 
     sys.exit(0)
 
+def on_user_authentication_failed_handler(data):
+    raise RuntimeError("You have to be authenticated")
+
 def run_skink_server():
     root_dir = abspath(dirname(__file__))
     server = Server(root_dir=root_dir)
+
+    server.subscribe('on_user_authentication_failed', on_user_authentication_failed_handler)
+
     try:
         server.start("config.ini")
     except KeyboardInterrupt:

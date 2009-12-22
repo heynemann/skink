@@ -16,10 +16,11 @@
 # limitations under the License.
 
 import skink.lib
-from ion.controllers import Controller, route
+from ion.controllers import Controller, route, authenticated
 
 class IndexController(Controller):
 
     @route("/")
+    @authenticated
     def index(self):
         return "Hello World"

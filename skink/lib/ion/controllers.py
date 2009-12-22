@@ -35,22 +35,29 @@ def route(route, name=None):
                 'method': func.__name__
             }
         )
+
         return func, conf
 
     return dec
 
 def authenticated(func):
-    def actual(*args, **kw):
-        if not args or len(args) < 2:
+    def actual(*arguments, **kw):
+        if not arguments:
             raise RuntimeError("The decorated function must be inside a controller!")
 
-        instance = args[1]
+        instance = arguments[0]
+
+        instance.server.publish('on_before_user_authentication', {'server':instance, 'context':instance.context})
 
         user = instance.user
-        if user:
-            func(*args, **kw)
+        if not user:
+            instance.server.publish('on_user_authentication_successful', {'server':instance, 'context':instance.context})
+            return func(*arguments, **kw)
         else:
-            instance.redirect(users.create_login_url(instance.request.uri))
+            instance.server.publish('on_user_authentication_failed', {'server':instance, 'context':instance.context})
+
+    actual.__name__ = func.__name__
+    actual.__doc__ = func.__doc__
     return actual
 
 class MetaController(type):
@@ -59,6 +66,7 @@ class MetaController(type):
             __CONTROLLERS__.append(cls)
             __CONTROLLERSDICT__[name] = cls
             cls.__routes__ = []
+
             for attr, value in attrs.items():
                 if isinstance(value, tuple) and len(value) is 2:
                     method, conf = value

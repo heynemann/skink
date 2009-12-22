@@ -17,6 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from traceback import format_exc
+
 import types
 
 import skink.lib
@@ -52,16 +54,16 @@ class StormHandlerWrapper(object):
     def __call__(self, *args, **kwargs):
         try:
             cherrypy.request.rolledback = False
-            result = self.nexthandler(*args, **kwargs)        
+            result = self.nexthandler(*args, **kwargs)
         except Exception, e:
-            if not isinstance(e, self.to_skip):
+            if not isinstance(e, tuple(self.to_skip)):
                 cherrypy.log("ROLLBACK - " + format_exc(), "STORM")
                 cherrypy.thread_data.store.rollback()
                 cherrypy.request.rolledback = True
             raise
         return result
 
-class StormTool(cherrypy.Tool)    :
+class StormTool(cherrypy.Tool):
     def _setup(self):
         cherrypy.request.hooks.attach('before_handler', StormHandlerWrapper, priority=100)
         cherrypy.Tool._setup(self)
