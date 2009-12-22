@@ -18,7 +18,7 @@
 from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
 import skink.lib.ion.controllers as ctrl
-from skink.lib.ion.controllers import Controller, route
+from skink.lib.ion.controllers import Controller, route, authenticated
 
 def clear():
     ctrl.__CONTROLLERS__ = []
@@ -249,4 +249,51 @@ def test_controller_logoff_clears_user():
     ctrl.logoff()
 
     assert not ctrl.user
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy4)
+def test_authenticated_decorator_checks_for_user():
+    clear_expectations()
+    clear()
+
+    class TestController(Controller):
+        @authenticated
+        def some_action(self):
+            pass
+
+    ctrl = TestController()
+
+    fake_server = Fake('server')
+    ctrl.server = fake_server
+
+    ctrl.server.expects('publish').with_args('on_before_user_authentication', arg.any_value())
+    ctrl.server.next_call('publish').with_args('on_user_authentication_failed', arg.any_value())
+
+    ctrl.some_action()
+
+fake_cherrypy5 = Fake('cherrypy')
+fake_cherrypy5.has_attr(session={'authenticated_user':'user1'})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy5)
+def test_authenticated_decorator_executes_function_when_user_exists():
+    clear_expectations()
+    clear()
+
+    class TestController(Controller):
+        @authenticated
+        def some_action(self):
+            return "some_action_result"
+
+    ctrl = TestController()
+
+    fake_server = Fake('server')
+    ctrl.server = fake_server
+
+    ctrl.server.expects('publish').with_args('on_before_user_authentication', arg.any_value())
+    ctrl.server.next_call('publish').with_args('on_user_authentication_successful', arg.any_value())
+
+    result = ctrl.some_action()
+
+    assert result == "some_action_result"
 

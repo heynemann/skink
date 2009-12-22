@@ -42,15 +42,12 @@ def route(route, name=None):
 
 def authenticated(func):
     def actual(*arguments, **kw):
-        if not arguments:
-            raise RuntimeError("The decorated function must be inside a controller!")
-
         instance = arguments[0]
 
         instance.server.publish('on_before_user_authentication', {'server':instance, 'context':instance.context})
 
         user = instance.user
-        if not user:
+        if user:
             instance.server.publish('on_user_authentication_successful', {'server':instance, 'context':instance.context})
             return func(*arguments, **kw)
         else:
