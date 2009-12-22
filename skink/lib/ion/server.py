@@ -92,7 +92,8 @@ class Server(object):
                    'tools.staticdir.root': join(self.root_dir, "skink/"),
                    'log.screen': sets.Ion.verbose == "True",
                    'tools.sessions.on': True,
-                   'tools.storm.on': True
+                   'tools.storm.on': True,
+                   'tools.sessions.on': True
                }
 
     def get_mounts(self, dispatcher):

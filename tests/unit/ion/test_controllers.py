@@ -194,8 +194,11 @@ def test_controller_returns_store_from_cherrypy_thread_data():
     ctrl = Controller()
     assert ctrl.store == "store"
 
+fake_cherrypy1 = Fake('cherrypy')
+fake_cherrypy1.has_attr(session={})
+
 @with_fakes
-@with_patched_object(ctrl, "thread_data", fake_thread_data)
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy1)
 def test_controller_has_null_user_by_default():
     clear_expectations()
     clear()
@@ -204,11 +207,11 @@ def test_controller_has_null_user_by_default():
 
     assert not ctrl.user
 
-auth_user_thread_data = Fake('thread_data')
-auth_user_thread_data.has_attr(authenticated_user="some_user")
+fake_cherrypy2 = Fake('cherrypy')
+fake_cherrypy2.has_attr(session={'authenticated_user':'some_user'})
 
 @with_fakes
-@with_patched_object(ctrl, "thread_data", auth_user_thread_data)
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy2)
 def test_controller_returns_thread_data_user():
     clear_expectations()
     clear()
@@ -216,4 +219,34 @@ def test_controller_returns_thread_data_user():
     ctrl = Controller()
 
     assert ctrl.user == "some_user"
+
+fake_cherrypy3 = Fake('cherrypy')
+fake_cherrypy3.has_attr(session={})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy3)
+def test_controller_can_authenticate_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    ctrl.login(user="auth_user")
+
+    assert ctrl.user == "auth_user"
+
+fake_cherrypy4 = Fake('cherrypy')
+fake_cherrypy4.has_attr(session={})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy4)
+def test_controller_logoff_clears_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+    ctrl.login("some_random_user")
+    ctrl.logoff()
+
+    assert not ctrl.user
 

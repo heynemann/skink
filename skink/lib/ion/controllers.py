@@ -17,8 +17,8 @@
 
 from os.path import split, abspath, join, dirname
 
-import skink.lib
 from jinja2 import Environment, FileSystemLoader
+import cherrypy
 from cherrypy import thread_data
 
 __CONTROLLERS__ = []
@@ -38,6 +38,20 @@ def route(route, name=None):
         return func, conf
 
     return dec
+
+def authenticated(func):
+    def actual(*args, **kw):
+        if not args or len(args) < 2:
+            raise RuntimeError("The decorated function must be inside a controller!")
+
+        instance = args[1]
+
+        user = instance.user
+        if user:
+            func(*args, **kw)
+        else:
+            instance.redirect(users.create_login_url(instance.request.uri))
+    return actual
 
 class MetaController(type):
     def __init__(cls, name, bases, attrs):
@@ -75,9 +89,13 @@ class Controller(object):
 
     @property
     def user(self):
-        if hasattr(thread_data, 'authenticated_user'):
-            return thread_data.authenticated_user
-        return None
+        return cherrypy.session.get ('authenticated_user', None)
+
+    def login(self, user):
+        cherrypy.session['authenticated_user'] = user
+
+    def logoff(self):
+        cherrypy.session['authenticated_user'] = None
 
     def register_routes(self, dispatcher):
         for route in self.__routes__:
