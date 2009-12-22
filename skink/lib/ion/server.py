@@ -61,7 +61,7 @@ class Server(object):
 
     def import_controllers(self):
         controller_path = self.context.settings.Ion.controllers_path
-        controller_path = controller_path or "controllers"
+        controller_path = controller_path.lstrip("/") or "controllers"
         controller_path = abspath(join(self.root_dir, controller_path))
 
         sys.path.append(controller_path)
