@@ -194,3 +194,26 @@ def test_controller_returns_store_from_cherrypy_thread_data():
     ctrl = Controller()
     assert ctrl.store == "store"
 
+@with_fakes
+@with_patched_object(ctrl, "thread_data", fake_thread_data)
+def test_controller_has_null_user_by_default():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    assert not ctrl.user
+
+auth_user_thread_data = Fake('thread_data')
+auth_user_thread_data.has_attr(authenticated_user="some_user")
+
+@with_fakes
+@with_patched_object(ctrl, "thread_data", auth_user_thread_data)
+def test_controller_returns_thread_data_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    assert ctrl.user == "some_user"
+

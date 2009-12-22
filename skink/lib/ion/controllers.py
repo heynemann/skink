@@ -73,6 +73,12 @@ class Controller(object):
     def name(self):
         return self.__class__.__name__.lower().replace("controller", "")
 
+    @property
+    def user(self):
+        if hasattr(thread_data, 'authenticated_user'):
+            return thread_data.authenticated_user
+        return None
+
     def register_routes(self, dispatcher):
         for route in self.__routes__:
             route_name = "%s_%s" % (self.name, route[0])
