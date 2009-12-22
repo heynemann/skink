@@ -23,6 +23,7 @@ from os.path import join, abspath, dirname, splitext
 import skink.lib
 
 import cherrypy
+from cherrypy import thread_data
 from ion.controllers import Controller
 from ion.storm_tool import *
 from ion.db import Db
@@ -151,8 +152,8 @@ class Server(object):
         self.db.connect()
         local_store = self.db.store
         self.storm_stores[thread_index] = local_store
-        cherrypy.thread_data.store = local_store
-    
+        thread_data.store = local_store
+
     def disconnect_db(self, thread_index):
         self.db.disconnect()
         s = self.storm_stores.pop(thread_index, None)

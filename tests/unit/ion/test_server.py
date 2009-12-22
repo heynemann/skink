@@ -246,3 +246,50 @@ def test_server_test_connection():
     server.context = None
 
     server.test_connection()
+
+fake_db2 = Fake('db')
+fake_db2.expects('connect')
+fake_db2.has_attr(store="store")
+db_engine2 = Fake(callable=True).with_args(None).returns(fake_db2)
+fake_thread_data = Fake('thread_data')
+@with_fakes
+@with_patched_object(ion.server, "Db", db_engine2)
+@with_patched_object(ion.server, "thread_data", fake_thread_data)
+def test_server_connect_db():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+
+    server.connect_db(1)
+
+    assert server.storm_stores[1] == "store"
+
+fake_log = Fake(callable=True).with_args("Cleaning up store.", "STORM")
+fake_db3 = Fake('db')
+fake_db3.expects('disconnect')
+fake_store = Fake('store')
+fake_store.expects('close')
+@with_fakes
+@with_patched_object(ion.server.cherrypy, "log", fake_log)
+def test_server_connect_db():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+    server.db = fake_db3
+    server.storm_stores[1] = fake_store
+
+    server.disconnect_db(1)
+
+fake_log2 = Fake(callable=True).with_args("Could not find store.", "STORM")
+fake_db4 = Fake('db')
+fake_db4.expects('disconnect')
+@with_fakes
+@with_patched_object(ion.server.cherrypy, "log", fake_log2)
+def test_server_connect_db_logs_when_no_store_found():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+    server.db = fake_db4
+
+    server.disconnect_db(1)
+
