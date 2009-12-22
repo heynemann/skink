@@ -15,9 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from context import *
-from bus import *
-from server import *
-from settings import *
-from controllers import *
-from db import *
+import skink.lib
+import cherrypy
+from ion import Controller, route, authenticated
+
+class LoginController(Controller):
+
+    @route("/authentication/:return_url")
+    def index(self, return_url):
+        self.login('Bernardo')
+        raise cherrypy.HTTPRedirect(return_url.replace("@@", "/"))

@@ -19,9 +19,6 @@ import sys
 import os
 from os.path import join, abspath, dirname, splitext
 
-#this import is required in order to include the lib folder in pythonpath
-import skink.lib
-
 import cherrypy
 from cherrypy import thread_data
 from ion.controllers import Controller

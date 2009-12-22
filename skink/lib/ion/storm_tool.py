@@ -21,7 +21,6 @@ from traceback import format_exc
 
 import types
 
-import skink.lib
 import cherrypy
 
 ## The database commit tool. This will try to auto-commit on each request.
