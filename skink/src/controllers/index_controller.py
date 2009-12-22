@@ -23,4 +23,4 @@ class IndexController(Controller):
     @route("/")
     @authenticated
     def index(self):
-        return "Hello World"
+        return self.render_template("index.html")

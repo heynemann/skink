@@ -94,6 +94,8 @@ class Controller(object):
 
     @property
     def user(self):
+        if not hasattr(cherrypy, 'session') or not cherrypy.session:
+            return None
         return cherrypy.session.get ('authenticated_user', None)
 
     def login(self, user):
@@ -114,5 +116,5 @@ class Controller(object):
         env = Environment(loader=FileSystemLoader(template_path))
 
         template = env.get_template(template_file)
-        return template.render(**kw)
+        return template.render(user=self.user, **kw)
 

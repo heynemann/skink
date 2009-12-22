@@ -24,6 +24,9 @@ def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
 
+authenticated_cherrypy = Fake('cherrypy')
+authenticated_cherrypy.has_attr(session={'authenticated_user':'user1'})
+
 def test_can_create_controller():
     ctrl = Controller()
     assert ctrl
@@ -122,11 +125,12 @@ package_loader = Fake(callable=True).with_args(arg.endswith("some/root/some/path
 
 template_fake = Fake('template')
 template_loader.expects('get_template').with_args('some_file.html').returns(template_fake)
-template_fake.expects('render').with_args(some="args").returns("expected")
+template_fake.expects('render').with_args(user="user1", some="args").returns("expected")
 
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template():
     clear_expectations()
     clear()
@@ -148,6 +152,7 @@ simpler_package_loader = Fake(callable=True).with_args(arg.endswith("some/root/t
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", simpler_package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template_in_folder_without_package():
     clear_expectations()
     clear()
@@ -170,6 +175,7 @@ empty_package_loader = Fake(callable=True).with_args(arg.endswith('some/root/tem
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", empty_package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template_in_folder_with_null_package():
     clear_expectations()
     clear()
