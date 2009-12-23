@@ -1,0 +1,20 @@
+{% extends "default/base.html" %}
+
+{% block content %}
+<h1>Projects</h1>
+
+<div class="projects">
+	{% for project in projects %}
+		<div class="project">
+			{{ project.name }}
+			<div class="last-commit-description">
+				{{ project.last_commit.description }}
+			</div>
+			<div class="last-commit-author">
+				<p>{{ project.last_commit.author.name }}</p>
+				<p>{{ project.last_commit.author.email }}</p>
+			<div>
+		</div>
+	{% endfor %}
+</div>
+{% endblock %}
