@@ -21,7 +21,6 @@ from fudge.inspector import arg
 from skink.src.controllers.index_controller import IndexController
 
 import skink.lib
-import pdb;pdb.set_trace()
 import ion.controllers as ctrl
 
 def clear():
