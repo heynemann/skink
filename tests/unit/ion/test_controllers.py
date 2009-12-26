@@ -17,8 +17,10 @@
 
 from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
-import skink.lib.ion.controllers as ctrl
-from skink.lib.ion.controllers import Controller, route, authenticated
+import skink.lib
+import cherrypy
+import ion.controllers as ctrl
+from ion.controllers import Controller, route, authenticated
 
 def clear():
     ctrl.__CONTROLLERS__ = []
@@ -303,3 +305,17 @@ def test_authenticated_decorator_executes_function_when_user_exists():
 
     assert result == "some_action_result"
 
+def test_controller_can_redirect():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    try:
+        ctrl.redirect("http://www.google.com")
+    except cherrypy.HTTPRedirect, err:
+        assert err.urls
+        assert err.urls[0] == "http://www.google.com"
+        return
+
+    assert False, "Should not have gotten this far"

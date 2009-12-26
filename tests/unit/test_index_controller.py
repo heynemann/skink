@@ -15,13 +15,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from fudge import Fake, with_fakes, with_patched_object, clear_expectations
+from fudge.inspector import arg
+
+from skink.src.controllers.index_controller import IndexController
+
 import skink.lib
-import cherrypy
-from ion import Controller, route, authenticated
+import pdb;pdb.set_trace()
+import ion.controllers as ctrl
 
-class LoginController(Controller):
+def clear():
+    ctrl.__CONTROLLERS__ = []
+    ctrl.__CONTROLLERSDICT__ = {}
 
-    @route("/authentication/:return_url")
-    def index(self, return_url):
-        self.login('Bernardo')
-        self.redirect(return_url.replace("@@", "/"))
+custom_render_template = Fake(callable=True).with_args('index.html').returns('Some Result')
+
+@with_fakes
+@with_patched_object(IndexController, "render_template", custom_render_template)
+def test_index_action():
+    clear()
+    ctrl = IndexController()
+    result = ctrl.index()
+
+    assert result == "Some Result"

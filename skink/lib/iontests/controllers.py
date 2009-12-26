@@ -118,3 +118,6 @@ class Controller(object):
         template = env.get_template(template_file)
         return template.render(user=self.user, **kw)
 
+    def redirect(self, url):
+        raise cherrypy.HTTPRedirect(url)
+
