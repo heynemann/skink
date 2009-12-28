@@ -15,6 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
+import os
+
 from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
 import skink.lib
@@ -246,3 +249,67 @@ def test_server_test_connection():
     server.context = None
 
     server.test_connection()
+
+fake_db2 = Fake('db')
+fake_db2.expects('connect')
+fake_db2.has_attr(store="store")
+db_engine2 = Fake(callable=True).with_args(None).returns(fake_db2)
+fake_thread_data = Fake('thread_data')
+@with_fakes
+@with_patched_object(ion.server, "Db", db_engine2)
+@with_patched_object(ion.server, "thread_data", fake_thread_data)
+def test_server_connect_db():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+
+    server.connect_db(1)
+
+    assert server.storm_stores[1] == "store"
+
+fake_log = Fake(callable=True).with_args("Cleaning up store.", "STORM")
+fake_db3 = Fake('db')
+fake_db3.expects('disconnect')
+fake_store = Fake('store')
+fake_store.expects('close')
+@with_fakes
+@with_patched_object(ion.server.cherrypy, "log", fake_log)
+def test_server_disconnect_db():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+    server.db = fake_db3
+    server.storm_stores[1] = fake_store
+
+    server.disconnect_db(1)
+
+fake_log2 = Fake(callable=True).with_args("Could not find store.", "STORM")
+fake_db4 = Fake('db')
+fake_db4.expects('disconnect')
+@with_fakes
+@with_patched_object(ion.server.cherrypy, "log", fake_log2)
+def test_server_disconnect_db_logs_when_no_store_found():
+    clear_expectations()
+    server = Server(root_dir="some")
+    server.context = None
+    server.db = fake_db4
+
+    server.disconnect_db(1)
+
+import_context2 = Fake('context').has_attr(settings=Fake('settings'))
+import_context2.settings.has_attr(Ion=Fake('ion'))
+import_context2.settings.Ion.has_attr(controllers_path="/controllers")
+fake_sys_path = Fake('syspath')
+fake_sys_path.expects('append').with_args(arg.endswith('/some/controllers'))
+fake_os_list_dir = Fake(callable=True).with_args(arg.endswith('/some/controllers')).returns(['somefile.py'])
+fake_imp = Fake(callable=True).with_args("somefile")
+@with_fakes
+@with_patched_object(sys, "path", fake_sys_path)
+@with_patched_object(os, "listdir", fake_os_list_dir)
+@with_patched_object(Server, "imp", fake_imp)
+def test_server_imports_controllers():
+    clear()
+    server = Server(root_dir="some", context=import_context2)
+
+    server.import_controllers()
+

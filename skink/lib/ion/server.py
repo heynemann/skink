@@ -19,10 +19,8 @@ import sys
 import os
 from os.path import join, abspath, dirname, splitext
 
-#this import is required in order to include the lib folder in pythonpath
-import skink.lib
-
 import cherrypy
+from cherrypy import thread_data
 from ion.controllers import Controller
 from ion.storm_tool import *
 from ion.db import Db
@@ -60,7 +58,7 @@ class Server(object):
 
     def import_controllers(self):
         controller_path = self.context.settings.Ion.controllers_path
-        controller_path = controller_path or "controllers"
+        controller_path = controller_path.lstrip("/") or "controllers"
         controller_path = abspath(join(self.root_dir, controller_path))
 
         sys.path.append(controller_path)
@@ -91,7 +89,8 @@ class Server(object):
                    'tools.staticdir.root': join(self.root_dir, "skink/"),
                    'log.screen': sets.Ion.verbose == "True",
                    'tools.sessions.on': True,
-                   'tools.storm.on': True
+                   'tools.storm.on': True,
+                   'tools.sessions.on': True
                }
 
     def get_mounts(self, dispatcher):
@@ -151,8 +150,8 @@ class Server(object):
         self.db.connect()
         local_store = self.db.store
         self.storm_stores[thread_index] = local_store
-        cherrypy.thread_data.store = local_store
-    
+        thread_data.store = local_store
+
     def disconnect_db(self, thread_index):
         self.db.disconnect()
         s = self.storm_stores.pop(thread_index, None)

@@ -16,11 +16,12 @@
 # limitations under the License.
 
 import skink.lib
-from ion.controllers import Controller, route, authenticated
+import cherrypy
+from ion import Controller, route, authenticated
 
-class IndexController(Controller):
+class LoginController(Controller):
 
-    @route("/")
-    @authenticated
-    def index(self):
-        return self.render_template("index.html")
+    @route("/authentication/:return_url")
+    def index(self, return_url):
+        self.login('Bernardo')
+        raise cherrypy.HTTPRedirect(return_url.replace("@@", "/"))

@@ -5,8 +5,11 @@ import sys
 import os
 from os.path import abspath, dirname
 import optparse
+import urllib
 
-from skink.lib.ion import Server
+import skink.lib
+from ion import Server
+import cherrypy
 
 def main():
     """ Main function - parses args and runs action """
@@ -31,9 +34,15 @@ def main():
 
     sys.exit(0)
 
+def on_user_authentication_failed_handler(data):
+    raise cherrypy.HTTPRedirect("/authentication/%s" % urllib.quote(cherrypy.url(cherrypy.request.path_info)).replace("/", "@@"))
+
 def run_skink_server():
     root_dir = abspath(dirname(__file__))
     server = Server(root_dir=root_dir)
+
+    server.subscribe('on_user_authentication_failed', on_user_authentication_failed_handler)
+
     try:
         server.start("config.ini")
     except KeyboardInterrupt:

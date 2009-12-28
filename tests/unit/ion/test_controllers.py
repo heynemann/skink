@@ -18,11 +18,14 @@
 from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
 import skink.lib.ion.controllers as ctrl
-from skink.lib.ion.controllers import Controller, route
+from skink.lib.ion.controllers import Controller, route, authenticated
 
 def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
+
+authenticated_cherrypy = Fake('cherrypy')
+authenticated_cherrypy.has_attr(session={'authenticated_user':'user1'})
 
 def test_can_create_controller():
     ctrl = Controller()
@@ -122,11 +125,12 @@ package_loader = Fake(callable=True).with_args(arg.endswith("some/root/some/path
 
 template_fake = Fake('template')
 template_loader.expects('get_template').with_args('some_file.html').returns(template_fake)
-template_fake.expects('render').with_args(some="args").returns("expected")
+template_fake.expects('render').with_args(user="user1", some="args").returns("expected")
 
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template():
     clear_expectations()
     clear()
@@ -148,6 +152,7 @@ simpler_package_loader = Fake(callable=True).with_args(arg.endswith("some/root/t
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", simpler_package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template_in_folder_without_package():
     clear_expectations()
     clear()
@@ -170,6 +175,7 @@ empty_package_loader = Fake(callable=True).with_args(arg.endswith('some/root/tem
 @with_fakes
 @with_patched_object(ctrl, "Environment", environment)
 @with_patched_object(ctrl, "FileSystemLoader", empty_package_loader)
+@with_patched_object(ctrl, "cherrypy", authenticated_cherrypy)
 def test_render_template_in_folder_with_null_package():
     clear_expectations()
     clear()
@@ -193,4 +199,107 @@ def test_controller_returns_store_from_cherrypy_thread_data():
 
     ctrl = Controller()
     assert ctrl.store == "store"
+
+fake_cherrypy1 = Fake('cherrypy')
+fake_cherrypy1.has_attr(session={})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy1)
+def test_controller_has_null_user_by_default():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    assert not ctrl.user
+
+fake_cherrypy2 = Fake('cherrypy')
+fake_cherrypy2.has_attr(session={'authenticated_user':'some_user'})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy2)
+def test_controller_returns_thread_data_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    assert ctrl.user == "some_user"
+
+fake_cherrypy3 = Fake('cherrypy')
+fake_cherrypy3.has_attr(session={})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy3)
+def test_controller_can_authenticate_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    ctrl.login(user="auth_user")
+
+    assert ctrl.user == "auth_user"
+
+fake_cherrypy4 = Fake('cherrypy')
+fake_cherrypy4.has_attr(session={})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy4)
+def test_controller_logoff_clears_user():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+    ctrl.login("some_random_user")
+    ctrl.logoff()
+
+    assert not ctrl.user
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy4)
+def test_authenticated_decorator_checks_for_user():
+    clear_expectations()
+    clear()
+
+    class TestController(Controller):
+        @authenticated
+        def some_action(self):
+            pass
+
+    ctrl = TestController()
+
+    fake_server = Fake('server')
+    ctrl.server = fake_server
+
+    ctrl.server.expects('publish').with_args('on_before_user_authentication', arg.any_value())
+    ctrl.server.next_call('publish').with_args('on_user_authentication_failed', arg.any_value())
+
+    ctrl.some_action()
+
+fake_cherrypy5 = Fake('cherrypy')
+fake_cherrypy5.has_attr(session={'authenticated_user':'user1'})
+
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy5)
+def test_authenticated_decorator_executes_function_when_user_exists():
+    clear_expectations()
+    clear()
+
+    class TestController(Controller):
+        @authenticated
+        def some_action(self):
+            return "some_action_result"
+
+    ctrl = TestController()
+
+    fake_server = Fake('server')
+    ctrl.server = fake_server
+
+    ctrl.server.expects('publish').with_args('on_before_user_authentication', arg.any_value())
+    ctrl.server.next_call('publish').with_args('on_user_authentication_successful', arg.any_value())
+
+    result = ctrl.some_action()
+
+    assert result == "some_action_result"
 

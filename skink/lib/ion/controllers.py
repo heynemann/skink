@@ -17,8 +17,8 @@
 
 from os.path import split, abspath, join, dirname
 
-import skink.lib
 from jinja2 import Environment, FileSystemLoader
+import cherrypy
 from cherrypy import thread_data
 
 __CONTROLLERS__ = []
@@ -35,9 +35,27 @@ def route(route, name=None):
                 'method': func.__name__
             }
         )
+
         return func, conf
 
     return dec
+
+def authenticated(func):
+    def actual(*arguments, **kw):
+        instance = arguments[0]
+
+        instance.server.publish('on_before_user_authentication', {'server':instance, 'context':instance.context})
+
+        user = instance.user
+        if user:
+            instance.server.publish('on_user_authentication_successful', {'server':instance, 'context':instance.context})
+            return func(*arguments, **kw)
+        else:
+            instance.server.publish('on_user_authentication_failed', {'server':instance, 'context':instance.context})
+
+    actual.__name__ = func.__name__
+    actual.__doc__ = func.__doc__
+    return actual
 
 class MetaController(type):
     def __init__(cls, name, bases, attrs):
@@ -45,6 +63,7 @@ class MetaController(type):
             __CONTROLLERS__.append(cls)
             __CONTROLLERSDICT__[name] = cls
             cls.__routes__ = []
+
             for attr, value in attrs.items():
                 if isinstance(value, tuple) and len(value) is 2:
                     method, conf = value
@@ -73,6 +92,18 @@ class Controller(object):
     def name(self):
         return self.__class__.__name__.lower().replace("controller", "")
 
+    @property
+    def user(self):
+        if not hasattr(cherrypy, 'session') or not cherrypy.session:
+            return None
+        return cherrypy.session.get ('authenticated_user', None)
+
+    def login(self, user):
+        cherrypy.session['authenticated_user'] = user
+
+    def logoff(self):
+        cherrypy.session['authenticated_user'] = None
+
     def register_routes(self, dispatcher):
         for route in self.__routes__:
             route_name = "%s_%s" % (self.name, route[0])
@@ -85,5 +116,5 @@ class Controller(object):
         env = Environment(loader=FileSystemLoader(template_path))
 
         template = env.get_template(template_file)
-        return template.render(**kw)
+        return template.render(user=self.user, **kw)
 
