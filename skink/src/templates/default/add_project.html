@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Add project</h1>
+
+<div class="add-project">
+	<form class="form-add-project">
+		<p>
+			<label for="name">Name *</label>
+			<input type="text" name="name" />
+		</p>
+		<p>
+			<label for="repository">Git repository *</label>
+			<input type="text" name="repository" />
+		</p>
+		<p>
+			<label for="build_script">Build script *</label>
+			<input type="text" name="build_script" />
+		</p>
+		<p>* Required field</p>
+		<p>
+			Should monitor for changes <checkbox name="monitor_changes" />
+		</p>
+		<div class="additional-tabs">
+			Additional tabs
+		</div>
+		</div class="files-to-add">
+			Files to add
+		</div>
+		<p>
+			<input type="submit" name="create" value="create" />
+		</p>
+	</form>
+</div>
+{% endblock %}
