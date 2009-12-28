@@ -21,6 +21,5 @@ from ion.controllers import Controller, route, authenticated
 class IndexController(Controller):
 
     @route("/")
-    @authenticated
     def index(self):
         return self.render_template("index.html")
