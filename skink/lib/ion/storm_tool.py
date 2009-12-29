@@ -64,6 +64,10 @@ class StormHandlerWrapper(object):
 
 class StormTool(cherrypy.Tool):
     def _setup(self):
+        if cherrypy.request.config.get('tools.staticdir.on', False) or \
+            cherrypy.request.config.get('tools.staticfile.on', False):
+                return
+
         cherrypy.request.hooks.attach('before_handler', StormHandlerWrapper, priority=100)
         cherrypy.Tool._setup(self)
 

@@ -86,7 +86,6 @@ class Server(object):
                    'tools.encode.encoding': 'utf-8',
                    'tools.decode.on': True,
                    'tools.trailing_slash.on': True,
-                   'tools.staticdir.root': join(self.root_dir, "skink/"),
                    'log.screen': sets.Ion.verbose == "True",
                    'tools.sessions.on': True,
                    'tools.storm.on': True,
@@ -97,6 +96,7 @@ class Server(object):
         conf = {
             '/': {
                 'request.dispatch': dispatcher,
+                'tools.staticdir.root': join(self.root_dir, "skink/"),
             },
             '/media': {
                 'tools.staticdir.on': True,
