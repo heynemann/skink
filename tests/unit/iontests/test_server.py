@@ -127,7 +127,6 @@ def test_get_server_settings():
                    'tools.encode.encoding': 'utf-8',
                    'tools.decode.on': True,
                    'tools.trailing_slash.on': True,
-                   'tools.staticdir.root': "some/skink/",
                    'log.screen': True,
                    'tools.sessions.on': True,
                    'tools.storm.on': True
@@ -146,6 +145,7 @@ def test_get_mounts():
     expected = {
             '/': {
                 'request.dispatch': "dispatcher",
+                'tools.staticdir.root': "some/skink/",
             },
             '/media': {
                 'tools.staticdir.on': True,
