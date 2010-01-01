@@ -1,14 +1,32 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
+#-*- coding:utf-8 -*-
+
+# Copyright Bernardo Heynemann <heynemann@gmail.com>
+
+# Licensed under the Open Software License ("OSL") v. 3.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.opensource.org/licenses/osl-3.0.php
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import sys
 import os
-from os.path import abspath, dirname
+from os.path import abspath, dirname, join
 import optparse
 import urllib
 
 import skink.lib
-from ion import Server
+from ion import Server, Settings
+from simple_db_migrate.cli import CLI
+from simple_db_migrate.core import InPlaceConfig
+from simple_db_migrate.main import Main
+
 import cherrypy
 
 def main():
@@ -49,18 +67,28 @@ def run_skink_server():
         server.stop()
 
 def run_migrations(drop_db=False):
-    pass
-    #ctx = SkinkContext.current()
-    #config = InPlaceConfig(db_host=ctx.db_host, db_user=ctx.db_user, db_password=ctx.db_pass, db_name=ctx.db_name, migrations_dir=join(root_path, "db"))
+    root_dir = abspath(dirname(__file__))
+    
+    settings = Settings(root_dir)
+    settings.load("config.ini")
 
-    #config.put("schema_version", None)
-    #config.put("show_sql", False)
-    #config.put("show_sql_only", False)
-    #config.put("new_migration", None)
+    protocol = settings.Db.protocol
+    username = settings.Db.user
+    password = settings.Db.password
+    host = settings.Db.host
+    port = int(settings.Db.port)
+    database = settings.Db.database
 
-    #config.put("drop_db_first", drop_db)
+    config = InPlaceConfig(db_host=host, db_user=username, db_password=password, db_name=database, migrations_dir=join(root_dir, "db"))
 
-    #Main(config).execute()
+    config.put("schema_version", None)
+    config.put("show_sql", False)
+    config.put("show_sql_only", False)
+    config.put("new_migration", None)
+
+    config.put("drop_db_first", drop_db)
+
+    Main(config).execute()
 
 if __name__ == "__main__":
     main()

@@ -39,10 +39,10 @@ kill:
 # action targets
 
 createdb:
-	@skink/skink_console.py createdb
+	@python skink_console.py createdb
 
 upgradedb:
-	@skink/skink_console.py upgradedb
+	@python skink_console.py upgradedb
 
 report_success:
 	@echo "Build succeeded!"

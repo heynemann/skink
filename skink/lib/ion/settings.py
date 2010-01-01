@@ -36,7 +36,6 @@ class Settings(object):
 
         return SettingsSection(self, name, self.config)
 
-
 class SettingsSection(object):
     def __init__(self, settings, name, config):
         self.settings = settings
