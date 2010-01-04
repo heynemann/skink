@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    <div style="display:none" id="currently_building"></div>
+    {% if projects %}
+        <ul id="projects">
+            {% for project in projects %}
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %}'} {{ project.build_status}}">
+                    <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
+                    <div class="build_details">
+                        Never built
+                    </div>
+                    <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <p id="new" py:if="projects">
+        <a class="integrity_link" href="/project/new">Add a new project</a>
+    </p>
+
+    {% if not projects %}
+        <div id="projects">
+            Looks like you don't have any projects!<br />
+            How about <a class="integrity_link" href="/project/new">creating one now</a>?
+        </div>
+    {% endif %}
+{% endblock %}

@@ -22,19 +22,26 @@ import skink.src.controllers.index_controller as index_ctrl
 
 import skink.lib
 import ion.controllers as ctrl
-import iontests.fake_authenticated as fake_auth
+
+from skink.src.models import *
 
 def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
 
-custom_render_template = Fake(callable=True).with_args('index.html').returns('Some Result')
+fake_store = Fake("store")
+
+custom_render_template = Fake(callable=True).with_args('index.html', projects=[0, 1, 2]).returns('Some Result')
 
 @with_patched_object(index_ctrl.IndexController, "render_template", custom_render_template)
+@with_patched_object(index_ctrl.IndexController, "store", fake_store)
 @with_fakes
 def test_index_action():
     clear()
     clear_expectations()
+
+    index_ctrl.IndexController.store.expects("find").with_args(Project).returns([0, 1, 2])
+
     controller = index_ctrl.IndexController()
     result = controller.index()
 

@@ -1,0 +1,104 @@
+pre.log {
+  background: #111;
+  color: #fff;
+  padding: .5em;
+  overflow: auto;
+  height: 92%;
+  width: 98%;
+  font-size: .825em; 
+}
+
+.project_building {
+	display: none;
+	width: 66px;
+	height: 66px;
+	margin: auto;
+}
+
+.dashboard_content {
+	min-height: 500px;
+}
+
+.project {
+	float: left;
+	margin: 8px;
+	width: 48%;
+	min-height: 136px;
+	-moz-border-radius: 3px;
+	-moz-opacity: .9;
+	background-color: #bbf8aa;
+    border-color: #99d688;
+    color: #337022;
+}
+
+.project_header {
+	background-color: #B3DFA7;
+	min-height: 35px;
+}
+
+.project_building {
+	background-color: #feffcc;
+    border-color: #cdae00;
+    color: #191919;
+}
+
+.project_fail {
+	background-color: #ffbbaa;
+    border-color: #dd9988;
+    color: #ff1100;
+}
+
+.project a {
+	text-decoration: none;
+	color: #8F0808;
+}
+
+.project_built {
+	font-size: 0.7em;
+	margin: 8px; 
+}
+
+.project_actions {
+	float: right;
+	width: 30%;
+	margin: 8px 5px 0 0;
+}
+
+.project_actions li {
+	float: right;
+}
+
+.project h2 {
+	margin: 0 !important;
+	width: 68%;
+	float: left;
+}
+
+.project h2 a {
+	margin-left: 8px;
+}
+
+.last_build_commit_author {
+	font-size: 1.4em;
+	font-weight: bold;
+	margin: 6px 0;
+	
+}
+
+.last_build_commit_text {
+	font-style: italic;
+}
+
+.start_build {
+	float: right;
+	margin: 10px;
+}
+
+.start_build a {
+	padding: 5px;
+}
+
+.start_build a:hover {
+	padding: 5px;
+	background-color: #DFB5B5;
+}

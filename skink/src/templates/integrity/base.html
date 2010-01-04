@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+        <title>Skink {% block title %}{% endblock %}</title>
+        {% block extrahead %}{% endblock %}
+        <link rel="stylesheet" href="/media/integrity/css/reset.css" type="text/css" />
+        <link rel="stylesheet" href="/media/integrity/css/integrity.css" type="text/css" />
+        <link rel="stylesheet" href="/media/integrity/css/buttons.css" type="text/css" />
+        <link rel="stylesheet" href="/media/common/js/lib/css/smoothness/jquery-ui-1.7.1.custom.css" type="text/css" />
+        <script src="/media/common/js/lib/jquery-min.js"></script>
+        <script src="/media/common/js/lib/jquery-ui.min.js"></script>
+        <script src="/media/common/js/lib/jquery.timers-1.1.2.js"></script>
+        <script language="javascript" type="text/javascript">
+            $(function(){
+                document.authenticated = '{{ user }}' != '';
+            });
+        </script>
+    </head>
+
+    <body>
+        <div id="header">
+            <span class="breadcrumb">
+                <h1>
+                <a class="integrity_link" href="/">projects</a> 
+                {% block breadcrumb %}{% endblock %}
+                |
+                <a class="integrity_link" href="/pipeline">pipelines</a>
+                </h1>
+            </span>
+            <address class="watermark">
+                built with
+                <a class="integrity_link" href="http://skinkci.org/" title="Skinkize your project now!">skink ci</a>
+            </address>
+        </div>
+        <div id="content">
+          {% block content %}{% endblock %}
+        </div>
+
+        <div id="footer">
+            {% if user is defined %}
+                Hey there!
+                <a class="integrity_link" href="/login">Log In</a>
+                if you have a user
+            {% else %}
+                Thanks for authenticating.
+                <a class="integrity_link" href="/logoff">Log Off</a> if you don't need to change anything else.
+            {% endif %}
+            <br /><br />
+            Template based on the <a class="integrity_link" href="http://integrityapp.com/" target="_blank">Integrity App</a> default template.
+        </div>
+    </body>
+</html>

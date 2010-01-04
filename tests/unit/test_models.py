@@ -15,13 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import skink.lib
-from ion.controllers import Controller, route, authenticated
 from skink.src.models import *
 
-class IndexController(Controller):
+def test_can_create_project():
+    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
 
-    @route("/")
-    def index(self):
-        projects = list(self.store.find(Project))
-        return self.render_template("index.html", projects=projects)
+    assert proj.name == u"Test Project 1"
+    assert proj.build_script == u"test build script"
+    assert proj.scm_repository == u"scm_repository"
+    assert proj.monitor_changes == False
+
