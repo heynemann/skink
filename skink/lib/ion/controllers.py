@@ -94,9 +94,10 @@ class Controller(object):
 
     @property
     def user(self):
-        if not hasattr(cherrypy, 'session') or not cherrypy.session:
+        try:
+            return cherrypy.session.get ('authenticated_user', None)
+        except AttributeError:
             return None
-        return cherrypy.session.get ('authenticated_user', None)
 
     def login(self, user):
         cherrypy.session['authenticated_user'] = user
