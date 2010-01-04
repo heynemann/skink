@@ -18,7 +18,7 @@
 from fudge import Fake, with_fakes, with_patched_object, clear_expectations
 from fudge.inspector import arg
 
-import skink.src.controllers.index_controller as index_ctrl
+import skink.src.controllers.controllers as controllers
 
 import skink.lib
 import ion.controllers as ctrl
@@ -33,17 +33,30 @@ fake_store = Fake("store")
 
 custom_render_template = Fake(callable=True).with_args('index.html', projects=[0, 1, 2]).returns('Some Result')
 
-@with_patched_object(index_ctrl.IndexController, "render_template", custom_render_template)
-@with_patched_object(index_ctrl.IndexController, "store", fake_store)
+@with_patched_object(controllers.IndexController, "render_template", custom_render_template)
+@with_patched_object(controllers.IndexController, "store", fake_store)
 @with_fakes
 def test_index_action():
     clear()
     clear_expectations()
 
-    index_ctrl.IndexController.store.expects("find").with_args(Project).returns([0, 1, 2])
+    controllers.IndexController.store.expects("find").with_args(Project).returns([0, 1, 2])
 
-    controller = index_ctrl.IndexController()
+    controller = controllers.IndexController()
     result = controller.index()
 
     assert result == "Some Result"
+
+new_render_template = Fake(callable=True).with_args('add_project.html').returns('Create Project')
+
+@with_patched_object(controllers.ProjectController, "render_template", new_render_template)
+@with_fakes
+def test_new_action():
+    clear()
+    clear_expectations()
+
+    controller = controllers.ProjectController()
+    result = controller.new()
+
+    assert result == "Create Project"
 
