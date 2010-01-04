@@ -25,3 +25,9 @@ class IndexController(Controller):
     def index(self):
         projects = list(self.store.find(Project))
         return self.render_template("index.html", projects=projects)
+
+class ProjectController(Controller):
+
+    @route("/project/new")
+    def new(self):
+        return self.render_template("add_project.html")

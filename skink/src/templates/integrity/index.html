@@ -16,10 +16,11 @@
                 </li>
             {% endfor %}
         </ul>
+        <p id="new">
+            <a class="integrity_link" href="/project/new">Add a new project</a>
+        </p>
     {% endif %}
-    <p id="new" py:if="projects">
-        <a class="integrity_link" href="/project/new">Add a new project</a>
-    </p>
+
 
     {% if not projects %}
         <div id="projects">
