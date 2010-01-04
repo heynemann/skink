@@ -7,12 +7,14 @@
     {% if projects %}
         <ul id="projects">
             {% for project in projects %}
-                <li class="{% if loop.index is even %}even{% else %}odd{% endif %}'} {{ project.build_status}}">
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if project.build_status == 'UNKNOWN' %}failed{% else %}{{ project.build_status }}{% endif %}">
                     <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
-                    <div class="build_details">
-                        Never built
+                    <div class="meta">
+                        <div class="build_details">
+                            Never built
+                        </div>
+                        <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
                     </div>
-                    <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
                 </li>
             {% endfor %}
         </ul>

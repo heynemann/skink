@@ -31,3 +31,10 @@ class ProjectController(Controller):
     @route("/project/new")
     def new(self):
         return self.render_template("add_project.html")
+
+    @route("/project/create")
+    def create(self, name, build_script, scm_repository, monitor_changes=None):
+        prj = Project(name=name, build_script=build_script, scm_repository=scm_repository, monitor_changes=monitor_changes == "MONITOR")
+        self.store.add(prj)
+
+        self.redirect("/")

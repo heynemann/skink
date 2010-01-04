@@ -153,7 +153,8 @@ class Server(object):
         thread_data.store = local_store
 
     def disconnect_db(self, thread_index):
-        self.db.disconnect()
+        if self.db.is_connected:
+            self.db.disconnect()
         s = self.storm_stores.pop(thread_index, None)
         if s is not None:
             cherrypy.log("Cleaning up store.", "STORM")
