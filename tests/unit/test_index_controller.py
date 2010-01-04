@@ -27,11 +27,9 @@ import iontests.fake_authenticated as fake_auth
 def clear():
     ctrl.__CONTROLLERS__ = []
     ctrl.__CONTROLLERSDICT__ = {}
-    fake_auth.auth_history = []
 
 custom_render_template = Fake(callable=True).with_args('index.html').returns('Some Result')
 
-@with_patched_object(index_ctrl, "authenticated", fake_auth.fake_authenticated)
 @with_patched_object(index_ctrl.IndexController, "render_template", custom_render_template)
 @with_fakes
 def test_index_action():
