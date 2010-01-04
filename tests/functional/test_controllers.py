@@ -35,7 +35,7 @@ root_dir = abspath(join(dirname(__file__), "../../"))
 def test_index_controller_index_action():
     server = Server(root_dir)
 
-    server.start('config.ini', non_block=True)
+    server.start('tests/functional/config.ini', non_block=True)
 
     while not server.status == ServerStatus.Started:
         time.sleep(0.5)
@@ -57,7 +57,7 @@ def test_index_controller_index_action_with_created_projects():
 
     server = Server(root_dir)
 
-    server.start('config.ini', non_block=True)
+    server.start('tests/functional/config.ini', non_block=True)
 
     while not server.status == ServerStatus.Started:
         time.sleep(0.5)
@@ -73,7 +73,7 @@ def test_index_controller_index_action_with_created_projects():
 def test_project_controller_new_action():
     server = Server(root_dir)
 
-    server.start('config.ini', non_block=True)
+    server.start('tests/functional/config.ini', non_block=True)
 
     while not server.status == ServerStatus.Started:
         time.sleep(0.5)
