@@ -16,7 +16,6 @@
 # limitations under the License.
 
 import skink.lib
-
 from storm.locals import *
 
 def create_store():
@@ -27,6 +26,7 @@ def create_store():
 
 def create_models(store):
     create_project_model(store)
+    create_build_model(store)
 
 def create_project_model(store):
     sql = """DROP TABLE IF EXISTS `projects`; 
@@ -37,6 +37,25 @@ CREATE TABLE  `projects` (
   `scm_repository` varchar(1500) default NULL,
   `monitor_changes` tinyint(1) default NULL,
   `build_status` varchar(15) default NULL
+);"""
+    execute_sql(store, sql)
+
+def create_build_model(store):
+    sql = """DROP TABLE IF EXISTS `builds`;
+CREATE TABLE  `builds` (
+  `id` INTEGER PRIMARY KEY,
+  `number` INTEGER,
+  `build_date` TEXT,
+  `status` TEXT,
+  `scm_status` TEXT,
+  `log` TEXT,
+  `commit_number` TEXT,
+  `commit_author` TEXT,
+  `commit_committer` TEXT,
+  `commit_text` TEXT,
+  `commit_author_date` TEXT,
+  `commit_committer_date` TEXT,
+  `project_id` INTEGER
 );"""
     execute_sql(store, sql)
 

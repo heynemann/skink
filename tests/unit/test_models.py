@@ -33,7 +33,7 @@ def test_can_create_builds():
     proj = Project(name=u"Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
 
     build = Build(number=1, 
-                  date=some_date,
+                  build_date=some_date,
                   status="Successful",
                   scm_status="Successful", 
                   log=u"some_log", 
@@ -46,7 +46,7 @@ def test_can_create_builds():
                   project=proj)
 
     assert build.number == 1
-    assert build.date == some_date
+    assert build.build_date == some_date
     assert build.status == "Successful"
     assert build.scm_status == "Successful"
     assert build.log == "some_log"

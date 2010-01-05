@@ -41,13 +41,13 @@ class Build(object):
 
     id = Int(primary=True)
     number = Int()
-    date = DateTime()
+    build_date = DateTime()
     status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
     scm_status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
     log = Unicode()
-    commit_number = Unicode(40)
-    commit_author = Unicode(400)
-    commit_committer = Unicode(400)
+    commit_number = Unicode()
+    commit_author = Unicode()
+    commit_committer = Unicode()
     commit_text = Unicode()
     commit_author_date = DateTime()
     commit_committer_date = DateTime()
@@ -57,7 +57,7 @@ class Build(object):
 
     def __init__(self,
                  number,
-                 date,
+                 build_date,
                  status,
                  scm_status,
                  log,
@@ -69,7 +69,7 @@ class Build(object):
                  commit_committer_date,
                  project):
         self.number = number
-        self.date = date
+        self.build_date = build_date
         self.status = status
         self.scm_status = scm_status
         self.log = log

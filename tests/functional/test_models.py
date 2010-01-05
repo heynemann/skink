@@ -15,11 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
+
 import skink.lib
-
 from base import *
-
-from skink.src.models import Project
+from skink.src.models import Project, Build
 
 store = create_store()
 create_models(store)
@@ -35,4 +35,31 @@ def test_can_create_project():
 
     assert found_proj.id
     assert found_proj.id == proj.id
+
+def test_can_create_build():
+    some_date = datetime.now()
+    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+
+    build = Build(number=1, 
+                  build_date=some_date,
+                  status="Successful",
+                  scm_status="Successful", 
+                  log=u"some_log", 
+                  commit_number=u"commit_number",
+                  commit_author=u"commit_author",
+                  commit_committer=u"commit_committer",
+                  commit_text=u"commit_text",
+                  commit_author_date=some_date,
+                  commit_committer_date=some_date,
+                  project=proj)
+
+    store.add(build)
+    store.commit()
+
+    found_build = store.find(Build, Build.project == proj).one()
+
+    assert found_build.id
+    assert found_build.id == build.id
+
+    assert found_build.project is proj
 
