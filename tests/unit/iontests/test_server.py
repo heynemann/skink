@@ -269,6 +269,7 @@ def test_server_connect_db():
 
 fake_log = Fake(callable=True).with_args("Cleaning up store.", "STORM")
 fake_db3 = Fake('db')
+fake_db3.is_connected = True
 fake_db3.expects('disconnect')
 fake_store = Fake('store')
 fake_store.expects('close')
@@ -285,6 +286,7 @@ def test_server_disconnect_db():
 
 fake_log2 = Fake(callable=True).with_args("Could not find store.", "STORM")
 fake_db4 = Fake('db')
+fake_db4.is_connected = True
 fake_db4.expects('disconnect')
 @with_fakes
 @with_patched_object(ion.server.cherrypy, "log", fake_log2)

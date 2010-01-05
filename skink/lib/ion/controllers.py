@@ -95,7 +95,7 @@ class Controller(object):
     @property
     def user(self):
         try:
-            return cherrypy.session.get ('authenticated_user', None)
+            return cherrypy.session.get('authenticated_user', None)
         except AttributeError:
             return None
 

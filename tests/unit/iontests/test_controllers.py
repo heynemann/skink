@@ -319,3 +319,17 @@ def test_controller_can_redirect():
         return
 
     assert False, "Should not have gotten this far"
+
+
+fake_cherrypy6 = Fake('cherrypy')
+fake_cherrypy6.expects("session").raises(AttributeError("failed"))
+@with_fakes
+@with_patched_object(ctrl, "cherrypy", fake_cherrypy6)
+def test_user_returns_none_when_attribute_error():
+    clear_expectations()
+    clear()
+
+    ctrl = Controller()
+
+    assert not ctrl.user
+

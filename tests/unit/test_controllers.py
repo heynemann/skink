@@ -60,3 +60,20 @@ def test_new_action():
 
     assert result == "Create Project"
 
+
+store_create_action = Fake('store')
+redirect_create_action = Fake(callable=True).with_args("/")
+
+@with_patched_object(controllers.ProjectController, "store", store_create_action)
+@with_patched_object(controllers.ProjectController, "redirect", redirect_create_action)
+@with_fakes
+def test_create_action():
+    clear()
+    clear_expectations()
+
+    store_create_action.expects('add').with_args(arg.any_value())
+
+    controller = controllers.ProjectController()
+
+    controller.create(name=u"project_name", build_script=u"build_script", scm_repository=u"scm_repository", monitor_changes="MONITOR")
+

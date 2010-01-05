@@ -21,6 +21,7 @@ from storm.locals import *
 
 class Project(object):
     __storm_table__ = "projects"
+
     id = Int(primary=True)
     name = Unicode()
     build_script = Unicode()
@@ -34,3 +35,49 @@ class Project(object):
         self.scm_repository = scm_repository
         self.monitor_changes = monitor_changes
         self.build_status = "UNKNOWN"
+
+class Build(object):
+    __storm_table__ = "builds"
+
+    id = Int(primary=True)
+    number = Int()
+    date = DateTime()
+    status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
+    scm_status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
+    log = Unicode()
+    commit_number = Unicode(40)
+    commit_author = Unicode(400)
+    commit_committer = Unicode(400)
+    commit_text = Unicode()
+    commit_author_date = DateTime()
+    commit_committer_date = DateTime()
+
+    project_id = Int()
+    project = Reference(project_id, Project.id)
+
+    def __init__(self,
+                 number,
+                 date,
+                 status,
+                 scm_status,
+                 log,
+                 commit_number,
+                 commit_author,
+                 commit_committer,
+                 commit_text,
+                 commit_author_date,
+                 commit_committer_date,
+                 project):
+        self.number = number
+        self.date = date
+        self.status = status
+        self.scm_status = scm_status
+        self.log = log
+        self.commit_number = commit_number
+        self.commit_author = commit_author
+        self.commit_committer = commit_committer
+        self.commit_text = commit_text
+        self.commit_author_date = commit_author_date
+        self.commit_committer_date = commit_committer_date
+        self.project = project
+
