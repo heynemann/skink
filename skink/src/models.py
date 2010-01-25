@@ -36,6 +36,11 @@ class Project(object):
         self.monitor_changes = monitor_changes
         self.build_status = "UNKNOWN"
 
+    @property
+    def last_build(self):
+        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Build.build_date)[:1])
+        return builds and builds[0] or None
+
 class Build(object):
     __storm_table__ = "builds"
 
