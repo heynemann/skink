@@ -176,13 +176,15 @@ class Server(object):
         self.storm_stores[thread_index] = local_store
         thread_data.store = local_store
 
-    def disconnect_db(self, thread_index):
+    def disconnect_db(self, thread_index, do_log=True):
         if self.db.is_connected:
             self.db.disconnect()
         s = self.storm_stores.pop(thread_index, None)
         if s is not None:
-            cherrypy.log("Cleaning up store.", "STORM")
+            if do_log:
+                cherrypy.log("Cleaning up store.", "STORM")
             s.close()
         else:
-            cherrypy.log("Could not find store.", "STORM")
+            if do_log:
+                cherrypy.log("Could not find store.", "STORM")
 

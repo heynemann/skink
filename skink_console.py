@@ -21,6 +21,8 @@ from os.path import abspath, dirname, join
 import optparse
 import urllib
 
+import Queue
+
 import skink.lib
 from ion import Server, Settings
 from simple_db_migrate.cli import CLI
@@ -28,6 +30,9 @@ from simple_db_migrate.core import InPlaceConfig
 from simple_db_migrate.main import Main
 
 import cherrypy
+
+from skink.src.services.plugins.builder import *
+from skink.src.services.plugins.monitor import *
 
 def main():
     """ Main function - parses args and runs action """
@@ -58,8 +63,21 @@ def on_user_authentication_failed_handler(data):
 def run_skink_server():
     root_dir = abspath(dirname(__file__))
     server = Server(root_dir=root_dir)
+    server.build_dir = join(root_dir, "ci_tmp")
 
     server.subscribe('on_user_authentication_failed', on_user_authentication_failed_handler)
+
+    server.context.build_queue = Queue.deque()
+    server.context.projects_being_built = Queue.deque()
+
+    builder = BuilderPlugin(cherrypy.engine, server)
+    builder.subscribe()
+
+    monitor = MonitorPlugin(cherrypy.engine, server)
+    monitor.subscribe()
+
+    server.context.build_queue.append(10)
+    server.context.build_queue.append(20)
 
     try:
         server.start("config.ini")

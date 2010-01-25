@@ -42,6 +42,12 @@ class SettingsSection(object):
         self.name = name
         self.config = config
 
+    def as_int(self, config_name):
+        return int(getattr(self, config_name))
+
+    def as_bool(self, config_name):
+        return {'true': True, 'false': False}.get(getattr(self, config_name).lower())
+
     def __getattr__(self, config_name):
         return self.config.get(self.name, config_name)
 
