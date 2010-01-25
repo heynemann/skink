@@ -1,0 +1,8 @@
+SQL_UP = u"""
+    ALTER TABLE `skink`.`builds` CHANGE COLUMN `date` `build_date` DATETIME  DEFAULT NULL;
+"""
+
+SQL_DOWN = u"""
+    ALTER TABLE `skink`.`builds` CHANGE COLUMN `build_date` `date` DATETIME  DEFAULT NULL;
+"""
+

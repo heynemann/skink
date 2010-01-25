@@ -43,7 +43,7 @@ class Build(object):
     number = Int()
     build_date = DateTime()
     status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
-    scm_status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
+    scm_status = Enum(map={"Created": "0", "Updated": "1", "Failed": "2"})
     log = Unicode()
     commit_number = Unicode()
     commit_author = Unicode()
@@ -80,4 +80,7 @@ class Build(object):
         self.commit_author_date = commit_author_date
         self.commit_committer_date = commit_committer_date
         self.project = project
+
+#Collections
+Project.builds = ReferenceSet(Project.id, Build.project_id)
 

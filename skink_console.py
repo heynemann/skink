@@ -76,9 +76,6 @@ def run_skink_server():
     monitor = MonitorPlugin(cherrypy.engine, server)
     monitor.subscribe()
 
-    server.context.build_queue.append(10)
-    server.context.build_queue.append(20)
-
     try:
         server.start("config.ini")
     except KeyboardInterrupt:

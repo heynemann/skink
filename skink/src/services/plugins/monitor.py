@@ -17,11 +17,13 @@ class MonitorPlugin(CherryPyDaemonPlugin):
         ctx = self.server.context
 
         self.server.connect_db("MONITORPLUGIN")
-        store = thread_data.store
 
-        monitored_projects = projects = list(store.find(Project, Project.monitor_changes == True))
+        try:
+            store = thread_data.store
 
-        self.server.disconnect_db("MONITORPLUGIN", do_log=False)
+            monitored_projects = projects = list(store.find(Project, Project.monitor_changes == True))
+        finally:
+            self.server.disconnect_db("MONITORPLUGIN", do_log=False)
 
         git_service = GitService(server=self.server)
 

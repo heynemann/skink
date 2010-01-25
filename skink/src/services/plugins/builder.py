@@ -27,6 +27,7 @@ from os.path import dirname, abspath, join, exists
 
 import skink.lib
 from ion.plugins import CherryPyDaemonPlugin
+from skink.src.services.build import BuildService
 
 class BuilderPlugin(CherryPyDaemonPlugin):
     key = "BUILDER"
@@ -36,7 +37,11 @@ class BuilderPlugin(CherryPyDaemonPlugin):
         if ctx.build_queue:
             item = ctx.build_queue.pop()
             self.do_log("Found %s to build. Building..." % item)
-            #self.build_service.build_project(item)
+
+            service = BuildService(self.server)
+
+            service.build_project(item)
+
             self.do_log("Project %s finished building." % item)
         else:
             self.do_log("No Projects found to build!")
