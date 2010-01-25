@@ -17,15 +17,15 @@
 
 import sys
 import os
-from os.path import join, abspath, dirname, splitext
+from os.path import join, abspath, dirname, splitext, split
 
 import cherrypy
 from cherrypy import thread_data
+
 from ion.controllers import Controller
 from ion.storm_tool import *
 from ion.db import Db
-
-from context import Context
+from ion.context import Context
 
 class ServerStatus(object):
     Unknown = 0
@@ -93,14 +93,26 @@ class Server(object):
                }
 
     def get_mounts(self, dispatcher):
+        sets = self.context.settings
+        media_path = sets.Ion.media_path
+
+        if not media_path:
+            media_dir = "media"
+            media_path = self.root_dir
+        else:
+            #REFACTOR
+            paths = split(media_path)
+            media_dir = paths[-1]
+            media_path = join(self.root_dir, join(*paths[:-1]).lstrip("/")).rstrip("/")
+
         conf = {
             '/': {
                 'request.dispatch': dispatcher,
-                'tools.staticdir.root': join(self.root_dir, "skink/"),
+                'tools.staticdir.root': media_path,
             },
             '/media': {
                 'tools.staticdir.on': True,
-                'tools.staticdir.dir': 'media'
+                'tools.staticdir.dir': media_dir
             }
         }
 
@@ -135,9 +147,21 @@ class Server(object):
             cherrypy.engine.block()
 
     def test_connection(self):
-        self.db = Db(self.context)
-        self.db.connect()
-        self.db.disconnect()
+        from MySQLdb import OperationalError
+
+        try:
+            self.db = Db(self.context)
+            self.db.connect()
+            self.db.disconnect()
+        except OperationalError:
+            message = ['', '']
+            message.append("============================ IMPORTANT ERROR ============================")
+            message.append("No connection to the database could be made with the supplied parameters.")
+            message.append("PLEASE VERIFY YOUR CONFIG.INI FILE AND CHANGE IT ACCORDINGLY.")
+            message.append("=========================================================================")
+            message.append('')
+            message.append('')
+            cherrypy.log.error("\n".join(message), "STORM")
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)

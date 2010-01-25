@@ -57,15 +57,16 @@ compile:
 	@echo "Compiling source code..."
 	@rm -f ${compile_log_file} >> /dev/null
 	@rm -f -r ${src_dir}/*.pyc >> /dev/null
-	@python -m compileall ${src_dir} >> ${compile_log_file} 2>> ${compile_log_file}
+	@echo "Compile step skipped due to ion's lib"
+	#@python -m compileall ${src_dir} >> ${compile_log_file} 2>> ${compile_log_file}
 
 run_unit: compile
 	@echo "Running run_unit tests..."
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -d -s --verbose ${unit_tests_dir}; else nosetests -d -s --verbose --with-coverage --cover-package=skink.src --cover-package=skink.lib.ion --cover-erase --cover-inclusive ${unit_tests_dir}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -d -s --verbose ${unit_tests_dir}; else nosetests -d -s --verbose --with-coverage --cover-package=skink.src --cover-erase --cover-inclusive ${unit_tests_dir}; fi
 
 run_functional: compile
 	@echo "Running run_functional tests..."
-	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir}; else nosetests -s --verbose --with-coverage --cover-package=skink.src --cover-package=skink.lib.ion --cover-erase --cover-inclusive ${functional_tests_dir}; fi
+	@if [ "$(nocoverage)" = "true" ]; then nosetests -s --verbose ${functional_tests_dir}; else nosetests -s --verbose --with-coverage --cover-package=skink.src --cover-erase --cover-inclusive ${functional_tests_dir}; fi
 
 run_acceptance: compile
 	@echo "Running run_acceptance tests..."

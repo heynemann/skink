@@ -15,15 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import urllib2
+import os
+from os.path import join, dirname, abspath, exists
+from os import walk
 
-class HttpClient(object):
-    @classmethod
-    def get(self, url):
-        request = urllib2.urlopen(url)
+import fnmatch
 
-        content = "\n".join(request.readlines())
-        exit_code = request.code
-        request.close()
+def locate(pattern, root=os.curdir):
+    root_path = abspath(root)
 
-        return exit_code, content
+    return_files = []
+    for path, dirs, files in walk(root_path):
+        for filename in fnmatch.filter(files, pattern):
+            return_files.append(join(path, filename))
+    return return_files

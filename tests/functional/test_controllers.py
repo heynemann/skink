@@ -18,6 +18,8 @@
 from os.path import abspath, join, dirname
 
 import skink.lib
+
+import cherrypy
 import ion.controllers as ctrl
 from ion import Server, ServerStatus, Context
 from ion.controllers import Controller, route
@@ -85,3 +87,41 @@ def test_project_controller_new_action():
     content = controller.new()
 
     assert content
+
+def test_project_controller_create_action_assigns_false_to_monitor_changes_by_default():
+    server = Server(root_dir)
+
+    server.start('tests/functional/config.ini', non_block=True)
+
+    while not server.status == ServerStatus.Started:
+        time.sleep(0.5)
+
+    controller = ProjectController()
+    controller.server = server
+    controller.context = server.context
+
+    try:
+        controller.create(u"name", u"build_script", u"scm_repository")
+    except cherrypy.HTTPRedirect:
+        return
+
+    assert False, "Shouldn't have reached this far."
+
+def test_project_controller_create_action_assigns_true_to_monitor_changes_if_string_MONITOR():
+    server = Server(root_dir)
+
+    server.start('tests/functional/config.ini', non_block=True)
+
+    while not server.status == ServerStatus.Started:
+        time.sleep(0.5)
+
+    controller = ProjectController()
+    controller.server = server
+    controller.context = server.context
+
+    try:
+        controller.create(u"name", u"build_script", u"scm_repository", u"MONITOR")
+    except cherrypy.HTTPRedirect:
+        return
+
+    assert False, "Shouldn't have reached this far."
