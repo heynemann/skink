@@ -12,7 +12,7 @@
         <ul id="projects">
             {% for project in projects %}
                 <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if project.build_status == 'UNKNOWN' %}failed{% else %}{% if project.build_status == "Successful" %}success{% else %}failed{% endif %}{% endif %}">
-                    <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
+                    <a class="integrity_link" href="/project/{{ project.id }}/details">{{ project.name }}</a>
                     <div class="meta">
                         {% if project.last_build %}
                             <div class="build_details">

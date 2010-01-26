@@ -20,6 +20,7 @@ from threading import Thread
 
 import cherrypy
 from cherrypy.process import plugins
+from ion.db import Db
 
 class CherryPyPlugin(plugins.SimplePlugin):
     #it's called do_log due to cherrypy having a log method already
@@ -38,6 +39,7 @@ class CherryPyDaemonPlugin(CherryPyPlugin):
         super(CherryPyDaemonPlugin, self).__init__(bus, server)
         self.should_die = False
         self.thread = None
+        self.store = None
 
     def start(self):
         self.thread = Thread(target=self.loop_execute)
@@ -50,12 +52,20 @@ class CherryPyDaemonPlugin(CherryPyPlugin):
         self.do_log("Monitor dead.")
 
     def loop_execute(self):
+        ctx = self.server.context
         while(not self.should_die):
+            db = Db(ctx)
             try:
+                db.connect()
+                self.store = db.store
+
                 self.execute()
             except Exception:
                 cherrypy.engine.exit()
                 raise
+            finally:
+                db.disconnect()
+                self.store = None
 
     def execute(self):
         pass

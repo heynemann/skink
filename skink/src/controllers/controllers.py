@@ -39,7 +39,7 @@ class ProjectController(Controller):
 
         self.redirect("/")
 
-    @route("/project/:id")
+    @route("/project/:id/details")
     def show_details(self, id):
         prj = self.store.get(Project, int(id))
 
@@ -50,7 +50,15 @@ class ProjectController(Controller):
         project_id = int(id)
         self.log("Adding project %s to the queue" % project_id)
         self.context.build_queue.append(project_id)
-        self.redirect('/project/%s' % project_id)
+        self.redirect('/project/%s/details' % project_id)
+
+    @route("/project/:id/delete")
+    def delete(self, id):
+        project_id = int(id)
+        prj = self.store.get(Project, project_id)
+        self.store.remove(prj)
+
+        self.redirect('/')
 
 class BuildController(Controller):
     @route("/buildstatus")

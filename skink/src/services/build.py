@@ -23,14 +23,14 @@ from os.path import dirname, abspath, join, exists, split
 
 import skink.lib
 from cherrypy import thread_data
-from ion.db import Db
+from ion.services import Service
 
 from skink.src.models import *
 from skink.src.services.scm import *
 from skink.src.common import *
 from skink.src.services.executers import ShellExecuter
 
-class BuildService(object):
+class BuildService(Service):
     Unknown = "Unknown"
     Success = "Successful"
     Failure = "Failed"
@@ -63,11 +63,10 @@ class BuildService(object):
     def build_project(self, project_id):
         ctx = self.server.context
 
-        db = Db(ctx)
-        db.connect()
+        self.connect()
 
         try:
-            store = db.store
+            store = self.store
             log = ["Build started at %s" % datetime.now()]
 
             status = BuildService.Failure
@@ -142,7 +141,7 @@ class BuildService(object):
 
             return build
         finally:
-            db.disconnect()
+            self.disconnect()
 
     def process_pipelines_for(self, project):
         pass
