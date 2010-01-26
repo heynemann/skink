@@ -50,7 +50,7 @@ class ProjectController(Controller):
         project_id = int(id)
         self.log("Adding project %s to the queue" % project_id)
         self.context.build_queue.append(project_id)
-        self.redirect('/project/%s/details' % project_id)
+        self.redirect('/project/%s' % project_id)
 
     @route("/project/:id/delete")
     def delete(self, id):
