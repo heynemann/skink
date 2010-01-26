@@ -24,7 +24,7 @@ from cherrypy import thread_data
 __CONTROLLERS__ = []
 __CONTROLLERSDICT__ = {}
 
-def route(route, name=None):
+def route(route, name=None, priority=50):
     def dec(func):
         actual_name = func.__name__
         if name:
@@ -32,7 +32,8 @@ def route(route, name=None):
         conf = (
             actual_name, {
                 'route': route,
-                'method': func.__name__
+                'method': func.__name__,
+                'priority': priority
             }
         )
 
@@ -64,11 +65,18 @@ class MetaController(type):
             __CONTROLLERSDICT__[name] = cls
             cls.__routes__ = []
 
+            routes = []
+
             for attr, value in attrs.items():
                 if isinstance(value, tuple) and len(value) is 2:
                     method, conf = value
-                    setattr(cls, attr, method)
-                    cls.__routes__.append(conf)
+                    routes.append((attr, method, conf, conf[1]['priority']))
+
+            routes = sorted(routes, lambda i1, i2: cmp(i2[3], i1[3]))
+
+            for attr, method, conf, priority in routes:
+                setattr(cls, attr, method)
+                cls.__routes__.append(conf)
 
         super(MetaController, cls).__init__(name, bases, attrs)
 

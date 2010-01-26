@@ -39,7 +39,7 @@ class ProjectController(Controller):
 
         self.redirect("/")
 
-    @route("/project/:id/details")
+    @route("/project/:id", priority=1)
     def show_details(self, id):
         prj = self.store.get(Project, int(id))
 
