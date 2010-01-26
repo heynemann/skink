@@ -14,8 +14,8 @@
     <div id='administrative'>
         <a class="integrity_link" href='/project/{{ project.id }}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/{{ project.id }}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/{{ project.id }}/build">Build Project</a> | <a class="integrity_link" id="stop_project" href="/project/{{ project.id }}/stopbuild">Stop Project</a>
     </div>
-    {% if project.last_build %}
-        {% set build = project.last_build %}
+    {% if current_build %}
+        {% set build = current_build %}
     <div class="{% if build and (build.status == 'Successful') %}success{% else %}failed{% endif %}" id='last_build'>
         <div>
             <h1><img src="/media/common/images/accept.png" 

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extrahead %}
+    <link rel="stylesheet" href="/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css" type="text/css" media="screen" title="default css" charset="utf-8" />
+    <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
+    <script type="text/javascript" language="javascript" src="/media/integrity/script/pipeline_index.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h3>
+        This page lets you create build Pipelines for your projects.
+    </h3>
+
+    <h3>Creating Pipelines</h3>
+    <p>
+        To create a new Pipeline enter the Pipeline using the following format:
+        <pre>ProjectA > ProjectA2 > ProjectA3</pre>
+        This means that:
+        <ul>
+            <li>ProjectA2 will get built upon ProjectA's success</li>
+            <li>ProjectA3 will get built upon ProjectA2's success</li>
+        </ul>
+    </p>
+    {% if pipelines %}
+    <h2>
+        Existing Pipelines:
+    </h2>
+    <p>
+        <ul>
+        {% for pipeline in pipelines %}
+            <li>
+                <a class="integrity_link" href="/pipeline/{{ pipeline.id }}">
+                    <b>[{{ pipeline.name }}]</b> {{ pipeline }} 
+                </a>
+                <a href="/pipeline/{{ pipeline.id }}/delete" class="delete_pipeline integrity_link">
+                    <img border="0" align="absMiddle" 
+                                    src="/media/integrity/images/delete.png" 
+                                    alt="Delete this Pipeline" 
+                                    title="Delete this Pipeline" />
+                </a>
+            </li>
+        {% endfor %}
+        </ul>
+    </p>
+    {% endif %}
+
+    {% if errors %}
+    <h2>
+        Some errors occurred:<br />
+
+        {% for error in errors %}
+        <label class="with_errors">
+            {{ error }}<br />
+        </label>
+        {% endfor %}
+    </h2>
+    {% endif %}
+    
+    <h2>{% if pipeline %}Edit the "{{ pipeline }}" Pipeline{% else %}Create a new Pipeline{% endif %}:</h2>
+    <form action="/pipeline/{% if pipeline %}{{ pipeline.id }}/update{% else %}create{% endif %}" method='post'>
+        <p class='required'>
+            <label for='pipeline_name'>Name</label>
+            <input class='text' name="name" id="name" value="{{ pipeline.name }}" type='text' />
+        </p>
+
+        <p class='required'>
+            <label for='project_repository'>Pipeline Definition</label>
+            <input class='text' name="pipeline_definition" id="pipeline_definition" value="{% if pipeline %}{{ pipeline }}{% endif %}" type='text' />
+        </p>
+
+        <p class='submit'>
+            <button class='positive' type='submit'>{% if pipeline %}Edit Pipeline{% else %}Create Pipeline{% endif %}</button>
+        </p>
+    </form>
+{% endblock %}

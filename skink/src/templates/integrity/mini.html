@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/project_status.js"></script>
+        <style>
+            html{background-color:#000}
+            #header, #footer, #currently_building, #new {display:none; }
+            #content {margin:0;padding:0;width:100%}
+            .build_details {float:left; font-size:1.3em !important; margin-right:5px; margin-top:-15px;}
+        </style>
+{% endblock %}
+
+{% block content %}
+    {% if projects %}
+        <ul id="projects">
+            {% for project in projects %}
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if project.build_status == 'UNKNOWN' %}failed{% else %}{% if project.build_status == "Successful" %}success{% else %}failed{% endif %}{% endif %}">
+                    <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
+                    <div class="meta">
+                        {% if project.last_build %}
+                            <div class="build_details">
+                                {{ project.last_build.commit_author }}<br />
+                                <i>{{ project.last_build.commit_text[:50] }}{% if project.last_build.commit_text|length > 50 %}...{% endif %}</i>
+                            </div>
+                            <img src="/media/common/images/accept.png" 
+                                 class="project_status" title="This project has been built." 
+                                 id="build_status_{{ project.id }}" align="absMiddle" />
+                        {% else %}
+                            <div class="never-built">
+                                Never built
+                            </div>
+                            <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+        <p id="new">
+            <a class="integrity_link" href="/project/new">Add a new project</a>
+        </p>
+    {% endif %}
+
+
+    {% if not projects %}
+        <div id="projects">
+            Looks like you don't have any projects!<br />
+            How about <a class="integrity_link" href="/project/new">creating one now</a>?
+        </div>
+    {% endif %}
+{% endblock %}

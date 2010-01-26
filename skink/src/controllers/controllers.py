@@ -18,6 +18,7 @@
 import skink.lib
 from ion.controllers import Controller, route, authenticated
 from skink.src.models import *
+import demjson
 
 class IndexController(Controller):
 
@@ -25,6 +26,11 @@ class IndexController(Controller):
     def index(self):
         projects = list(self.store.find(Project))
         return self.render_template("index.html", projects=projects)
+
+    @route("/mini")
+    def mini(self):
+        projects = list(self.store.find(Project))
+        return self.render_template("mini.html", projects=projects)
 
 class ProjectController(Controller):
 
@@ -39,11 +45,36 @@ class ProjectController(Controller):
 
         self.redirect("/")
 
+    @route("/project/:id/edit")
+    def edit(self, id):
+        project_id = int(id)
+        prj = self.store.get(Project, project_id)
+        return self.render_template("edit_project.html", project=prj)
+
+    @route("/project/:id/update")
+    def update(self, id, name, build_script, scm_repository, monitor_changes=None):
+        project_id = int(id)
+        prj = self.store.get(Project, project_id)
+
+        prj.name = name
+        prj.build_script = build_script
+        prj.scm_repository = scm_repository
+        prj.monitor_changes = monitor_changes == "MONITOR"
+
+        self.redirect("/project/%d" % project_id)
+
     @route("/project/:id", priority=1)
     def show_details(self, id):
         prj = self.store.get(Project, int(id))
 
-        return self.render_template("project_details.html", project=prj)
+        return self.render_template("project_details.html", project=prj, current_build=prj.last_build)
+
+    @route("/project/:id/builds/:build_id")
+    def show_build_details(self, id, build_id):
+        prj = self.store.get(Project, int(id))
+        build = self.store.get(Build, int(build_id))
+
+        return self.render_template("project_details.html", project=prj, current_build=build)
 
     @route("/project/:id/build")
     def build(self, id):
@@ -60,6 +91,21 @@ class ProjectController(Controller):
 
         self.redirect('/')
 
+    @route("project/:id/stopbuild")
+    def stop_build(self, id):
+        project_id = int(id)
+        try:
+            ctx = self.server.context
+            if hasattr(ctx, 'current_process') and ctx.current_process:
+                pid = ctx.current_process.process.process.pid
+                self.log("KILLING PROCESS AT %s" % pid)
+                ctx.current_process.process.stop()
+            else:
+                return "NOTRUNNING"
+            return "OK"
+        except Exception, err:
+            return "ERROR"
+
 class BuildController(Controller):
     @route("/buildstatus")
     def buildstatus(self, *args, **kw):
@@ -75,3 +121,93 @@ class BuildController(Controller):
 
         return "\n".join(["%s=%s@@%s" % (k, v[0],v[1]) for k,v in result.items()])
 
+    @route("/currentbuild")
+    def current_build_report(self, **data):
+        return self.render_template("current_build.html")
+
+    @route("/currentbuild_mini")
+    def current_build_report_mini(self, **data):
+        return self.render_template("current_build_mini.html")
+
+    @route("/currentstatus")
+    def current_status(self, **data):
+        ctx = self.server.context
+        result = {}
+        result['project'] = ctx.current_project and ctx.current_project.name or ''
+        result['project_id'] = ctx.current_project and ctx.current_project.id or ''
+        result['command'] = ctx.current_command
+        result['log'] = ctx.current_log and u"<br />".join(unicode(ctx.current_log).splitlines()[-30:]) or ''
+
+        return demjson.encode(result)
+
+class PipelineController(Controller):
+    @route("/pipeline", priority=5)
+    def index(self):
+        pipelines = list(self.store.find(Pipeline))
+        return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=None)
+
+    @route("/pipeline/create")
+    def create(self, name, pipeline_definition):
+        pipeline = Pipeline(name)
+        try:
+            self.store.add(pipeline)
+
+            pipeline.load_pipeline_items(pipeline_definition)
+
+            self.server.publish("on_pipeline_created", {"server":self.server, "pipeline":pipeline})
+            self.redirect("/pipeline")
+        except (ProjectNotFoundError, CyclicalPipelineError), err:
+            self.store.remove(pipeline)
+            pipelines = list(self.store.find(Pipeline))
+            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=[err.message,])
+
+    @route("/pipeline/:id", priority=1)
+    def edit(self, id):
+        pipeline_id = int(id)
+        pipelines = list(self.store.find(Pipeline))
+        pipeline = self.store.get(Pipeline, pipeline_id)
+        return self.render_template("pipeline_index.html", pipeline=pipeline, pipelines=pipelines, errors=None)
+
+    @route("/pipeline/:id/update")
+    def update(self, id, name, pipeline_definition):
+        pipeline_id = int(id)
+        pipeline = self.store.get(Pipeline, pipeline_id)
+
+        errors = self.validate_pipe_definition(pipeline_definition)
+        if errors:
+            pipelines = list(self.store.find(Pipeline))
+            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=errors)
+
+        pipeline.name = name
+        pipeline.items.clear()
+        pipeline.load_pipeline_items(pipeline_definition)
+
+        self.server.publish("on_pipeline_updated", {"server":self.server, "pipeline":pipeline})
+        self.redirect('/pipeline')
+
+    def validate_pipe_definition(self, pipeline_definition):
+        errors = []
+        all_projects = dict([(project.name, project) for project in list(self.store.find(Project))])
+
+        pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
+
+        for index, pipeline_item in enumerate(pipeline_items):
+            key = pipeline_item
+            if not all_projects.has_key(key):
+                errors.append("The project with name %s does not exist" % key)
+
+        cyclical_error = Pipeline.assert_for_cyclical_pipeline(pipeline_items)
+        if cyclical_error:
+            errors.append(cyclical_error)
+
+        return errors
+
+    @route("/pipeline/:id/delete")
+    def delete(self, id):
+        pipeline_id = int(id)
+        pipeline = self.store.get(Pipeline, pipeline_id)
+        for item in pipeline.items:
+            self.store.remove(item)
+        self.store.remove(pipeline)
+
+        self.redirect('/pipeline')

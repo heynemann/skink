@@ -40,7 +40,10 @@ class BuilderPlugin(CherryPyDaemonPlugin):
 
             service = BuildService(self.server)
 
-            service.build_project(item)
+            try:
+                service.build_project(item)
+            except Exception, err:
+                self.do_log("The builder service threw and error: %s" % err)
 
             self.do_log("Project %s finished building." % item)
         else:

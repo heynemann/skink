@@ -144,11 +144,20 @@ class BuildService(Service):
             self.disconnect()
 
     def process_pipelines_for(self, project):
-        pass
-#        pipelines = self.pipeline_repository.get_all_pipelines_for(project)
-#        for pipeline in pipelines:
-#            for i in range(len(pipeline.items)):
-#                if i < len(pipeline.items) - 1:
-#                    if pipeline.items[i].project.id == project.id:
-#                        print "Adding project %d to the queue because it's in the same pipeline as project %s" % (pipeline.items[i+1].project.id, pipeline.items[i].project.name)
-#                        SkinkContext.current().build_queue.append(pipeline.items[i+1].project.id)
+        pipelines = self.store.find(Pipeline,
+                                    PipelineItem.pipeline_id == Pipeline.id,
+                                    PipelineItem.project_id == project.id)
+        pipelines = list(pipelines)
+
+        for pipeline in pipelines:
+            pipeline_items = list(pipeline.items)
+            pipeline_items = sorted(pipeline_items, lambda i1, i2: cmp(i1.order, i2.order))
+
+            for index, pipeline_item in enumerate(pipeline_items):
+                if index == len(pipeline_items) - 1:
+                    continue
+
+                if pipeline_item.project_id == project.id:
+                    print "Adding project %d to the queue because it's in the same pipeline as project %s" % (pipeline_items[index+1].project.id, pipeline_item.project.name)
+                    self.server.context.build_queue.append(pipeline_items[index+1].project_id)
+

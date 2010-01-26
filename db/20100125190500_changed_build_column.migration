@@ -1,8 +1,10 @@
 SQL_UP = u"""
     ALTER TABLE `skink`.`builds` CHANGE COLUMN `date` `build_date` DATETIME  DEFAULT NULL;
+    ALTER TABLE `skink`.`pipeline_items` ADD COLUMN `order` INT NOT NULL;
 """
 
 SQL_DOWN = u"""
     ALTER TABLE `skink`.`builds` CHANGE COLUMN `build_date` `date` DATETIME  DEFAULT NULL;
+    ALTER TABLE `skink`.`pipeline_items` DROP COLUMN `order`;
 """
 

@@ -33,6 +33,11 @@ class Executer(object):
         self.process.start()
     
     def poll(self):
+        if self.process.process_killed:
+            self.result.exit_code = 9
+            self.result.status = Status.fail
+            return True
+
         exit_code = self.process.poll()
         self.result.log += self.process.read_log()
 
@@ -55,6 +60,7 @@ class Process(object):
         self.command = command
         self.buffer_size = buffer_size
         self.working_dir = working_dir
+        self.process_killed = False
 
     def poll(self):
         if not self.process:
@@ -66,6 +72,7 @@ class Process(object):
         self.process = Popen(str(self.command), cwd=self.working_dir, shell=True, stdout=PIPE, stderr=STDOUT)
 
     def stop(self):
+        self.process_killed = True
         pid = self.process.pid
         os.kill(pid, 9)
 

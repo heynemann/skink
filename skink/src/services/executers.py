@@ -49,7 +49,7 @@ class ShellExecuter(object):
                 self.log("[%s] - %.2f secs" % (command, self.ellapsed(start_time=start_time)))
 
                 if timeout and self.ellapsed(start_time=start_time) > timeout:
-                    os.kill(self.executer.process.pid, 9)
+                    self.executer.process.stop()
                     if self.timed_out:
                         self.timed_out(executer=self.executer)
 

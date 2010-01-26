@@ -18,6 +18,7 @@
 import skink.lib
 
 from storm.locals import *
+from skink.src.errors import *
 
 class Project(object):
     __storm_table__ = "projects"
@@ -95,6 +96,70 @@ class Build(object):
         self.commit_committer_date = commit_committer_date
         self.project = project
 
+class Pipeline(object):
+    __storm_table__ = "pipelines"
+
+    id = Int(primary=True)
+    name = Unicode()
+
+    def __init__(self, name):
+        self.name = name
+
+    def load_pipeline_items(self, pipeline_definition):
+        all_projects = dict([(project.name, project) for project in list(Store.of(self).find(Project))])
+
+        pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
+
+        Pipeline.assert_for_cyclical_pipeline(pipeline_items)
+
+        for index, pipeline_item in enumerate(pipeline_items):
+            key = pipeline_item
+            if not all_projects.has_key(key):
+                raise ProjectNotFoundError("The project with name %s does not exist" % key)
+            project = all_projects[key]
+            pipeline_item = PipelineItem()
+            pipeline_item.order = index
+            pipeline_item.pipeline = self
+            pipeline_item.project = project
+
+    @classmethod
+    def assert_for_cyclical_pipeline(cls, pipeline_items):
+        added_items = []
+        repeated_items = []
+        for item in pipeline_items:
+            if item in added_items:
+                repeated_items.append(item)
+            else:
+                added_items.append(item)
+
+        if repeated_items:
+            return "You are trying to create a cyclical pipeline. \nRepeated projects: %s" % ", ".join(repeated_items)
+
+        return None
+
+    def __str__(self):
+        if not self.items:
+            return "No items in the pipeline."
+        items_description = []
+        for pipeline_item in list(Store.of(self).find(PipelineItem, PipelineItem.pipeline_id==self.id).order_by(PipelineItem.order)):
+            items_description.append(pipeline_item.project.name)
+
+        return " > ".join(items_description)
+
+class PipelineItem(object):
+    __storm_table__ = "pipeline_items"
+
+    id = Int(primary=True)
+
+    order = Int()
+
+    pipeline_id = Int()
+    pipeline = Reference(pipeline_id, Pipeline.id)
+
+    project_id = Int()
+    project = Reference(project_id, Project.id)
+
 #Collections
 Project.builds = ReferenceSet(Project.id, Build.project_id)
+Pipeline.items = ReferenceSet(Pipeline.id, PipelineItem.pipeline_id)
 
