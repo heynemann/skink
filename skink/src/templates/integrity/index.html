@@ -2,12 +2,16 @@
 
 {% block title %}Home{% endblock %}
 
+{% block extrahead %}
+        <script src="/media/common/js/project_status.js"></script>
+{% endblock %}
+
 {% block content %}
     <div style="display:none" id="currently_building"></div>
     {% if projects %}
         <ul id="projects">
             {% for project in projects %}
-                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if project.build_status == 'UNKNOWN' %}failed{% else %}{{ project.build_status }}{% endif %}">
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if project.build_status == 'UNKNOWN' %}failed{% else %}{% if project.build_status == "Successful" %}success{% else %}failed{% endif %}{% endif %}">
                     <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
                     <div class="meta">
                         {% if project.last_build %}
@@ -19,7 +23,7 @@
                                  class="project_status" title="This project has been built." 
                                  id="build_status_{{ project.id }}" align="absMiddle" />
                         {% else %}
-                            <div class="build_details">
+                            <div class="never-built">
                                 Never built
                             </div>
                             <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_${project.id}" />

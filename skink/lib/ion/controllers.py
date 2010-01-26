@@ -80,6 +80,10 @@ class Controller(object):
         self.context = None
         self.server = None
 
+    def log(self, message):
+        if self.context.settings.Ion.as_bool('verbose'):
+            cherrypy.log(message, "[%s]" % self.__class__.__name__)
+
     @classmethod
     def all(self):
         return __CONTROLLERS__

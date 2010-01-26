@@ -6,6 +6,7 @@ import time
 import skink.lib
 from cherrypy import thread_data
 from ion.plugins import CherryPyDaemonPlugin
+from ion.db import Db
 
 from skink.src.models import *
 from skink.src.services.scm import GitService
@@ -16,14 +17,13 @@ class MonitorPlugin(CherryPyDaemonPlugin):
     def execute(self):
         ctx = self.server.context
 
-        self.server.connect_db("MONITORPLUGIN")
+        db = Db(ctx)
+        db.connect()
 
         try:
-            store = thread_data.store
-
-            monitored_projects = projects = list(store.find(Project, Project.monitor_changes == True))
+            monitored_projects = projects = list(db.store.find(Project, Project.monitor_changes == True))
         finally:
-            self.server.disconnect_db("MONITORPLUGIN", do_log=False)
+            db.disconnect()
 
         git_service = GitService(server=self.server)
 

@@ -27,19 +27,28 @@ class Project(object):
     build_script = Unicode()
     scm_repository = Unicode()
     monitor_changes = Bool()
-    build_status = Enum(map={"UNKNOWN": "0", "SUCCESSFUL": "1", "FAILED": "2"})
 
     def __init__(self, name, build_script, scm_repository, monitor_changes):
         self.name = name
         self.build_script = build_script
         self.scm_repository = scm_repository
         self.monitor_changes = monitor_changes
-        self.build_status = "UNKNOWN"
+
+    @property
+    def build_status(self):
+        if self.builds.count():
+            return self.last_build.status
+        return "Unknown"
 
     @property
     def last_build(self):
-        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Build.build_date)[:1])
+        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Desc(Build.id))[:1])
         return builds and builds[0] or None
+
+    @property
+    def last_builds(self):
+        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Desc(Build.id))[:10])
+        return builds
 
 class Build(object):
     __storm_table__ = "builds"

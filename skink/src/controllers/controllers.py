@@ -38,3 +38,32 @@ class ProjectController(Controller):
         self.store.add(prj)
 
         self.redirect("/")
+
+    @route("/project/:id")
+    def show_details(self, id):
+        prj = self.store.get(Project, int(id))
+
+        return self.render_template("project_details.html", project=prj)
+
+    @route("/project/:id/build")
+    def build(self, id):
+        project_id = int(id)
+        self.log("Adding project %s to the queue" % project_id)
+        self.context.build_queue.append(project_id)
+        self.redirect('/project/%s' % project_id)
+
+class BuildController(Controller):
+    @route("/buildstatus")
+    def buildstatus(self, *args, **kw):
+        ctx = self.server.context
+        projects = list(self.store.find(Project))
+        projects_being_built = [int(project_id) for project_id in ctx.projects_being_built]
+        result = {}
+        for project in projects:
+            if project.id in projects_being_built:
+                result[project.id] = (project.name, "BUILDING")
+            else:
+                result[project.id] = (project.name, project.last_build is not None and "BUILT" or "UNKNOWN")
+
+        return "\n".join(["%s=%s@@%s" % (k, v[0],v[1]) for k,v in result.items()])
+

@@ -20,9 +20,9 @@ import os
 from os.path import join, abspath, dirname, splitext, split
 
 import cherrypy
-from cherrypy import thread_data
 
 from ion.controllers import Controller
+from storm.locals import *
 from ion.storm_tool import *
 from ion.db import Db
 from ion.context import Context
@@ -48,6 +48,10 @@ class Server(object):
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
 
         self.context.load_settings(abspath(join(self.root_dir, config_path)))
+
+        if self.context.settings.Ion.as_bool('debug'):
+            from storm.tracer import debug
+            debug(True, stream=sys.stdout)
 
         self.import_controllers()
 
@@ -170,21 +174,35 @@ class Server(object):
         self.context.bus.publish(subject, data)
 
     def connect_db(self, thread_index):
-        self.db = Db(self.context)
-        self.db.connect()
-        local_store = self.db.store
-        self.storm_stores[thread_index] = local_store
-        thread_data.store = local_store
+        protocol = self.context.settings.Db.protocol
+        username = self.context.settings.Db.user
+        password = self.context.settings.Db.password
+        host = self.context.settings.Db.host
+        port = int(self.context.settings.Db.port)
+        database = self.context.settings.Db.database
 
-    def disconnect_db(self, thread_index, do_log=True):
-        if self.db.is_connected:
-            self.db.disconnect()
+        conn_str = self.connstr(protocol, username, password, host, port, database)
+
+        database = create_database(conn_str)
+        local_store = Store(database)
+
+        self.storm_stores[thread_index] = local_store
+        cherrypy.thread_data.store = local_store
+
+    def disconnect_db(self, thread_index):
         s = self.storm_stores.pop(thread_index, None)
         if s is not None:
-            if do_log:
-                cherrypy.log("Cleaning up store.", "STORM")
+            cherrypy.log("Cleaning up store.", "STORM")
             s.close()
         else:
-            if do_log:
-                cherrypy.log("Could not find store.", "STORM")
+            cherrypy.log("Could not find store.", "STORM")
 
+    def connstr(self, protocol, username, password, host, port, database):
+        return "%s://%s:%s@%s:%d/%s" % (
+            protocol,
+            username,
+            password,
+            host,
+            port,
+            database
+        )

@@ -231,6 +231,11 @@ a.integrity_link {
         margin-right: 5px;
         float: left;
         font-size: .75em;
+      }
+      #content #projects .never_built {
+        margin-right: 5px;
+        float: left;
+        font-size: .75em;
         margin-top: 0.85em;
       }
       #content #projects .project_status {

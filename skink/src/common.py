@@ -16,7 +16,6 @@
 # limitations under the License.
 
 def force_unicode(s, encoding='utf-8', errors='strict'):
-    print "Decoding %s with encoding %s" % (s, encoding)
     if not isinstance(s, basestring,):
         if hasattr(s, '__unicode__'):
             s = unicode(s)

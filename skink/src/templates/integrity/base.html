@@ -4,7 +4,6 @@
     <head>
         <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
         <title>Skink {% block title %}{% endblock %}</title>
-        {% block extrahead %}{% endblock %}
         <link rel="stylesheet" href="/media/integrity/css/reset.css" type="text/css" />
         <link rel="stylesheet" href="/media/integrity/css/integrity.css" type="text/css" />
         <link rel="stylesheet" href="/media/integrity/css/buttons.css" type="text/css" />
@@ -17,6 +16,7 @@
                 document.authenticated = '{{ user }}' != '';
             });
         </script>
+        {% block extrahead %}{% endblock %}
     </head>
 
     <body class="index">
