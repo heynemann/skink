@@ -69,6 +69,7 @@ def run_skink_server():
 
     server.context.current_project = None
     server.context.current_command = None
+    server.context.current_log = ""
     server.context.build_queue = Queue.deque()
     server.context.projects_being_built = Queue.deque()
 
