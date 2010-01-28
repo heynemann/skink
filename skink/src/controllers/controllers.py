@@ -86,7 +86,16 @@ class ProjectController(Controller):
     @route("/project/:id/delete")
     def delete(self, id):
         project_id = int(id)
+
         prj = self.store.get(Project, project_id)
+
+        pipelines = self.store.find(Pipeline,
+                                    PipelineItem.pipeline_id == Pipeline.id,
+                                    PipelineItem.project_id == project_id)
+
+        for pipeline in pipelines:
+            self.store.remove(pipeline)
+
         self.store.remove(prj)
 
         self.redirect('/')
