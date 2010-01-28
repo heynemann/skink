@@ -67,6 +67,7 @@ def run_skink_server():
 
     server.subscribe('on_user_authentication_failed', on_user_authentication_failed_handler)
 
+    server.context.current_project = None
     server.context.build_queue = Queue.deque()
     server.context.projects_being_built = Queue.deque()
 
