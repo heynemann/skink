@@ -43,8 +43,11 @@ class Project(object):
 
     @property
     def last_build(self):
+        if hasattr(self, 'last_build_cache'):
+            return self.last_build_cache
         builds = list(Store.of(self).find(Build, Build.project == self).order_by(Desc(Build.id))[:1])
-        return builds and builds[0] or None
+        self.last_build_cache = builds and builds[0] or None
+        return self.last_build_cache
 
     @property
     def last_builds(self):
