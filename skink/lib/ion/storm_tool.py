@@ -23,13 +23,14 @@ import types
 
 import cherrypy
 
+
 ## The database commit tool. This will try to auto-commit on each request.
 def do_commit():
     try:
-        if not cherrypy.request.rolledback and cherrypy.thread_data.store:
+        if not cherrypy.request.rolledback and hasattr(cherrypy.thread_data, 'store'):
                 cherrypy.thread_data.store.commit()
     except:
-        if cherrypy.thread_data.store:
+        if hasattr(cherrypy.thread_data, 'store'):
             cherrypy.thread_data.store.rollback()
             cherrypy.log("ROLLBACK - " + format_exc(), "STORM")
 
@@ -58,7 +59,7 @@ class StormHandlerWrapper(object):
         except Exception, e:
             if not isinstance(e, tuple(self.to_skip)):
                 cherrypy.log("ROLLBACK - " + format_exc(), "STORM")
-                if cherrypy.thread_data.store:
+                if hasattr(cherrypy.thread_data, 'store'):
                     cherrypy.thread_data.store.rollback()
                 cherrypy.request.rolledback = True
             raise

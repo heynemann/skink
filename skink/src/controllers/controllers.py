@@ -119,7 +119,12 @@ class BuildController(Controller):
     @route("/buildstatus")
     def buildstatus(self, *args, **kw):
         ctx = self.server.context
-        projects = list(self.store.find(Project))
+        if not self.cache.has_key("all_projects"):
+            projects = list(self.store.find(Project))
+            self.cache["all_projects"] = projects
+        else:
+            projects = self.cache["all_projects"]
+
         projects_being_built = [int(project_id) for project_id in ctx.projects_being_built]
         result = {}
         for project in projects:

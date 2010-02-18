@@ -26,6 +26,7 @@ from storm.locals import *
 from ion.storm_tool import *
 from ion.db import Db
 from ion.context import Context
+from ion.cache import Cache
 
 class ServerStatus(object):
     Unknown = 0
@@ -42,12 +43,21 @@ class Server(object):
         self.root_dir = root_dir
         self.context = context or Context(root_dir=root_dir)
         self.storm_stores = {}
+        self.test_connection_error = None
+        self.cache = None
+
+    @property
+    def template_path(self):
+        templ_path = self.context.settings.Ion.template_path.lstrip("/")
+        templ_path = templ_path and abspath(join(self.root_dir, templ_path)) or abspath(join(self.root_dir, 'templates'))
+        return templ_path
 
     def start(self, config_path, non_block=False):
         self.status = ServerStatus.Starting
         self.publish('on_before_server_start', {'server':self, 'context':self.context})
 
         self.context.load_settings(abspath(join(self.root_dir, config_path)))
+        self.cache = Cache(size=1000, age="5s", log=cherrypy.log)
 
         if self.context.settings.Ion.as_bool('debug'):
             from storm.tracer import debug
@@ -128,23 +138,30 @@ class Server(object):
         for controller_type in Controller.all():
             controller = controller_type()
             controller.server = self
-            controller.context = self.context
             controller.register_routes(routes_dispatcher)
+
+        route_name = "healthcheck"
+        controller = Controller()
+        controller.server = self
+        routes_dispatcher.connect("healthcheck", "/healthcheck", controller=controller, action="healthcheck")
 
         dispatcher = routes_dispatcher
         return dispatcher
 
     def run_server(self, non_block=False):
-        cherrypy.engine.subscribe('start_thread', self.connect_db)
-        cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
-
         cherrypy.config.update(self.get_server_settings())
         dispatcher = self.get_dispatcher()
         mounts = self.get_mounts(dispatcher)
 
         self.app = cherrypy.tree.mount(None, config=mounts)
 
-        self.test_connection()
+        self.context.use_db = self.test_connection()
+
+        if self.context.use_db:
+            cherrypy.engine.subscribe('start_thread', self.connect_db)
+            cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
+        else:
+            cherrypy.config.update({'tools.storm.on': False})
 
         cherrypy.engine.start()
         if not non_block:
@@ -157,7 +174,8 @@ class Server(object):
             self.db = Db(self.context)
             self.db.connect()
             self.db.disconnect()
-        except OperationalError:
+            return True
+        except OperationalError, err:
             message = ['', '']
             message.append("============================ IMPORTANT ERROR ============================")
             message.append("No connection to the database could be made with the supplied parameters.")
@@ -166,6 +184,9 @@ class Server(object):
             message.append('')
             message.append('')
             cherrypy.log.error("\n".join(message), "STORM")
+            self.test_connection_error = err
+
+        return False
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)

@@ -15,14 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import os
 from os.path import join, dirname, abspath, exists
-import shutil
 from string import Template
 
 from ion.server import Server
-from ion.fs import locate
+from ion.fs import *
 from ion import Version
+
+def log(message):
+    print message
 
 __PROVIDERS__ = []
 __PROVIDERSDICT__ = {}
@@ -50,37 +53,31 @@ class VersionProvider(Provider):
         super(VersionProvider, self).__init__("version")
 
     def execute(self, current_dir, options, args):
-        print "Ion v%s - http://github.com/heynemann/ion\nCreated by Bernardo Heynemann (heynemann@gmail.com)" % Version
+        log("Ion v%s - http://github.com/heynemann/ion\nCreated by Bernardo Heynemann (heynemann@gmail.com)" % Version)
 
 class HelpProvider(Provider):
     def __init__(self):
         super(HelpProvider, self).__init__("help")
 
     def execute(self, current_dir, options, args):
-        print "Help to be written"
+        log("Help to be written")
 
 class CreateProjectProvider(Provider):
     def __init__(self):
         super(CreateProjectProvider, self).__init__("create")
 
-    def recursive_copy(self, from_path, to_path):
-        shutil.copytree(from_path, to_path)
-
     def replace_tokens(self, path, **kw):
-        for file_name in locate("*.*", root=path):
-            if not os.path.isfile(file_name):
+        for file_name in locate("*.txt", "*.py", "*.css", "*.js", "*.rst", "*.html", "*.ini", root=path):
+            if not is_file(file_name):
                 continue
-            project_file = open(file_name, 'r')
-            text = project_file.read()
-            project_file.close()
+            text = read_all_file(file_name)
 
-            os.remove(file_name)
+            remove_file(file_name)
 
             s = Template(text)
 
-            project_file = open(file_name, 'w')
-            project_file.write(s.substitute(**kw))
-            project_file.close()
+            contents = s.substitute(**kw)
+            replace_file_contents(file_name, contents)
 
     def execute(self, current_dir, options, args):
         if not args or not args[0]:
@@ -92,13 +89,13 @@ class CreateProjectProvider(Provider):
         to_project_path = abspath(join(current_dir, project_name))
 
         if exists(to_project_path):
-            raise ValueError("The choosen path(%s) already exists! Please choose a different name or try another folder.")
+            raise ValueError("The choosen path(%s) already exists! Please choose a different name or try another folder." % to_project_path)
 
-        self.recursive_copy(new_project_template, to_project_path)
+        recursive_copy(new_project_template, to_project_path)
 
         self.replace_tokens(to_project_path, project_name=project_name)
 
-        shutil.move(join(to_project_path, "src"), join(to_project_path, project_name))
+        move_dir(join(to_project_path, "src"), join(to_project_path, project_name))
 
 class RunServerProvider(Provider):
     def __init__(self):
@@ -110,7 +107,12 @@ class RunServerProvider(Provider):
         if not ini_files:
             raise RuntimeError("No files called config.ini were found in the current directory structure")
 
-        server = Server(root_dir=abspath(dirname(ini_files[0])))
+        root_dir = abspath(dirname(ini_files[0]))
+
+        sys.path.append(os.curdir)
+        sys.path.append(root_dir)
+
+        server = Server(root_dir=root_dir)
 
         try:
             server.start("config.ini")
@@ -139,7 +141,9 @@ class TestRunnerProvider(Provider):
 
         argv.append(path)
 
-        run(argv=argv)
+        result = run(argv=argv)
+        if not result:
+            sys.exit(1)
 
     def execute(self, current_dir, options, args):
         tests_dir = join(current_dir, "tests")

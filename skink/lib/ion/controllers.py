@@ -15,11 +15,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from os.path import split, abspath, join, dirname
 
 from jinja2 import Environment, FileSystemLoader
 import cherrypy
 from cherrypy import thread_data
+
+from cache import Cache
 
 __CONTROLLERS__ = []
 __CONTROLLERSDICT__ = {}
@@ -85,11 +88,10 @@ class Controller(object):
     __routes__ = None
 
     def __init__(self):
-        self.context = None
         self.server = None
 
     def log(self, message):
-        if self.context.settings.Ion.as_bool('verbose'):
+        if self.settings.Ion.as_bool('verbose'):
             cherrypy.log(message, "[%s]" % self.__class__.__name__)
 
     @classmethod
@@ -97,7 +99,25 @@ class Controller(object):
         return __CONTROLLERS__
 
     @property
+    def cache(self):
+        return self.server.cache
+
+    @property
+    def settings(self):
+        if not self.server:
+            return None
+        return self.server.context.settings
+
+    @property
+    def context(self):
+        if not self.server:
+            return None
+        return self.server.context
+
+    @property
     def store(self):
+        if not thread_data or not hasattr(thread_data, 'store') or not thread_data.store:
+            raise ValueError('The current controller does not have a configured store. Did you, by any chance, forgot to pass it to the controller in a test?')
         return thread_data.store
 
     @property
@@ -123,14 +143,52 @@ class Controller(object):
             dispatcher.connect(route_name, route[1]["route"], controller=self, action=route[1]["method"])
 
     def render_template(self, template_file, **kw):
-        template_path = self.context.settings.Ion.template_path.lstrip("/")
-        template_path = template_path and abspath(join(self.server.root_dir, template_path)) or abspath(join(self.server.root_dir, 'templates'))
+        template_path = self.server.template_path
 
         env = Environment(loader=FileSystemLoader(template_path))
 
         template = env.get_template(template_file)
-        return template.render(user=self.user, **kw)
+        return template.render(user=self.user, settings=self.settings, **kw)
+
+    def send_template_by_mail(self, from_email, to_emails, subject, template_file, html=True, **kw):
+        body = self.render_template(template_file, **kw)
+        exit_code = self.send_using_sendmail(from_email, to_emails, subject, body, html=html)
+        return exit_code
+
+    def send_using_sendmail(self, from_email, to_emails, subject, body, html=True):
+        SENDMAIL = "/usr/sbin/sendmail" # sendmail location
+        p = os.popen("%s -t" % SENDMAIL, "w")
+        p.write("From: %s\n" % from_email)
+        p.write("To: %s\n" % (", ".join(to_emails)))
+        p.write("Subject: %s\n" % subject)
+        p.write("\n") # blank line separating headers from body
+
+        if html:
+            p.write('Content-Type: text/html; charset="us-ascii"\n')
+            p.write('MIME-Version: 1.0')
+            p.write('Content-Transfer-Encoding: 7bit')
+
+        p.write(body)
+
+        sts = p.close()
+
+        if sts != 0:
+            self.log("Sendmail exit status: %d" % sts)
+
+        return sts
+
+    def send_using_smtp(self, from_email, to_emails, subject, body):
+        pass
 
     def redirect(self, url):
         raise cherrypy.HTTPRedirect(url)
+
+    def healthcheck(self):
+        healthcheck_text = self.settings.Ion.healthcheck_text
+
+        result = self.server.test_connection()
+        if not result:
+            raise RuntimeError("The connection to the database failed with error: %s" % str(self.server.test_connection_error))
+
+        return healthcheck_text or "WORKING"
 
