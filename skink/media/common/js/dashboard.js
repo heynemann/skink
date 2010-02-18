@@ -1,5 +1,5 @@
 $(function(){
-    $(this).everyTime(3000, query_status);
+    $(this).everyTime(5000, query_status);
     query_status();
 
     $('a.build_project').click(build_project);

@@ -5,7 +5,7 @@ unknown_image = '/media/common/images/error.png'
 
 $(function(){
     document.has_shown_already = false;
-    $(this).everyTime(1000, current_build);
+    $(this).everyTime(5000, current_build);
     current_build();
 });
 
