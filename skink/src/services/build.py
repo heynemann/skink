@@ -88,6 +88,8 @@ class BuildService(Service):
 
             scm_creation_result = scm_service.create_or_update(project)
             build_scm_status = scm_creation_result.status
+            store.commit()
+
             if scm_creation_result.status == ScmResult.Failed:
                 log.append(scm_creation_result.log)
                 status = BuildService.Failure
