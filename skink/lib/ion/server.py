@@ -215,8 +215,10 @@ class Server(object):
         if s is not None:
             cherrypy.log("Cleaning up store.", "STORM")
             s.close()
+            del s
         else:
             cherrypy.log("Could not find store.", "STORM")
+        cherrypy.thread_data.store = None
 
     def connstr(self, protocol, username, password, host, port, database):
         return "%s://%s:%s@%s:%d/%s" % (
