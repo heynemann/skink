@@ -28,19 +28,11 @@ import cherrypy
 def do_commit():
     try:
         if not cherrypy.request.rolledback and hasattr(cherrypy.thread_data, 'store'):
-                cherrypy.thread_data.store.commit()
+            cherrypy.thread_data.store.commit()
     except:
         if hasattr(cherrypy.thread_data, 'store'):
             cherrypy.thread_data.store.rollback()
             cherrypy.log("ROLLBACK - " + format_exc(), "STORM")
-
-def try_commit():
-    if cherrypy.response.stream:
-        cherrypy.request.hooks.attach('on_end_request', do_commit)
-    else:
-        if isinstance(cherrypy.response.body, types.GeneratorType):
-            cherrypy.response.collapse_body()
-        do_commit()
 
 class StormHandlerWrapper(object):
     # to_skip = (KeyboardInterrupt, SystemExit, cherrypy.HTTPRedirect)
@@ -74,5 +66,5 @@ class StormTool(cherrypy.Tool):
         cherrypy.request.hooks.attach('before_handler', StormHandlerWrapper, priority=100)
         cherrypy.Tool._setup(self)
 
-cherrypy.tools.storm = StormTool('on_end_resource', try_commit)
+cherrypy.tools.storm = StormTool('on_end_request', do_commit)
 
