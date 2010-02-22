@@ -33,6 +33,8 @@ def do_commit():
         if hasattr(cherrypy.thread_data, 'store'):
             cherrypy.thread_data.store.rollback()
             cherrypy.log("ROLLBACK - " + format_exc(), "STORM")
+    finally:
+        delattr(cherrypy.request, 'rolledback')
 
 class StormHandlerWrapper(object):
     # to_skip = (KeyboardInterrupt, SystemExit, cherrypy.HTTPRedirect)
