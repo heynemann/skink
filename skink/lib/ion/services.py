@@ -25,7 +25,7 @@ class Service(object):
         self.store = None
 
     def log(self, message):
-        if self.settings.Ion.as_bool('verbose'):
+        if self.server.context.settings.Ion.as_bool('verbose'):
             cherrypy.log(message, "[%s]" % self.__class__.__name__)
 
     def connect(self):
