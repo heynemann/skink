@@ -15,12 +15,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from storm.locals import *
+from sqlalchemy import MetaData, create_engine, __version__ as sa_version
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+if sa_version.split(".") < ["0", "5", "0"]:
+    raise ImportError("Version 0.5 or later of SQLAlchemy required.")
+
+def new_session():
+    return scoped_session(sessionmaker(autoflush=True, autocommit=False))
+
+metadata = MetaData()
+session = new_session()
+mapper = session.mapper
 
 class Db(object):
-    def __init__(self, context):
+    def __init__(self, server):
         self.is_connected = False
-        self.context = context
+        self.server = server
         self.store = None
 
     def connect(self):
@@ -28,8 +39,10 @@ class Db(object):
             raise RuntimeError("You have to disconnect before connecting again")
         self.is_connected = True
 
-        database = create_database(self.connstr)
-        self.store = Store(database)
+        engine = create_engine(self.connstr, echo=False, convert_unicode=True)
+        session.bind = engine
+
+        self.store = session
 
     def disconnect(self):
         if not self.is_connected:
@@ -41,12 +54,12 @@ class Db(object):
 
     @property
     def connstr(self):
-        protocol = self.context.settings.Db.protocol
-        username = self.context.settings.Db.user
-        password = self.context.settings.Db.password
-        host = self.context.settings.Db.host
-        port = int(self.context.settings.Db.port)
-        database = self.context.settings.Db.database
+        protocol = self.server.context.settings.Db.protocol
+        username = self.server.context.settings.Db.user
+        password = self.server.context.settings.Db.password
+        host = self.server.context.settings.Db.host
+        port = int(self.server.context.settings.Db.port)
+        database = self.server.context.settings.Db.database
 
         return "%s://%s:%s@%s:%d/%s" % (
             protocol,

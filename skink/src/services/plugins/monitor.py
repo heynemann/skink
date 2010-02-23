@@ -17,7 +17,7 @@ class MonitorPlugin(CherryPyDaemonPlugin):
     def execute(self):
         ctx = self.server.context
 
-        monitored_projects = projects = list(self.store.find(Project, Project.monitor_changes == True))
+        monitored_projects = projects = self.store.query(Project).filter(Project.monitor_changes == True).all()
 
         git_service = GitService(server=self.server)
 

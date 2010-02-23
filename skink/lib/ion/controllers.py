@@ -24,6 +24,8 @@ from cherrypy import thread_data
 
 from cache import Cache
 
+from ion.sqlalchemy_tool import session
+
 __CONTROLLERS__ = []
 __CONTROLLERSDICT__ = {}
 
@@ -116,9 +118,10 @@ class Controller(object):
 
     @property
     def store(self):
-        if not thread_data or not hasattr(thread_data, 'store') or not thread_data.store:
-            raise ValueError('The current controller does not have a configured store. Did you, by any chance, forgot to pass it to the controller in a test?')
-        return thread_data.store
+#        if not thread_data or not hasattr(thread_data, 'store') or not thread_data.store:
+#            raise ValueError('The current controller does not have a configured store. Did you, by any chance, forgot to pass it to the controller in a test?')
+#        return thread_data.store
+        return session
 
     @property
     def name(self):

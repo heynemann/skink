@@ -22,11 +22,10 @@ from os.path import join, abspath, dirname, splitext, split
 import cherrypy
 
 from ion.controllers import Controller
-from storm.locals import *
-from ion.storm_tool import *
-from ion.db import Db
+from sqlalchemy_tool import metadata, session, mapper
 from ion.context import Context
 from ion.cache import Cache
+from sqlalchemy.exc import DBAPIError
 
 class ServerStatus(object):
     Unknown = 0
@@ -92,6 +91,7 @@ class Server(object):
 
     def get_server_settings(self):
         sets = self.context.settings
+
         return {
                    'server.socket_host': sets.Ion.host,
                    'server.socket_port': int(sets.Ion.port),
@@ -100,9 +100,7 @@ class Server(object):
                    'tools.encode.encoding': 'utf-8',
                    'tools.decode.on': True,
                    'tools.trailing_slash.on': True,
-                   'log.screen': sets.Ion.verbose == "True",
-                   'tools.sessions.on': True,
-                   'tools.storm.on': True,
+                   'log.screen': sets.Ion.as_bool('verbose'),
                    'tools.sessions.on': True
                }
 
@@ -119,10 +117,23 @@ class Server(object):
             media_dir = paths[-1]
             media_path = join(self.root_dir, join(*paths[:-1]).lstrip("/")).rstrip("/")
 
+        protocol = self.context.settings.Db.protocol
+        username = self.context.settings.Db.user
+        password = self.context.settings.Db.password
+        host = self.context.settings.Db.host
+        port = int(self.context.settings.Db.port)
+        database = self.context.settings.Db.database
+
+        conn_str = self.connstr(protocol, username, password, host, port, database)
+
         conf = {
             '/': {
                 'request.dispatch': dispatcher,
                 'tools.staticdir.root': media_path,
+                'tools.SATransaction.on': True,
+                'tools.SATransaction.dburi':conn_str, 
+                'tools.SATransaction.echo': sets.Ion.as_bool('verbose'),
+                'tools.SATransaction.convert_unicode': True
             },
             '/media': {
                 'tools.staticdir.on': True,
@@ -157,36 +168,24 @@ class Server(object):
 
         self.context.use_db = self.test_connection()
 
-        if self.context.use_db:
-            cherrypy.engine.subscribe('start_thread', self.connect_db)
-            cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
-        else:
-            cherrypy.config.update({'tools.storm.on': False})
+        if not self.context.use_db:
+#            cherrypy.engine.subscribe('start_thread', self.connect_db)
+#            cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
+#        else:
+            cherrypy.config.update({'tools.SATransaction.on': False})
 
         cherrypy.engine.start()
         if not non_block:
             cherrypy.engine.block()
 
     def test_connection(self):
-        from MySQLdb import OperationalError
-
+        from sqlalchemy_tool import configure_session_for_app
+        configure_session_for_app(self.app)
         try:
-            self.db = Db(self.context)
-            self.db.connect()
-            self.db.disconnect()
-            return True
-        except OperationalError, err:
-            message = ['', '']
-            message.append("============================ IMPORTANT ERROR ============================")
-            message.append("No connection to the database could be made with the supplied parameters.")
-            message.append("PLEASE VERIFY YOUR CONFIG.INI FILE AND CHANGE IT ACCORDINGLY.")
-            message.append("=========================================================================")
-            message.append('')
-            message.append('')
-            cherrypy.log.error("\n".join(message), "STORM")
-            self.test_connection_error = err
-
-        return False
+            session.execute("select 1 from dual")
+        except DBAPIError:
+            return False
+        return True
 
     def subscribe(self, subject, handler):
         self.context.bus.subscribe(subject, handler)
@@ -194,30 +193,17 @@ class Server(object):
     def publish(self, subject, data):
         self.context.bus.publish(subject, data)
 
-    def connect_db(self, thread_index):
-        protocol = self.context.settings.Db.protocol
-        username = self.context.settings.Db.user
-        password = self.context.settings.Db.password
-        host = self.context.settings.Db.host
-        port = int(self.context.settings.Db.port)
-        database = self.context.settings.Db.database
+#    def connect_db(self, thread_index):
+#        cherrypy.thread_data.store = session
 
-        conn_str = self.connstr(protocol, username, password, host, port, database)
-
-        database = create_database(conn_str)
-        local_store = Store(database)
-
-        self.storm_stores[thread_index] = local_store
-        cherrypy.thread_data.store = local_store
-
-    def disconnect_db(self, thread_index):
-        s = self.storm_stores.pop(thread_index, None)
-        if s is not None:
-            cherrypy.log("Cleaning up store.", "STORM")
-            s.close()
-        else:
-            cherrypy.log("Could not find store.", "STORM")
-        cherrypy.thread_data.store = None
+#    def disconnect_db(self, thread_index):
+#        s = self.storm_stores.pop(thread_index, None)
+#        if s is not None:
+#            cherrypy.log("Cleaning up store.", "STORM")
+#            s.close()
+#        else:
+#            cherrypy.log("Could not find store.", "STORM")
+#        cherrypy.thread_data.store = None
 
     def connstr(self, protocol, username, password, host, port, database):
         return "%s://%s:%s@%s:%d/%s" % (

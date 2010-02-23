@@ -54,7 +54,7 @@ class CherryPyDaemonPlugin(CherryPyPlugin):
     def loop_execute(self):
         ctx = self.server.context
         while(not self.should_die):
-            db = Db(ctx)
+            db = Db(self.server)
             try:
                 db.connect()
                 self.store = db.store

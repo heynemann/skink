@@ -17,17 +17,24 @@
 
 import skink.lib
 
-from storm.locals import *
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, desc
+from sqlalchemy.orm import relation
+from sqlalchemy.ext.declarative import declarative_base
+
+from ion.sqlalchemy_tool import *
+
 from skink.src.errors import *
 
-class Project(object):
-    __storm_table__ = "projects"
+Base = declarative_base()
 
-    id = Int(primary=True)
-    name = Unicode()
-    build_script = Unicode()
-    scm_repository = Unicode()
-    monitor_changes = Bool()
+class Project(Base):
+    __tablename__ = "projects"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    build_script = Column(String)
+    scm_repository = Column(String)
+    monitor_changes = Column(Boolean)
 
     def __init__(self, name, build_script, scm_repository, monitor_changes):
         self.name = name
@@ -37,41 +44,44 @@ class Project(object):
 
     @property
     def build_status(self):
-        if self.builds.count():
-            return self.last_build.status
+        l_build = self.last_build
+        if l_build:
+            return l_build.status
         return "Unknown"
 
     @property
     def last_build(self):
-        if hasattr(self, 'last_build_cache'):
-            return self.last_build_cache
-        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Desc(Build.id))[:1])
-        self.last_build_cache = builds and builds[0] or None
-        return self.last_build_cache
+        l_build = session.query(Build).order_by(desc(Build.id)).first()
+        if not l_build:
+            return None
+        return l_build
 
     @property
     def last_builds(self):
-        builds = list(Store.of(self).find(Build, Build.project == self).order_by(Desc(Build.id))[:10])
+        builds = session.query(Build).order_by(desc(Build.id))[:10]
+
+        if not builds:
+            return []
         return builds
 
-class Build(object):
-    __storm_table__ = "builds"
+class Build(Base):
+    __tablename__ = "builds"
 
-    id = Int(primary=True)
-    number = Int()
-    build_date = DateTime()
-    status = Enum(map={"Unknown": "0", "Successful": "1", "Failed": "2"})
-    scm_status = Enum(map={"Created": "0", "Updated": "1", "Failed": "2"})
-    log = Unicode()
-    commit_number = Unicode()
-    commit_author = Unicode()
-    commit_committer = Unicode()
-    commit_text = Unicode()
-    commit_author_date = DateTime()
-    commit_committer_date = DateTime()
+    id = Column(Integer, primary_key=True)
+    number = Column(Integer)
+    build_date = Column(DateTime)
+    status = Column(Integer)
+    scm_status = Column(Integer)
+    log = Column(String)
+    commit_number = Column(String)
+    commit_author = Column(String)
+    commit_committer = Column(String)
+    commit_text = Column(String)
+    commit_author_date = Column(DateTime)
+    commit_committer_date = Column(DateTime)
 
-    project_id = Int()
-    project = Reference(project_id, Project.id)
+    project_id = Column(Integer, ForeignKey('projects.id'))
+    project = relation(Project, primaryjoin=project_id == Project.id)
 
     def __init__(self,
                  number,
@@ -99,17 +109,17 @@ class Build(object):
         self.commit_committer_date = commit_committer_date
         self.project = project
 
-class Pipeline(object):
-    __storm_table__ = "pipelines"
+class Pipeline(Base):
+    __tablename__ = "pipelines"
 
-    id = Int(primary=True)
-    name = Unicode()
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
 
     def __init__(self, name):
         self.name = name
 
     def load_pipeline_items(self, pipeline_definition):
-        all_projects = dict([(project.name, project) for project in list(Store.of(self).find(Project))])
+        all_projects = dict([(project.name, project) for project in session.query(Project).all()])
 
         pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
 
@@ -122,8 +132,9 @@ class Pipeline(object):
             project = all_projects[key]
             pipeline_item = PipelineItem()
             pipeline_item.order = index
-            pipeline_item.pipeline = self
             pipeline_item.project = project
+
+            self.items.append(pipeline_item)
 
     @classmethod
     def assert_for_cyclical_pipeline(cls, pipeline_items):
@@ -144,25 +155,25 @@ class Pipeline(object):
         if not self.items:
             return "No items in the pipeline."
         items_description = []
-        for pipeline_item in list(Store.of(self).find(PipelineItem, PipelineItem.pipeline_id==self.id).order_by(PipelineItem.order)):
+        for pipeline_item in self.items:
             items_description.append(pipeline_item.project.name)
 
         return " > ".join(items_description)
 
-class PipelineItem(object):
-    __storm_table__ = "pipeline_items"
+class PipelineItem(Base):
+    __tablename__ = "pipeline_items"
 
-    id = Int(primary=True)
+    id = Column(Integer, primary_key=True)
 
-    order = Int()
+    order = Column(Integer)
 
-    pipeline_id = Int()
-    pipeline = Reference(pipeline_id, Pipeline.id)
+    pipeline_id = Column(Integer, ForeignKey('pipelines.id'))
+    pipeline = relation(Pipeline, primaryjoin=pipeline_id == Pipeline.id)
 
-    project_id = Int()
-    project = Reference(project_id, Project.id)
+    project_id = Column(Integer, ForeignKey('projects.id'))
+    project = relation(Project, primaryjoin=project_id == Project.id)
 
 #Collections
-Project.builds = ReferenceSet(Project.id, Build.project_id)
-Pipeline.items = ReferenceSet(Pipeline.id, PipelineItem.pipeline_id)
+Project.builds = relation(Build)
+Pipeline.items = relation(PipelineItem, order_by=PipelineItem.order)
 

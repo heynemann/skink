@@ -24,12 +24,12 @@ class IndexController(Controller):
 
     @route("/")
     def index(self):
-        projects = list(self.store.find(Project))
+        projects = self.store.query(Project).all()
         return self.render_template("index.html", projects=projects)
 
     @route("/mini")
     def mini(self):
-        projects = list(self.store.find(Project))
+        projects = self.store.query(Project).all()
         return self.render_template("mini.html", projects=projects)
 
 class ProjectController(Controller):
@@ -48,13 +48,13 @@ class ProjectController(Controller):
     @route("/project/:id/edit")
     def edit(self, id):
         project_id = int(id)
-        prj = self.store.get(Project, project_id)
+        prj = self.store.query(Project).get(project_id)
         return self.render_template("edit_project.html", project=prj)
 
     @route("/project/:id/update")
     def update(self, id, name, build_script, scm_repository, monitor_changes=None):
         project_id = int(id)
-        prj = self.store.get(Project, project_id)
+        prj = self.store.query(Project).get(project_id)
 
         prj.name = name
         prj.build_script = build_script
@@ -65,14 +65,15 @@ class ProjectController(Controller):
 
     @route("/project/:id", priority=1)
     def show_details(self, id):
-        prj = self.store.get(Project, int(id))
+        prj = self.store.query(Project).get(int(id))
+        last_build = prj.last_build
 
-        return self.render_template("project_details.html", project=prj, current_build=prj.last_build)
+        return self.render_template("project_details.html", project=prj, current_build=last_build)
 
     @route("/project/:id/builds/:build_id")
     def show_build_details(self, id, build_id):
-        prj = self.store.get(Project, int(id))
-        build = self.store.get(Build, int(build_id))
+        prj = self.store.query(Project).get(int(id))
+        build = self.store.query(Build).get(int(build_id))
 
         return self.render_template("project_details.html", project=prj, current_build=build)
 
@@ -119,11 +120,8 @@ class BuildController(Controller):
     @route("/buildstatus")
     def buildstatus(self, *args, **kw):
         ctx = self.server.context
-        if not self.cache.has_key("all_projects"):
-            projects = list(self.store.find(Project))
-            self.cache["all_projects"] = projects
-        else:
-            projects = self.cache["all_projects"]
+
+        projects = self.store.query(Project).all()
 
         projects_being_built = [int(project_id) for project_id in ctx.projects_being_built]
         result = {}
@@ -157,43 +155,46 @@ class BuildController(Controller):
 class PipelineController(Controller):
     @route("/pipeline", priority=5)
     def index(self):
-        pipelines = list(self.store.find(Pipeline))
+        pipelines = self.store.query(Pipeline).all()
         return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=None)
 
     @route("/pipeline/create")
     def create(self, name, pipeline_definition):
         pipeline = Pipeline(name)
         try:
-            self.store.add(pipeline)
-
             pipeline.load_pipeline_items(pipeline_definition)
+
+            self.store.add(pipeline)
 
             self.server.publish("on_pipeline_created", {"server":self.server, "pipeline":pipeline})
             self.redirect("/pipeline")
         except (ProjectNotFoundError, CyclicalPipelineError), err:
-            self.store.remove(pipeline)
-            pipelines = list(self.store.find(Pipeline))
+#            self.store.remove(pipeline)
+#            pipelines = self.store.query(Pipeline).all()
             return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=[err.message,])
 
     @route("/pipeline/:id", priority=1)
     def edit(self, id):
         pipeline_id = int(id)
-        pipelines = list(self.store.find(Pipeline))
-        pipeline = self.store.get(Pipeline, pipeline_id)
+        pipelines = self.store.query(Pipeline).all()
+        pipeline = self.store.query(Pipeline).get(pipeline_id)
         return self.render_template("pipeline_index.html", pipeline=pipeline, pipelines=pipelines, errors=None)
 
     @route("/pipeline/:id/update")
     def update(self, id, name, pipeline_definition):
         pipeline_id = int(id)
-        pipeline = self.store.get(Pipeline, pipeline_id)
+        pipeline = self.store.query(Pipeline).get(pipeline_id)
 
         errors = self.validate_pipe_definition(pipeline_definition)
         if errors:
-            pipelines = list(self.store.find(Pipeline))
+            pipelines = self.store.query(Pipeline).all()
             return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=errors)
 
         pipeline.name = name
-        pipeline.items.clear()
+
+        for pipeline_item in pipeline.items:
+            self.store.delete(pipeline_item)
+
         pipeline.load_pipeline_items(pipeline_definition)
 
         self.server.publish("on_pipeline_updated", {"server":self.server, "pipeline":pipeline})
@@ -201,7 +202,7 @@ class PipelineController(Controller):
 
     def validate_pipe_definition(self, pipeline_definition):
         errors = []
-        all_projects = dict([(project.name, project) for project in list(self.store.find(Project))])
+        all_projects = dict([(project.name, project) for project in self.store.query(Project).all()])
 
         pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
 
@@ -219,9 +220,9 @@ class PipelineController(Controller):
     @route("/pipeline/:id/delete")
     def delete(self, id):
         pipeline_id = int(id)
-        pipeline = self.store.get(Pipeline, pipeline_id)
+        pipeline = self.store.query(Pipeline).get(pipeline_id)
         for item in pipeline.items:
-            self.store.remove(item)
-        self.store.remove(pipeline)
+            self.store.delete(item)
+        self.store.delete(pipeline)
 
         self.redirect('/pipeline')

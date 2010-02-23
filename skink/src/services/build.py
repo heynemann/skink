@@ -71,14 +71,16 @@ class BuildService(Service):
 
             status = BuildService.Failure
             scm_status = ScmResult.Failed
-            project = store.get(Project, project_id)
+            project = store.query(Project).get(project_id)
 
             self.current_project = project
 
             self.server.publish('on_before_build', {"server":self.server, "project":project})
 
             ctx.projects_being_built.append(project_id)
-            last_build_number = project.builds.count()
+
+            last_build_number = store.query(Build.number).order_by(desc(Build.id)).first()
+            last_build_number = last_build_number and 1 or last_build_number[0] + 1
 
             build_date = datetime.now()
             build_scm_status = scm_status
@@ -146,14 +148,12 @@ class BuildService(Service):
             self.disconnect()
 
     def process_pipelines_for(self, project):
-        pipelines = self.store.find(Pipeline,
-                                    PipelineItem.pipeline_id == Pipeline.id,
-                                    PipelineItem.project_id == project.id)
-        pipelines = list(pipelines)
-
+        pipelines = self.store.query(Pipeline) \
+                              .filter(PipelineItem.project_id == project.id) \
+                              .filter(PipelineItem.pipeline_id == Pipeline.id) \
+                              .all()
         for pipeline in pipelines:
-            pipeline_items = list(pipeline.items)
-            pipeline_items = sorted(pipeline_items, lambda i1, i2: cmp(i1.order, i2.order))
+            pipeline_items = pipeline.items
 
             for index, pipeline_item in enumerate(pipeline_items):
                 if index == len(pipeline_items) - 1:

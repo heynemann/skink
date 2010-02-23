@@ -24,8 +24,7 @@ class Service(object):
         self.store = None
 
     def connect(self):
-        ctx = self.server.context
-        db = Db(ctx)
+        db = Db(self.server)
         db.connect()
         self.db = db
         self.store = db.store
