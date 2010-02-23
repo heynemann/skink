@@ -41,7 +41,7 @@ class Server(object):
         self.status = ServerStatus.Unknown
         self.root_dir = root_dir
         self.context = context or Context(root_dir=root_dir)
-        self.storm_stores = {}
+        self.template_filters = {}
         self.test_connection_error = None
         self.cache = None
 
@@ -68,6 +68,14 @@ class Server(object):
 
         self.status = ServerStatus.Started
         self.publish('on_after_server_start', {'server':self, 'context':self.context})
+
+    def import_template_filters(self):
+        if exists(abspath(join(self.root_dir, "template_filters.py"))):
+            template_filters = Server.imp("template_filters")
+            for filter_method in template_filters:
+                for name, func in inspect.getmembers(os.path):
+                    if inspect.isfunction(func) and not name.startswith("_"):
+                        self.template_filters[name] = func
 
     def import_controllers(self):
         controller_path = self.context.settings.Ion.controllers_path

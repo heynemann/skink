@@ -150,6 +150,9 @@ class Controller(object):
 
         env = Environment(loader=FileSystemLoader(template_path))
 
+        for filter_name in self.server.template_filters.keys():
+            env.filters[filter_name] = self.server.template_filters[filter_name]
+
         template = env.get_template(template_file)
         return template.render(user=self.user, settings=self.settings, **kw)
 
