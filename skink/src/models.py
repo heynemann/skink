@@ -51,14 +51,14 @@ class Project(Base):
 
     @property
     def last_build(self):
-        l_build = session.query(Build).order_by(desc(Build.id)).first()
+        l_build = session.query(Build).filter(Build.project==self).order_by(desc(Build.id)).first()
         if not l_build:
             return None
         return l_build
 
     @property
     def last_builds(self):
-        builds = session.query(Build).order_by(desc(Build.id))[:10]
+        builds = session.query(Build).filter(Build.project==self).order_by(desc(Build.id))[:10]
 
         if not builds:
             return []

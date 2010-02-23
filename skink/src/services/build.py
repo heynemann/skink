@@ -79,8 +79,8 @@ class BuildService(Service):
 
             ctx.projects_being_built.append(project_id)
 
-            last_build_number = store.query(Build.number).order_by(desc(Build.id)).first()
-            last_build_number = last_build_number and 1 or last_build_number[0] + 1
+            last_build_number = store.query(Build.number).filter(Build.project==project).order_by(desc(Build.id)).first()
+            last_build_number = last_build_number and last_build_number[0] or 0
 
             build_date = datetime.now()
             build_scm_status = scm_status
@@ -160,6 +160,6 @@ class BuildService(Service):
                     continue
 
                 if pipeline_item.project_id == project.id:
-                    print "Adding project %d to the queue because it's in the same pipeline as project %s" % (pipeline_items[index+1].project.id, pipeline_item.project.name)
+                    self.log("Adding project %d to the queue because it's in the same pipeline as project %s" % (pipeline_items[index+1].project.id, pipeline_item.project.name))
                     self.server.context.build_queue.append(pipeline_items[index+1].project_id)
 
