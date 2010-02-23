@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cherrypy
 from ion.db import Db
 
 class Service(object):
@@ -22,6 +23,10 @@ class Service(object):
         self.server = server
         self.db = None
         self.store = None
+
+    def log(self, message):
+        if self.settings.Ion.as_bool('verbose'):
+            cherrypy.log(message, "[%s]" % self.__class__.__name__)
 
     def connect(self):
         db = Db(self.server)
