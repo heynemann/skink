@@ -17,7 +17,7 @@
 
 import skink.lib
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, desc
+from sqlalchemy import Column, Integer, Unicode, DateTime, Boolean, ForeignKey, desc, Text
 from sqlalchemy.orm import relation
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -31,9 +31,9 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    build_script = Column(String)
-    scm_repository = Column(String)
+    name = Column(Unicode)
+    build_script = Column(Unicode)
+    scm_repository = Column(Unicode)
     monitor_changes = Column(Boolean)
 
     def __init__(self, name, build_script, scm_repository, monitor_changes):
@@ -72,11 +72,11 @@ class Build(Base):
     build_date = Column(DateTime)
     status = Column(Integer)
     scm_status = Column(Integer)
-    log = Column(String)
-    commit_number = Column(String)
-    commit_author = Column(String)
-    commit_committer = Column(String)
-    commit_text = Column(String)
+    log = Column(Text)
+    commit_number = Column(Unicode)
+    commit_author = Column(Unicode)
+    commit_committer = Column(Unicode)
+    commit_text = Column(Unicode)
     commit_author_date = Column(DateTime)
     commit_committer_date = Column(DateTime)
 
@@ -113,7 +113,7 @@ class Pipeline(Base):
     __tablename__ = "pipelines"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(Unicode)
 
     def __init__(self, name):
         self.name = name
