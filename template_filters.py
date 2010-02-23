@@ -15,3 +15,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+import hashlib
+
+def gravatar(value):
+    result = re.match(".*<(?P<email>.*@.*)>", value)
+
+    if not result:
+        return ""
+
+    email = result.groupdict()["email"]
+
+    md5 = hashlib.md5()
+    md5.update(email)
+    return md5.hexdigest()
