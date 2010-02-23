@@ -17,7 +17,8 @@
 
 import sys
 import os
-from os.path import join, abspath, dirname, splitext, split
+from os.path import join, abspath, dirname, splitext, split, exists
+import inspect
 
 import cherrypy
 
@@ -62,6 +63,7 @@ class Server(object):
             from storm.tracer import debug
             debug(True, stream=sys.stdout)
 
+        self.import_template_filters()
         self.import_controllers()
 
         self.run_server(non_block)
@@ -72,10 +74,9 @@ class Server(object):
     def import_template_filters(self):
         if exists(abspath(join(self.root_dir, "template_filters.py"))):
             template_filters = Server.imp("template_filters")
-            for filter_method in template_filters:
-                for name, func in inspect.getmembers(os.path):
-                    if inspect.isfunction(func) and not name.startswith("_"):
-                        self.template_filters[name] = func
+            for name, func in inspect.getmembers(template_filters):
+                if inspect.isfunction(func) and not name.startswith("_"):
+                    self.template_filters[name] = func
 
     def import_controllers(self):
         controller_path = self.context.settings.Ion.controllers_path
