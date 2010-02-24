@@ -9,7 +9,7 @@
             #header, #footer, #currently_building, #new {display:none; }
             #content {margin:0;padding:0;width:100%}
             .build_details {float:left; font-size:1.3em !important; margin-right:5px; margin-top:-15px;}
-            .gravatar { margin: -12px 0px 0px 10px; padding: 0px; }
+            .gravatar { margin: -12px 0px 0px 8px; padding: 0px; }
         </style>
 {% endblock %}
 
@@ -28,7 +28,7 @@
                             <img src="/media/common/images/accept.png" 
                                  class="project_status" title="This project has been built." 
                                  id="build_status_{{ project.id }}" align="absMiddle" />
-                            <img src="http://gravatar.com/avatar/{{ project.last_build.commit_author|gravatar }}?s=50" class="gravatar" />
+                            <img src="{{ project.last_build.commit_author|gravatar }}?s=50" class="gravatar" />
                         {% else %}
                             <div class="never-built">
                                 Never built
