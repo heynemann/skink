@@ -40,7 +40,8 @@ def test_index_action():
     clear()
     clear_expectations()
 
-    controllers.IndexController.store.expects("find").with_args(Project).returns([0, 1, 2])
+    controllers.IndexController.store.expects('query').with_args(Project).returns(controllers.IndexController.store)
+    controllers.IndexController.store.expects("all").returns([0, 1, 2])
 
     controller = controllers.IndexController()
     result = controller.index()

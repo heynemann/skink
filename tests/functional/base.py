@@ -16,13 +16,21 @@
 # limitations under the License.
 
 import skink.lib
-from storm.locals import *
+from sqlalchemy import MetaData, create_engine, __version__ as sa_version
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+def new_session():
+    return scoped_session(sessionmaker(autoflush=True, autocommit=False))
 
 def create_store():
-    database = create_database("sqlite:")
-    store = Store(database)
+    metadata = MetaData()
+    session = new_session()
+    mapper = session.mapper
 
-    return store
+    engine = create_engine("sqlite://", echo=False, convert_unicode=True)
+    session.bind = engine
+
+    return session
 
 def create_models(store):
     create_project_model(store)

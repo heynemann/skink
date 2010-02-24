@@ -28,13 +28,19 @@ from base import *
 from skink.src.controllers import *
 from skink.src.models import Project
 
-store = create_store()
-create_models(store)
-Controller.store = store
+store = None
+
+def clear():
+    global store
+    store = create_store()
+    create_models(store)
+    Controller.store = store
 
 root_dir = abspath(join(dirname(__file__), "../../"))
 
 def test_index_controller_index_action():
+    global store
+    clear()
     server = Server(root_dir)
 
     server.start('tests/functional/config.ini', non_block=True)
@@ -44,13 +50,14 @@ def test_index_controller_index_action():
 
     controller = IndexController()
     controller.server = server
-    controller.context = server.context
 
     content = controller.index()
 
     assert content
 
 def test_index_controller_index_action_with_created_projects():
+    global store
+    clear()
     proj = Project(name=u"Index Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
 
     store.add(proj)
@@ -66,13 +73,14 @@ def test_index_controller_index_action_with_created_projects():
 
     controller = IndexController()
     controller.server = server
-    controller.context = server.context
 
     content = controller.index()
 
     assert content
 
 def test_project_controller_new_action():
+    global store
+    clear()
     server = Server(root_dir)
 
     server.start('tests/functional/config.ini', non_block=True)
@@ -82,13 +90,14 @@ def test_project_controller_new_action():
 
     controller = ProjectController()
     controller.server = server
-    controller.context = server.context
 
     content = controller.new()
 
     assert content
 
 def test_project_controller_create_action_assigns_false_to_monitor_changes_by_default():
+    global store
+    clear()
     server = Server(root_dir)
 
     server.start('tests/functional/config.ini', non_block=True)
@@ -98,7 +107,6 @@ def test_project_controller_create_action_assigns_false_to_monitor_changes_by_de
 
     controller = ProjectController()
     controller.server = server
-    controller.context = server.context
 
     try:
         controller.create(u"name", u"build_script", u"scm_repository")
@@ -108,6 +116,8 @@ def test_project_controller_create_action_assigns_false_to_monitor_changes_by_de
     assert False, "Shouldn't have reached this far."
 
 def test_project_controller_create_action_assigns_true_to_monitor_changes_if_string_MONITOR():
+    global store
+    clear()
     server = Server(root_dir)
 
     server.start('tests/functional/config.ini', non_block=True)
@@ -117,7 +127,6 @@ def test_project_controller_create_action_assigns_true_to_monitor_changes_if_str
 
     controller = ProjectController()
     controller.server = server
-    controller.context = server.context
 
     try:
         controller.create(u"name", u"build_script", u"scm_repository", u"MONITOR")

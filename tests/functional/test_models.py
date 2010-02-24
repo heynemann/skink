@@ -21,22 +21,30 @@ import skink.lib
 from base import *
 from skink.src.models import Project, Build
 
-store = create_store()
-create_models(store)
+store = None
+
+def clear():
+    global store
+    store = create_store()
+    create_models(store)
 
 def test_can_create_project():
+    global store
+    clear()
     proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
 
     store.add(proj)
 
     store.commit()
 
-    found_proj = store.find(Project, Project.name == u"Test Project 1").one()
+    found_proj = store.query(Project).filter(Project.name == u"Test Project 1").one()
 
     assert found_proj.id
     assert found_proj.id == proj.id
 
 def test_can_create_build():
+    global store
+    clear()
     some_date = datetime.now()
     proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
 
@@ -56,7 +64,7 @@ def test_can_create_build():
     store.add(build)
     store.commit()
 
-    found_build = store.find(Build, Build.project == proj).one()
+    found_build = store.query(Build).filter(Build.project == proj).one()
 
     assert found_build.id
     assert found_build.id == build.id
