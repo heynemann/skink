@@ -19,13 +19,21 @@ import re
 import hashlib
 
 def gravatar(value):
+    gravatar_base_url = "http://gravatar.com/avatar/"
+
+    if value == None:
+        return gravatar_base_url
+
     result = re.match(".*<(?P<email>.*@.*)>", value)
 
     if not result:
-        return ""
+        return gravatar_base_url
 
     email = result.groupdict()["email"]
 
     md5 = hashlib.md5()
     md5.update(email)
-    return md5.hexdigest()
+
+    image_path = gravatar_base_url + md5.hexdigest()
+
+    return image_path
