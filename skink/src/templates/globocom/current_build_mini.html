@@ -1,25 +1,13 @@
-{% extends "base.html" %}
+{% extends "current_build_mini.html" %}
 
-{% block title %}Current Build{% endblock %}
+{% block title %}Mini{% endblock %}
 
 {% block extrahead %}
-        <script src="/media/common/js/current_build.js"></script>
+        <script src="/media/common/js/project_status.js"></script>
         <style>
-            html{background-color:#111}
-            a{text-decoration:none;color:#C0C0C0;}
-            #no_current_builds, #current_project{margin 5px;background-color:#111;color:#C0C0C0;text-align:center;font-size:1.4em;height:55px;margin-top:10px;}
-            #current_log pre.output {padding:0; font-size: 1em; 
-        overflow-y:auto;
-        overflow-x:hidden;
-        overflow:hidden; height:100%}    
-            #header, #footer, #current_project, #current_command {display:none;}
-            #content {margin:0;padding:0;width:100%}
+            body { background-color:#323232;}
+            h1, #views_icon, .header, .footer, .currently_building, .new {display:none; }
+            .content {margin:10px 0 0 0 ;padding:0;width:100%}
+            .project {margin: 2px;}
         </style>
-{% endblock %}
-
-{% block content %}
-    <div id="no_current_builds">There are currently no projects being built.</div>
-    <div id="current_project"></div>
-    <div id="current_log"></div>
-    <div id="focus" onload="this.focus()"></div>
 {% endblock %}
