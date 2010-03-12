@@ -7,8 +7,24 @@
 {% endblock %}
 
 {% block content %}
+
+
+<div class="container_12">
+
+	
     <div id="no_current_builds">There are currently no projects being built.</div>
-    <div id="current_project"></div>
-    <div id="current_command"></div>
-    <div id="current_log"></div>
+    
+    <div id="current_builds">
+        <div id="current_project"></div>
+        <div id="current_command"></div>
+
+	    <div class="grid_12">
+		    <div class="build_log">
+		        <h6>Build Log</h6>
+		        <div class="scroll" id="current_log"></div>
+		        <div id="focus" onload="this.focus()"></div>
+		    </div>
+	    </div>
+	</div>
+</div>
 {% endblock %}

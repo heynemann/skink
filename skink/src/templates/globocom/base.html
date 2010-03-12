@@ -9,6 +9,16 @@
         <link rel="stylesheet" type="text/css" href="/media/globocom/css/main.css" />
         <link rel="stylesheet" type="text/css" href="/media/globocom/css/reset.css" />
         <link rel="stylesheet" type="text/css" href="/media/globocom/css/text.css" />
+        <link rel="stylesheet" href="/media/common/js/lib/css/smoothness/jquery-ui-1.7.1.custom.css" type="text/css" />
+        <script src="/media/common/js/lib/jquery-min.js"></script>
+        <script src="/media/common/js/lib/jquery-ui.min.js"></script>
+        <script src="/media/common/js/lib/jquery.timers-1.1.2.js"></script>
+        <script language="javascript" type="text/javascript">
+            $(function(){
+                document.authenticated = '{{ user }}' != '';
+            });
+        </script>        
+        
         <script language="javascript" type="text/javascript">
             $(function(){
                 document.authenticated = '{{ user }}' != '';

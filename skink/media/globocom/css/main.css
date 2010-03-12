@@ -132,13 +132,14 @@
 .scroll {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
-	background-color:#eee;
+	background-color:#ccc;
 	border:solid 1px #ccc;
 	height:400px;
   	margin-top:5px;
   	overflow:scroll;
 	padding:10px;
 	width:870px;
+	color:#DDD;
 }
 
 .scroll p {
@@ -527,4 +528,25 @@
 	background-color:#f03c01;
 	border:solid 1px #f03c01;
 	border-bottom:solid 1px #a22801;
+}
+
+#no_current_builds {
+    font-size:18px;
+    text-align:center;
+    font-weight:bold;
+    color:333;
+}
+
+#current_project, #current_project a {
+	color:#323232;
+	font-size:28px;
+	float:left;
+	margin-bottom:18px;
+    font-weight:bold;
+	text-decoration:none;
+}
+#current_command {
+    font-family:Courier;
+	font-size:28px;
+
 }
