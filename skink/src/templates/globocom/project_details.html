@@ -28,10 +28,10 @@
 		<div class="build_{{ build.status }}" id="build_status_{{ project.id }}" >
 			<h2>Build {%if build.commit_number %}{{ build.commit_number[:7] }}{%endif%} {% if build.status == "Successful" %}succeeded{% else %}failed{% endif %}</h2>
 			<p class="build_hash">#{{ build.commit_number }}</p>
-			<img class="photo_buildproject" src="{{ project.last_build.commit_author|gravatar }}?s=52" title="photo" />
+			<img class="photo_buildproject" src="{{ build.commit_author|gravatar }}?s=52" title="photo" />
 			<div class="comments_detail_buildproject"></div>
             <div class="comments_buildproject">{{ build.commit_text|escape }}</div>
-            <p><strong>{{ project.last_build.commit_author }}</strong> <span>({{ project.last_build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span></p>
+            <p><strong>{{ build.commit_author }}</strong> <span>({{ build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span></p>
 		</div>	
 	</div>
 	{% endif %}
@@ -63,7 +63,7 @@
 		    {% for build in project.last_builds %}
 		        <div class="area_previousbuild {{ build.status }}">
 		            <a href="/project/{{ project.id }}/builds/{{ build.id }}">
-			        <span class="build_title">Build 10af853</span> <span>por <strong>{{ project.last_build.commit_author }}</strong> <span>({{ project.last_build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
+			        <span class="build_title">Build 10af853</span> <span>por <strong>{{ build.commit_author }}</strong> <span>({{ build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
 			        </a>
 		        </div>
 		    {% endfor %}

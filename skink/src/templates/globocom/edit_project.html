@@ -3,33 +3,36 @@
 {% block title %}Edit Project - {{ project.name }}{% endblock %}
 
 {% block content %}
-<form action='update' method='post'>
-    <p class='required'>
-        <label for='name'>Name</label>
-        <input class='text' name="name" id="name" type='text' value="{{ project.name }}" />
-    </p>
+<div class="container_12">
+	<div class="grid_12">
+		<h1><a href="/project/{{ project.id }}">{{ project.name }}</a></h1>
+		<hr />
+	</div>
+	<!-- end .grid_12 -->
+	<div class="grid_6">
+			<form method="post" action="update">
+				<fieldset>
+					<legend>New Pipeline</legend>
 
-    <p class='required'>
-        <label for='scm_repository'>Git repository</label>
-        <input class='text' name="scm_repository" id="scm_repository" type='text' value="{{ project.scm_repository }}" />
-    </p>
+                    <h6>Name</h6>
+                    <input class="input_gray" id="name" name="name" type="text" value="{{ project.name }}" />
+					
+					<h6>Git repository</h6>
+					<label for="scm_repository"></label>
+					<input class="input_gray" id="scm_repository" name="scm_repository" type="text" value="{{ project.scm_repository }}" />
 
-    <p class='required'>
-        <label for='build_script'>
-            Build script
-        </label>
-        <input class='text' name="build_script" id="build_script" type='text' value="{{ project.build_script }}" />
-    </p>
+					<h6>Build script</h6>
+					<input class="input_gray" id="build_script" name="build_script" type="text" value="{{ project.build_script }}" />
 
-    <p class='required'>
-        <label for='monitor_changes'>
-            <input class='text' name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?
-        </label>
-    </p>
+                    <h6><input name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?</h6>
+					
 
-    <p class='submit'>
-        <button class='positive' type='submit'>Update Project</button>
-    </p>
-</form>
+					<button class="button_pipeline" type="submit">Update</button>
+				</fieldset>			
+			</form>
+			
+			
+		</div>
+</div>
 {% endblock %}
 
