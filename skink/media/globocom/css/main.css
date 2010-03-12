@@ -1,0 +1,530 @@
+
+.header, .content, .footer {
+	min-width:960px;
+}
+
+.wrapper{
+    min-height:100%;
+}
+
+/* `Content ----------------------------------------------------------------------------------------------------*/
+
+.content {
+	overflow:hidden;
+}
+
+/* Conteúdo - Build Proj----------------------------------------------------------------------------------------*/
+
+.content_buildproject {
+	margin-top:50px;
+	min-height:1376px;
+	overflow:hidden;
+	position:relative;
+}
+
+.administrative {
+	float:right;
+	font-size:12px;	
+	margin-top:17px;
+}
+
+.administrative a:link, .administrative a:active, .administrative a:hover, .administrative a:visited {
+	color:#808080;
+	text-decoration:none;
+}
+
+
+.photo_buildproject {
+    float:left;
+    margin:15px 10px 8px 6px;
+}
+
+.comments_detail_buildproject {
+    background-image:url(/media/globocom/img/bg-left.png);
+    float:left;
+    height:68px;
+    width:21px;
+    margin-top:7px;
+}
+
+.comments_buildproject {
+    -moz-border-radius-bottomright:8px;
+    -moz-border-radius-topright:8px;
+    -webkit-border-radius-bottomright:8px;
+    -webkit-border-radius-topright:8px;
+    background-color:#fff;
+    border-bottom:solid 1px #cdcdcd;
+    border-right:solid 1px #cdcdcd;
+    border-top:solid 1px #cdcdcd;
+    color:#666;
+    font-family:Georgia;
+    font-size:16px;
+    font-style:italic;
+    float:left;
+    width:513px;
+    overflow:hidden;
+    padding:10px 12px 12px 15px;
+    height:44px;
+    margin-top: 7px;
+}
+
+
+
+.build_Successful {
+	background: transparent url(/media/globocom/img/successful-small.png) 2px 5px no-repeat;
+}
+
+.build_Successful h2 {
+	color:#66cc00;
+	margin:1px 0 0 41px;
+}
+
+.build_Failed {
+	background: transparent url(/media/globocom/img/failed-small.png) 2px 5px no-repeat;
+}
+
+.build_Failed h2 {
+	color:#ce3201;
+	margin:1px 0 0 41px;
+}
+
+.build_Successful p, .build_Failed p {
+	float:left;
+	margin-top:2px;
+	width:100%;
+}
+
+.build_Successful p strong, .build_Failed p strong {
+	font-size:10px;
+	font-weight:bold;
+}
+
+.build_Successful span, .build_Failed span {
+	color:#8c8c8c;
+	font-size:10px;
+}
+
+
+
+.comments_build {
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border:solid 1px #aeaeae;
+	color:#8c8c8c;
+	float:left;
+	font-size:13px;
+	font-style:italic;
+	height:35px;
+	margin:17px 0 0 14px;
+	padding:15px 0 0 15px;
+	width:283px;
+}
+
+.build_log {
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border:solid 1px #ccc;
+  	height:466px;
+	margin:26px 0 31px 0;
+	padding:16px 21px 0 21px;
+}
+
+.scroll {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	background-color:#eee;
+	border:solid 1px #ccc;
+	height:400px;
+  	margin-top:5px;
+  	overflow:scroll;
+	padding:10px;
+	width:870px;
+}
+
+.scroll p {
+	margin-bottom:10px;
+}
+
+.button_build {
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	background-color:#ffac08;
+	border:solid 1px #ffac08;
+	border-bottom:solid 1px #b97a06;
+	font-size:12px;
+	font-weight:bold;
+	height:26px;
+	margin: 0 5px 24px 0;
+	width:162px;
+}
+
+.area_previousbuild {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	height:36px;
+	margin-bottom:11px;
+	width:618px;
+	padding:12px 0 0 12px;
+}
+
+.Successful .build_title {
+	color:#60b011;
+	font-size:18px;
+	font-weight:bold;
+}
+
+
+.Failed .build_title, .UKNOWN .build_title {
+	color:#ce3201;	
+	font-size:18px;
+	font-weight:bold;
+}
+
+
+.area_previousbuild span {
+	color:#000;
+	font:11px Arial, sans-serif;
+	margin-left:3px;
+}
+
+.area_previousbuild a {
+	text-decoration:none;
+}
+
+.grid_12 h3 {
+	color:#333;
+	font-size:15px;
+	margin:20px 0 15px 0;
+}
+
+/* Conteúdo - Project -----------------------------------------------------------------------------------*/
+
+#sub_content {
+	background-color:#fff;
+	color:#333333;
+	font-family:Arial,sans-serif;
+	font-size:14px;
+	font-weight:bold;
+	margin-top:35px;
+}
+
+.frm_project {
+	margin-top:6px;
+}
+
+.additionaltabs, .filestoadd {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border:solid 1px #aeaeae;
+	display:table;
+	float:left;
+	height:23px;
+	margin-bottom:32px;
+	padding:4px 10px 4px 10px;
+	width:415px;
+}
+
+.additionaltabs img, .filestoadd img {
+	float:right;
+}
+
+.additional, .files {
+	color:#999;
+	font-size:11px;
+	font-weight:normal;
+}
+
+.frm_project fieldset p {
+	margin:-10px 0 30px 0;
+}
+
+.frm_project fieldset span {
+	color:#333;
+	font-size:16px;
+	font-weight:bold;
+}
+
+.area_project {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	background-color:#eee;
+	border:solid 1px #aeaeae;
+	clear:both;
+	color:#999;
+	font-size:14px;
+	height:18px;
+	margin:4px 0 15px 0;
+	padding:4px 0 4px 4px;
+	width:430px;
+}
+
+.checkbox_monitor {
+	margin-left:10px;
+}
+
+.button_project {
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	background-color:#ffac08;
+	border-bottom:solid 1px #b97a06;
+	border:solid 1px #ffac08;
+	font-weight:bold;
+	height:26px;
+	margin-right:20px;
+	width:60px;
+}
+
+/* Conteúdo - Login -------------------------------------------------------------------------------*/
+
+#subcontent_pipe {
+	background-color:#fff;
+}
+
+#subcontent_pipe img {
+	float:right;
+	margin-right:10px;
+}
+
+.frm_newpipeline {
+	margin-bottom:45px;
+}
+
+.new_pipeline p {
+	color:#797979;
+	font-size:10px;
+	margin-bottom:9px;
+}
+
+.new_pipeline p strong {
+	color:#000;
+	font-weight:bold;
+}
+
+.area_newpipeline {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	background-color:#eee;
+	border:solid 1px #aeaeae;
+	clear:both;
+	color:#999;
+	font-size:14px;
+	height:16px;
+	margin:5px 0 15px 0;
+	padding:4px 0 4px 4px;
+	width:430px;
+}
+
+.button_pipeline {
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	background-color:#ffac08;
+	border:solid 1px #ffac08;
+	border-bottom:solid 1px #b97a06;
+	font-weight:bold;
+	height:26px;
+	margin-top:18px;
+	width:60px;
+}
+
+/* Conteúdo - Project Views ----------------------------------------------------------------------*/
+
+.project {
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	background-image: url(/media/globocom/img/bg.jpg);
+	background-repeat:repeat-x;
+	border:solid 1px #ccc;
+	height:36px;
+	width:900px;
+	margin:1px 0 10px 0;
+	padding:9px 20px 40px 17px;
+}
+
+.project .title a:hover {
+	text-decoration:underline;
+}
+
+.title {
+	color:#ccc;
+	font-size:28px;
+	font-weight:bold;
+	float:left;
+	margin:14px 0 0 20px;
+	overflow:hidden;
+	width:360px;
+	white-space:nowrap;
+}
+
+.icon_Building {
+	background: url(/media/globocom//img/refresh.gif) no-repeat;
+	float:left;
+	width:60px;
+	height:60px;
+}
+
+.icon_Successful {
+	background: url(/media/globocom//img/successful.png) no-repeat;
+	float:left;
+	width:60px;
+	height:60px;
+}
+
+.icon_Failed {
+	background: url(/media/globocom//img/failed.png) no-repeat;
+	float:left;
+	width:60px;
+	height:60px;
+}
+
+.Building {
+	border:solid 1px #ccc;
+	color:#666;
+}
+
+.Building img, .Successful img, .Failed img, .UKNOWN img {
+	float:left;
+}
+
+.Building .title a {
+    color:#333;
+	text-decoration:none;
+}
+
+.Successful {
+	border:solid 1px #669900;
+	color:#669900;
+}
+
+.Successful .title a {
+	color:#60b011;
+	text-decoration:none;
+}
+
+.Failed, .UKNOWN {
+	border:solid 1px #cc3300;
+	color:#cc3300;
+}
+
+.Failed .title a, .UKNOWN .title a {
+	color:#ce3201;
+	text-decoration:none;
+}
+
+.comments {
+	-moz-border-radius-bottomleft:8px;
+	-moz-border-radius-topleft:8px;
+	-webkit-border-radius-bottomleft:8px;
+	-webkit-border-radius-topleft:8px;
+	background-color:#fff;
+	border-bottom:solid 1px #cdcdcd;
+	border-left:solid 1px #cdcdcd;
+	border-top:solid 1px #cdcdcd;
+	color:#666;
+	font-family:Georgia;
+	font-size:16px;
+	font-style:italic;
+	float:left;
+	width:195px;
+	letter-spacing:-1px;
+	overflow:hidden;
+	padding:10px 12px 12px 15px;
+	height:44px;
+}
+
+.comments_detail {
+	background-image:url(/media/globocom/img/bg-right.png);
+	float:left;
+	height:68px;
+	width:21px;
+	margin-right:10px;
+}
+
+.photo_project {
+	float:left;
+	margin:6px 15px 0 0;
+}
+
+.email {
+	color:#333;
+	float:left;
+	font-size:11px;
+	font-family:Arial, sans-serif;
+	font-weight:bold;
+	height:30px;
+	margin-top:18px;
+	overflow:hidden;
+	width:139px;
+}
+
+.email p {
+	line-height:14px;
+}
+
+.email p span {
+	font-weight:normal;
+}
+
+#views_icon {
+	float:right;
+	margin-top:15px;
+    margin-bottom:20px;
+}
+
+#views_icon ul {
+	list-style-type:none;
+}
+
+#views_icon li {
+	display:inline;
+	margin-left:5px;
+}
+
+.nav01
+{
+    background: url(/media/globocom/img/icon-views-1.jpg) no-repeat 0 0;
+    display:inline;
+}
+
+.nav02
+{
+    background: url(/media/globocom/img/icon-views-2.jpg) no-repeat 0 0;
+    display:inline;
+}
+
+.nav03
+{
+    background: url(/media/globocom/img/icon-views-3.jpg) no-repeat 0 0;
+    display:inline;
+}
+
+/* Conteúdo - Delete Project -----------------------------------------------------------------------*/
+
+#del_project {
+	background-color:#fff;
+	color:#000;
+    font-size:18px;
+	font-weight:bold;
+    height:102px;
+	padding-top:18px;
+	text-align:center;
+	width:602px;
+}
+
+.del_yes, .del_no {
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	background-color: #ffac08;
+	border:solid 1px #ffac08;
+	border-bottom:solid 1px #b97a06;
+	font-size:18px;
+	font-weight:bold;
+	height:32px;
+	margin:22px 12px 0 12px;
+	width:80px;
+}
+
+.del_no {
+	background-color:#f03c01;
+	border:solid 1px #f03c01;
+	border-bottom:solid 1px #a22801;
+}

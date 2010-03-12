@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br">
+    <head>
+        <title>Skink {% block title %}{% endblock %}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/960.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/header.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/main.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/reset.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/text.css" />
+        <script language="javascript" type="text/javascript">
+            $(function(){
+                document.authenticated = '{{ user }}' != '';
+            });
+        </script>
+        {% block extrahead %}{% endblock %}
+    </head>
+    </head>
+    <body>
+        <div class="wrapper">           
+            <div class="header">
+                <div class="container_12">
+                    <div class="grid_12">
+                        <ul id="navigation">
+                            <li class="one"><a class="active" href="/">Projects</a></li>
+                            <li class="two"><a href="pipelines.html">Pipelines</a></li>
+                        </ul>                   
+                        <div class="login">
+                            <form method="get" action="#">
+                                <fieldset>
+                                    <legend>Logon</legend>
+                                    <label class="text_login" for="login">Login</label>
+                                    <input name="login" type="text" id="login" class="textarea_login" value="nome de usu&aacute;rio" onfocus="if(this.value=='nome de usu&aacute;rio')this.value='';" onblur="if(this.value=='')this.value='nome de usu&aacute;rio';" />
+                                    <label for="password"></label> 
+                                    <input name="password" id="password" type="password" class="textarea_login" value="senha" onfocus="if(this.value=='senha')this.value='';" onblur="if(this.value=='')this.value='senha';" /> 
+                                    <button type="submit" class="button"></button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- end .grid_12 -->
+                </div>
+                <!-- end .container_12 -->
+            </div>
+            <!-- end .header -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="footer">
+                <div class="container_12">
+                    <div class="grid_12">
+                        <p>built with Skink ci<p>
+                        <div class="template">template by <a href="http://www.globo.com" target="_blank">globo.com</a></div>
+                    </div>
+                    <!-- end .grid_12 -->
+                </div>
+                <!-- end .container_12 -->
+            </div>
+            <!-- end .footer -->
+        </div>
+    </body>
+</html>

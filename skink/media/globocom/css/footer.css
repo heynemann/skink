@@ -1,0 +1,33 @@
+.footer {
+	background-color:#323232;
+	bottom:0;
+	height:90px;
+	margin-top:100px;
+	padding-top:15px;
+    width:100%;
+}
+
+.footer p {
+	color:#999;
+	font-family:arial, sans-serif;
+	font-size:16px;
+	font-style:normal;
+	letter-spacing:-1px;
+}
+
+.template {
+	color:#999;
+	font-family:arial, sans-serif;
+	font-size:11px;
+	font-style:normal;
+}
+
+.template a {
+	color:#999;
+	text-decoration:underline;
+}
+
+.template a:hover {
+	color:#ccc;
+	text-decoration:underline;
+}

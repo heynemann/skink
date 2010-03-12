@@ -18,18 +18,24 @@
 import re
 import hashlib
 
+def _parse_email(text):
+    if text == None:
+        return ""
+
+    result = re.match(".*<(?P<email>.*@.*)>", text)
+
+    if not result:
+        return ""
+
+    return result.groupdict()["email"]
+    
 def gravatar(value):
     gravatar_base_url = "http://gravatar.com/avatar/"
 
-    if value == None:
+    email = _parse_email(value)
+    
+    if email == "":
         return gravatar_base_url
-
-    result = re.match(".*<(?P<email>.*@.*)>", value)
-
-    if not result:
-        return gravatar_base_url
-
-    email = result.groupdict()["email"]
 
     md5 = hashlib.md5()
     md5.update(email)
@@ -37,3 +43,7 @@ def gravatar(value):
     image_path = gravatar_base_url + md5.hexdigest()
 
     return image_path
+
+
+def email(value):
+    return _parse_email(value)

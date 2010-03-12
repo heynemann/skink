@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Project {{ project.name }}{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/project_status.js"></script>
+        <script src="/media/common/js/project_details.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="container_12">
+	<div class="grid_12">
+		<h1><a href="/project/{{ project.id }}">{{ project.name }}</a></h1>
+		<div class="administrative">
+            <a href='/project/{{ project.id }}/edit'>edit</a> | 
+            <a id="delete_project" href='/project/{{ project.id }}/delete'>delete</a> | 
+            <a id="build_project" href="/project/{{ project.id }}/build">build</a> | 
+            <a id="stop_project" href="/project/{{ project.id }}/stopbuild">stop</a>
+		</div>
+		<hr />
+	</div>
+	{% if current_build %}
+        {% set build = current_build %}
+    
+	<!-- end .grid_12 -->
+	<div class="grid_12">
+		<div class="build_{{ build.status }}" id="build_status_{{ project.id }}" >
+			<h2>Build {%if build.commit_number %}{{ build.commit_number[:7] }}{%endif%} {% if build.status == "Successful" %}succeeded{% else %}failed{% endif %}</h2>
+			<p class="build_hash">#{{ build.commit_number }}</p>
+			<img class="photo_buildproject" src="{{ project.last_build.commit_author|gravatar }}?s=52" title="photo" />
+			<div class="comments_detail_buildproject"></div>
+            <div class="comments_buildproject">{{ build.commit_text|escape }}</div>
+            <p><strong>{{ project.last_build.commit_author }}</strong> <span>({{ project.last_build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span></p>
+		</div>	
+	</div>
+	{% endif %}
+
+	<div class="grid_12">
+		<div class="build_log">
+		    <h6>Build Log</h6>
+			    <div class="scroll">
+					<pre>{{ build.log }}</pre>
+			    </div>
+			</div>
+	</div>
+		
+	<div class="grid_12">
+		<form class="frm_buildproject" method="post" action="/project/{{ project.id }}/build">
+			<fieldset>
+				<legend>Build Project</legend>
+				<button class="button_build" type="submit">Build the last commit</button>
+				in the repository (por rebuild the latest)
+			</fieldset>	
+		</form>
+		
+		{% if not project.last_builds %}
+		    <h3>No builds happened so far.</h3>
+		
+		{% else %}
+		    <h3>Previous build</h3>
+		
+		    {% for build in project.last_builds %}
+		        <div class="area_previousbuild {{ build.status }}">
+		            <a href="/project/{{ project.id }}/builds/{{ build.id }}">
+			        <span class="build_title">Build 10af853</span> <span>por <strong>{{ project.last_build.commit_author }}</strong> <span>({{ project.last_build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
+			        </a>
+		        </div>
+		    {% endfor %}
+		
+		{% endif %}
+		
+	</div>			
+</div>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - {{ project.name }}{% endblock %}
+
+{% block content %}
+<form action='update' method='post'>
+    <p class='required'>
+        <label for='name'>Name</label>
+        <input class='text' name="name" id="name" type='text' value="{{ project.name }}" />
+    </p>
+
+    <p class='required'>
+        <label for='scm_repository'>Git repository</label>
+        <input class='text' name="scm_repository" id="scm_repository" type='text' value="{{ project.scm_repository }}" />
+    </p>
+
+    <p class='required'>
+        <label for='build_script'>
+            Build script
+        </label>
+        <input class='text' name="build_script" id="build_script" type='text' value="{{ project.build_script }}" />
+    </p>
+
+    <p class='required'>
+        <label for='monitor_changes'>
+            <input class='text' name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?
+        </label>
+    </p>
+
+    <p class='submit'>
+        <button class='positive' type='submit'>Update Project</button>
+    </p>
+</form>
+{% endblock %}
+

@@ -1,0 +1,82 @@
+/*
+	960 Grid System ~ Text CSS.
+	Learn more ~ http://960.gs/
+
+	Licensed under GPL and MIT.
+*/
+
+/* `Basic HTML
+----------------------------------------------------------------------------------------------------*/
+
+*  {
+	margin:0;
+	padding:0;
+}
+ 
+html, body {height:100%;}
+
+body {
+font:11px/1.5 Arial, sans-serif;
+color:#999;
+}
+
+b {
+color:#000;
+font:11px Tahoma, sans-serif;
+}
+
+hr {
+border: 0 #ccc solid;
+border-top-width: 1px;
+clear: both;
+height: 0;
+margin: 10px 0 10px 0;
+}
+
+/* `Headings
+----------------------------------------------------------------------------------------------------*/
+
+hr {
+	border: 0 #ccc solid;
+	border-top-width: 1px;
+	clear: both;
+	height: 0;
+}
+
+h1, h1 a {
+	color:#323232;
+	font-size:28px;
+	float:left;
+	margin-bottom:12px;
+	text-decoration:none;
+}
+
+h2 {
+	font-size: 24px;
+}
+
+h3 {
+	font-size: 16px;
+	color:#333;
+	margin:20px 0 15px 0;
+}
+
+h4 {
+	color:#333;
+	font-size: 17px;
+	margin-bottom:8px;
+	margin-top:5px;
+}
+
+h5 {
+	color:#797979;
+	font-size: 14px;
+	font-weight:normal;
+	margin-bottom:5px;
+	margin-top:5px;
+}
+
+h6 {
+	color:#666;
+	font-size: 13px;
+}
