@@ -51,6 +51,10 @@ h1, h1 a {
 	text-decoration:none;
 }
 
+h1 a:hover{
+    text-decoration:underline;
+}
+
 h2 {
 	font-size: 24px;
 }

@@ -1,13 +1,24 @@
-{% extends "current_build_mini.html" %}
+{% extends "current_build.html" %}
 
-{% block title %}Mini{% endblock %}
+{% block title %}Current Build Mini{% endblock %}
 
 {% block extrahead %}
-        <script src="/media/common/js/project_status.js"></script>
-        <style>
-            body { background-color:#323232;}
-            h1, #views_icon, .header, .footer, .currently_building, .new {display:none; }
-            .content {margin:10px 0 0 0 ;padding:0;width:100%}
-            .project {margin: 2px;}
-        </style>
+    {{ super() }}
+    
+    <style>
+        body { background-color:#323232;}
+        .build_log h6, .header, .footer {display:none; }
+        .content {margin:10px 0 0 0 ;padding:0;width:100%}
+        #current_project, #current_project a {color:#FFF;}
+        
+        .scroll, .build_log, .container_12, .grid_12 {
+            overflow: visible;
+            width:100%;
+            margin: 0;
+            border: 0;
+            height: 100%;
+             -moz-border-radius:0px 0px 0px 0px;
+        }
+        
+    </style>
 {% endblock %}

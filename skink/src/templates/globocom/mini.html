@@ -3,7 +3,8 @@
 {% block title %}Mini{% endblock %}
 
 {% block extrahead %}
-        <script src="/media/common/js/project_status.js"></script>
+        {{ super() }}
+        
         <style>
             body { background-color:#323232;}
             h1, #views_icon, .header, .footer, .currently_building, .new {display:none; }

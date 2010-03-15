@@ -28,7 +28,7 @@ function current_build(){
                 }
                 else{
                     if (!document.command_finished){
-                        $('#current_command').html($('#current_command').html() + '<br /><br /><b style="text-align:center">FINISHED</b><br /><br />');
+                        $('#current_command').html($('#current_command').html() + ': FINISHED');
                         document.command_finished = true;
                     }
                 }

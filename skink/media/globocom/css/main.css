@@ -71,7 +71,7 @@
 
 
 .build_Successful {
-	background: transparent url(/media/globocom/img/successful-small.png) 2px 5px no-repeat;
+	background: transparent url(/media/globocom/img/successful-small.png) 5px 2px no-repeat;
 }
 
 .build_Successful h2 {
@@ -80,7 +80,7 @@
 }
 
 .build_Failed {
-	background: transparent url(/media/globocom/img/failed-small.png) 2px 5px no-repeat;
+	background: transparent url(/media/globocom/img/failed-small.png) 5px 2px no-repeat;
 }
 
 .build_Failed h2 {
@@ -132,7 +132,7 @@
 .scroll {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
-	background-color:#ccc;
+	background-color:#333;
 	border:solid 1px #ccc;
 	height:400px;
   	margin-top:5px;
@@ -140,6 +140,7 @@
 	padding:10px;
 	width:870px;
 	color:#DDD;
+	font-size:12px;
 }
 
 .scroll p {
@@ -179,6 +180,10 @@
 	color:#ce3201;	
 	font-size:18px;
 	font-weight:bold;
+}
+
+.build_title:hover{
+    text-decoration:underline;
 }
 
 
@@ -541,12 +546,17 @@
 	color:#323232;
 	font-size:28px;
 	float:left;
-	margin-bottom:18px;
     font-weight:bold;
 	text-decoration:none;
+	width:100%;
 }
+
+#current_project a:hover{
+    text-decoration:underline;    
+}
+
 #current_command {
     font-family:Courier;
-	font-size:28px;
+	font-size:20px;
 
 }
