@@ -50,6 +50,8 @@ function query_status(){
                         new_image = built_image;
                         new_title = 'This project has been built.';
                     }
+                    
+                    $image.attr('class','project Building')
 
                     if ($image.attr('src').toLowerCase() != new_image.toLowerCase())
                         if (new_image == built_image){
