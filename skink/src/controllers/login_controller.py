@@ -21,7 +21,15 @@ from ion import Controller, route, authenticated
 
 class LoginController(Controller):
 
-    @route("/authentication/:return_url")
-    def index(self, return_url):
-        self.login('Bernardo')
-        self.redirect(return_url.replace("@@", "/"))
+    @route("/authentication")
+    def login(self, login, password):
+        if (login == self.settings.Skink.admin_user and password == self.settings.Skink.admin_pass):
+            self.login(login)
+            self.redirect("/")
+        else:
+            self.redirect("/authentication/invalid")
+
+    @route("/authentication/invalid", priority=1)
+    def invalid_authentication(self):
+        return self.render_template("invalid_auth.html")
+

@@ -578,3 +578,11 @@
 	font-size:20px;
 
 }
+
+.invalid {
+    border: 1px solid red;
+}
+
+.failed_auth {
+    color: #990000;
+}
