@@ -63,7 +63,7 @@
 		    {% for build in project.last_builds %}
 		        <div class="area_previousbuild {{ build.status }}">
 		            <a href="/project/{{ project.id }}/builds/{{ build.id }}">
-			        <span class="build_title">Build 10af853</span> <span>por <strong>{{ build.commit_author }}</strong> <span>({{ build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
+			        <span class="build_title">Build {{ build.commit_number[:7] }}</span> <span>por <strong>{{ build.commit_author }}</strong> <span>({{ build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
 			        </a>
 		        </div>
 		    {% endfor %}

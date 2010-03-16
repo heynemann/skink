@@ -167,6 +167,7 @@
 	margin-bottom:11px;
 	width:618px;
 	padding:12px 0 0 12px;
+	border:1px solid #DDD !important;
 }
 
 .Successful .build_title {
@@ -361,22 +362,7 @@
 	white-space:nowrap;
 }
 
-.icon_Building {
-	background: url(/media/globocom//img/refresh.gif) no-repeat;
-	float:left;
-	width:60px;
-	height:60px;
-}
-
-.icon_Successful {
-	background: url(/media/globocom//img/successful.png) no-repeat;
-	float:left;
-	width:60px;
-	height:60px;
-}
-
-.icon_Failed {
-	background: url(/media/globocom//img/failed.png) no-repeat;
+.icon{
 	float:left;
 	width:60px;
 	height:60px;
@@ -385,6 +371,10 @@
 .Building {
 	border:solid 1px #ccc;
 	color:#666;
+}
+
+.Building .icon{
+    background: url(/media/globocom//img/refresh.gif) no-repeat;
 }
 
 .Building img, .Successful img, .Failed img, .UKNOWN img {
@@ -406,6 +396,11 @@
 	text-decoration:none;
 }
 
+
+.Successful .icon {
+	background: url(/media/globocom//img/successful.png) no-repeat;
+}
+
 .Failed, .UKNOWN {
 	border:solid 1px #cc3300;
 	color:#cc3300;
@@ -415,6 +410,12 @@
 	color:#ce3201;
 	text-decoration:none;
 }
+
+
+.Failed .icon{
+	background: url(/media/globocom//img/failed.png) no-repeat;
+}
+
 
 .comments {
 	-moz-border-radius-bottomleft:8px;
