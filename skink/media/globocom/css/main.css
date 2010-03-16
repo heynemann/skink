@@ -170,18 +170,25 @@
 	border:1px solid #DDD !important;
 }
 
+
 .Successful .build_title {
 	color:#60b011;
-	font-size:18px;
+    font-size:18px;
 	font-weight:bold;
 }
 
-
-.Failed .build_title, .UKNOWN .build_title {
-	color:#ce3201;	
-	font-size:18px;
+.Failed .build_title {
+	color:#ce3201;
+    font-size:18px;
 	font-weight:bold;
 }
+
+.UNKNOWN .build_title {
+   	color:#CCC; 
+    font-size:18px;
+	font-weight:bold;
+}
+
 
 .build_title:hover{
     text-decoration:underline;
@@ -377,7 +384,7 @@
     background: url(/media/globocom//img/refresh.gif) no-repeat;
 }
 
-.Building img, .Successful img, .Failed img, .UKNOWN img {
+.Building img, .Successful img, .Failed img, .UNKNOWN img {
 	float:left;
 }
 
@@ -401,13 +408,23 @@
 	background: url(/media/globocom//img/successful.png) no-repeat;
 }
 
-.Failed, .UKNOWN {
+.Failed {
 	border:solid 1px #cc3300;
 	color:#cc3300;
 }
 
-.Failed .title a, .UKNOWN .title a {
+.UNKNOWN {
+	border:solid 1px #CCC;
+	color:#CCC;
+}
+
+.Failed .title a {
 	color:#ce3201;
+	text-decoration:none;
+}
+
+.UNKNOWN .title a {
+	color:#CCC;
 	text-decoration:none;
 }
 

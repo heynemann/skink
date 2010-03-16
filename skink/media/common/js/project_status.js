@@ -13,54 +13,27 @@ function query_status(){
     $.ajax({
         type: "GET",
         url: "/buildstatus",
-        dataType: "text",
+        dataType: "json",
         cache: false,
         success: function(data){
-            data_items = data.split('\n');
-            for (i=0; i < data_items.length; i++){
-                item = data_items[i];
+            for (var idx in data){
+                project = data[idx];
+                project_id = project.id;
+                project_name = project.name;
+                project_execution_status = project.execution_status
+                project_status = project.status;
 
-                item_data = item.split("=");
-                project_id = item_data[0];
-
-                name_and_status = item_data[1].split("@@");
-                project_name = name_and_status[0];
-                project_status = name_and_status[1];
-
-                $image = $('#build_status_' + project_id);
-                $row = $image.parent().parent();
-                $last_build_row = $image.parent().parent().parent();
-                $row.removeClass('doing-build');
-                $last_build_row.removeClass('doing-build');
-               
-                if ($image.length>0){
-                    if (project_status == 'UNKNOWN') {
-                        new_image = unknown_image;
-                        new_title = 'This project has never been built.';
-                    }
-                    if (project_status == 'BUILDING') {
-                        new_image = building_image;
-                        new_title = 'Currently in the process of building...';
-                        $row.addClass('doing-build');
-                        $last_build_row.addClass('doing-build');
-                        $('#currently_building').html('currently building project ' + project_name + '. <a href="/currentbuild">[more info]</a>');
-                        $('#currently_building').show()
-                    }
-                    if (project_status == 'BUILT') {
-                        new_image = built_image;
-                        new_title = 'This project has been built.';
-                    }
+                $project_div = $('#project_' + project_id);
+                
+                if (project_execution_status == 'BUILDING') {
+                    $project_div.removeClass(project_status);
+                    $project_div.addClass('Building');
                     
-
-                    if ($image.attr('src').toLowerCase() != new_image.toLowerCase())
-                        if (new_image == built_image){
-                            location.reload(true);
-                        }
-                        else{
-                            $image.attr('src', new_image);
-                            $image.attr('title', new_title);
-                            $image.attr('alt', new_title);
-                        }
+                    $('#currently_building').html('Currently building project ' + project_name + '. <a href="/currentbuild">[more info]</a>');
+                    $('#currently_building').show()
+                }
+                if (project_execution_status == 'BUILT') {
+                    $project_div.addClass(project_status)
                 }
             }
         }

@@ -23,7 +23,7 @@
                     {% if projects %}   
                     <div class="grid_6">
                         {% for project in projects %}
-                        <div class="project {{ project.build_status }}" id="build_status_{{ project.id }}">
+                        <div class="project {{ project.build_status }}" id="project_{{ project.id }}">
                             <div class="icon"></div>
                             <div class="title"><a href="/project/{{ project.id }}">{{ project.name[:30] }}{% if project.name|length > 30 %}...{% endif %}</a></div>
                             {% if project.last_build %}

@@ -124,14 +124,27 @@ class BuildController(Controller):
         projects = self.store.query(Project).all()
 
         projects_being_built = [int(project_id) for project_id in ctx.projects_being_built]
-        result = {}
+        results = []
         for project in projects:
+            result = {}
             if project.id in projects_being_built:
-                result[project.id] = (project.name, "BUILDING")
+                result['id'] = project.id
+                result['name'] = project.name
+                result['execution_status'] = "BUILDING"
+                if project.last_build is not None:
+                    result['status'] = project.last_build.status
+                else:
+                    result['status'] = 'UNKNOWN'
             else:
-                result[project.id] = (project.name, project.last_build is not None and "BUILT" or "UNKNOWN")
-
-        return "\n".join(["%s=%s@@%s" % (k, v[0],v[1]) for k,v in result.items()])
+                result['id'] = project.id
+                result['name'] = project.name
+                result['execution_status'] = "BUILT"
+                if project.last_build is not None:
+                    result['status'] = project.last_build.status
+                else:
+                    result['status'] = 'UNKNOWN'
+            results.append(result)
+        return demjson.encode(results)
 
     @route("/currentbuild")
     def current_build_report(self, **data):
