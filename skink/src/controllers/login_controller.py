@@ -17,19 +17,24 @@
 
 import skink.lib
 import cherrypy
-from ion import Controller, route, authenticated
+from ion import Controller, route
 
 class LoginController(Controller):
 
     @route("/authentication")
-    def login(self, login, password):
+    def authentication_login(self, login, password):
         if (login == self.settings.Skink.admin_user and password == self.settings.Skink.admin_pass):
             self.login(login)
             self.redirect("/")
         else:
             self.redirect("/authentication/invalid")
 
-    @route("/authentication/invalid", priority=1)
+    @route("/authentication/logoff", priority=1)
+    def authentication_logoff(self):
+        self.logoff()
+        self.redirect("/")
+
+    @route("/authentication/invalid", priority=2)
     def invalid_authentication(self):
         return self.render_template("invalid_auth.html")
 

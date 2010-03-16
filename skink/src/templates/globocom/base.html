@@ -29,8 +29,11 @@
                         <ul id="navigation">
                             <li class="one"><a class="active" href="/">Projects</a></li>
                             <li class="two"><a href="pipelines.html">Pipelines</a></li>
-                        </ul>                   
+                        </ul>
                         <div class="login">
+                            {% if user %}
+                                Welcome {{ user }}! <a href="/authentication/logoff">Logoff</a>
+                            {% else %}
                             <form method="post" action="/authentication">
                                 <fieldset>
                                     <legend>Logon</legend>
@@ -41,6 +44,7 @@
                                     <button type="submit" id="doLogin" class="button"></button>
                                 </fieldset>
                             </form>
+                            {% endif %}
                         </div>
                     </div>
                     <!-- end .grid_12 -->
