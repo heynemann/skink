@@ -56,6 +56,13 @@
 				        <h5>[{{ pipeline.name }}]</h5>
         			</a>
         			{{ pipeline }}
+        			
+        			<a href="/pipeline/{{ pipeline.id }}/delete">
+                        <img border="0" align="absMiddle" 
+                                        src="/media/globocom/img/delete.png" 
+                                        alt="Delete Pipeline: {{ pipeline.name }}" 
+                                        title="Delete Pipeline: {{ pipeline.name }}" />
+                    </a>
     				
     				<hr />
     			{% endfor %}
