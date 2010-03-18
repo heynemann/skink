@@ -28,7 +28,7 @@ ul#navigation li.one a, ul#navigation li.two a {
 }
 
 ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.two a:hover, ul#navigation li.two a.active {
-	background:transparent url(../img/arrow-menu.png) center 25px no-repeat;
+	background:transparent url(/media/globocom/img/arrow-menu.png) center 25px no-repeat;
 }
 
 .login {
@@ -45,7 +45,8 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 }
 
 .login .username {
-	font-size: 18px;		
+	font-size: 18px;
+	margin-right:10px;		
 }
 
 .login a:hover {
@@ -65,7 +66,7 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 .textarea_login {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
-	background:transparent url('../img/bg_form.png') repeat-x;
+	background:transparent url('/media/globocom/img/bg_form.png') repeat-x;
 	border:solid 0px #191919;
 	color:#ccc;
 	float:left;
@@ -78,7 +79,7 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 }
 
 .button {
-	background: url('../img/button.png') no-repeat 0 0;
+	background: url('/media/globocom/img/button.png') no-repeat 0 0;
 	border:0;
 	height:28px;
 	margin-left:6px;
@@ -86,9 +87,9 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 }
 
 .button:active {
-	background: url('../img/button.png') no-repeat scroll -56px 0;
+	background: url('/media/globocom/img/button.png') no-repeat scroll -56px 0;
 }
 
 .button:hover {
-	background: url('../img/button.png') no-repeat scroll -28px 0;
+	background: url('/media/globocom/img/button.png') no-repeat scroll -28px 0;
 }
