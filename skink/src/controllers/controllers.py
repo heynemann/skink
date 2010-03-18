@@ -25,7 +25,7 @@ class IndexController(Controller):
     @route("/")
     def index(self):
         projects = self.store.query(Project).all()
-        return self.render_template("index.html", projects=projects)
+        return self.render_template("index.html", projects=projects, at="projects")
 
     @route("/mini")
     def mini(self):
@@ -166,7 +166,7 @@ class PipelineController(Controller):
     @route("/pipeline", priority=5)
     def index(self):
         pipelines = self.store.query(Pipeline).all()
-        return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=None)
+        return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=None, at="pipelines")
 
     @route("/pipeline/create")
     def create(self, name, pipeline_definition):
@@ -179,8 +179,7 @@ class PipelineController(Controller):
             self.server.publish("on_pipeline_created", {"server":self.server, "pipeline":pipeline})
             self.redirect("/pipeline")
         except (ProjectNotFoundError, CyclicalPipelineError), err:
-#            self.store.remove(pipeline)
-#            pipelines = self.store.query(Pipeline).all()
+            pipelines = self.store.query(Pipeline).all()
             return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=[err.message,])
 
     @route("/pipeline/:id", priority=1)

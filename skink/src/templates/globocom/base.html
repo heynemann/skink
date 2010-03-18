@@ -27,20 +27,20 @@
                 <div class="container_12">
                     <div class="grid_12">
                         <ul id="navigation">
-                            <li class="one"><a class="active" href="/">Projects</a></li>
-                            <li class="two"><a href="/pipeline">Pipelines</a></li>
+                            <li class="one"><a {% if at == "projects"  %}class="active"{% endif %} href="/">Projects</a></li>
+                            <li class="two"><a {% if at == "pipelines" %}class="active"{% endif %} href="/pipeline">Pipelines</a></li>
                         </ul>                   
                         <div class="login">
                             {% if user %}
-                                Welcome {{ user }}! <a href="/authentication/logoff">Logoff</a>
+                                <span class="username">Welcome {{ user }}</span> <a href="/authentication/logoff"><img src="/media/globocom/img/logout.gif"/  alt="click to logout" title="click to logout"></a>
                             {% else %}
                             <form method="post" action="/authentication">
                                 <fieldset>
                                     <legend>Logon</legend>
                                     <label class="text_login" for="login">Login</label>
-                                    <input name="login" type="text" id="login" class="textarea_login" value="nome de usu&aacute;rio" onfocus="if(this.value=='nome de usu&aacute;rio')this.value='';" onblur="if(this.value=='')this.value='nome de usu&aacute;rio';" />
+                                    <input name="login" type="text" id="login" class="textarea_login" value="username" onfocus="if(this.value=='username')this.value='';" onblur="if(this.value=='')this.value='username';" />
                                     <label for="password"></label> 
-                                    <input name="password" id="password" type="password" class="textarea_login" value="senha" onfocus="if(this.value=='senha')this.value='';" onblur="if(this.value=='')this.value='senha';" /> 
+                                    <input name="password" id="password" type="password" class="textarea_login" value="password" onfocus="if(this.value=='password')this.value='';" onblur="if(this.value=='')this.value='password';" /> 
                                     <button type="submit" id="doLogin" class="button"></button>
                                 </fieldset>
                             </form>

@@ -7,13 +7,9 @@
     min-height:100%;
 }
 
-/* `Content ----------------------------------------------------------------------------------------------------*/
-
 .content {
 	overflow:hidden;
 }
-
-/* Conteúdo - Build Proj----------------------------------------------------------------------------------------*/
 
 .content_buildproject {
 	margin-top:50px;
@@ -211,8 +207,6 @@
 	margin:20px 0 15px 0;
 }
 
-/* Conteúdo - Project -----------------------------------------------------------------------------------*/
-
 #sub_content {
 	background-color:#fff;
 	color:#333333;
@@ -288,8 +282,6 @@
 	width:60px;
 }
 
-/* Conteúdo - Login -------------------------------------------------------------------------------*/
-
 #subcontent_pipe {
 	background-color:#fff;
 }
@@ -339,8 +331,6 @@
 	margin-top:18px;
 	width:60px;
 }
-
-/* Conteúdo - Project Views ----------------------------------------------------------------------*/
 
 .project {
 	-moz-border-radius:10px;
@@ -521,8 +511,6 @@
     display:inline;
 }
 
-/* Conteúdo - Delete Project -----------------------------------------------------------------------*/
-
 #del_project {
 	background-color:#fff;
 	color:#000;
@@ -579,7 +567,6 @@
 
 }
 
-<<<<<<< HEAD
 #currently_building{
     background-image: url(/media/globocom/img/bg.jpg);
 	background-repeat:repeat-x;

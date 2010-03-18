@@ -25,7 +25,6 @@ ul#navigation li.one a, ul#navigation li.two a {
 	font-weight:bold;
 	height:31px;
 	text-decoration:none;
-	letter-spacing:-1px
 }
 
 ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.two a:hover, ul#navigation li.two a.active {
@@ -38,6 +37,19 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 	padding:0;
 	margin-top:8px;
 	height:23px;
+}
+
+.login a {
+	color:#ccc;
+	text-decoration:none;		
+}
+
+.login .username {
+	font-size: 18px;		
+}
+
+.login a:hover {
+	text-decoration:underline;		
 }
 
 .text_login {
