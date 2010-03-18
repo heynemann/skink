@@ -578,3 +578,53 @@
 	font-size:20px;
 
 }
+
+#currently_building{
+    background-image: url(/media/globocom/img/bg.jpg);
+	background-repeat:repeat-x;
+	background-position: 0 -25px;
+    -moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	border:solid 1px #ccc;
+	height:20px;
+	width:900px;
+	margin:1px 0 10px 0;
+	padding:9px 20px 10px 17px; 
+	color: #333;
+	font-size:14px;
+}
+
+#currently_building a{
+    text-decoration:none;
+	color: #333;
+}
+
+
+#currently_building a:hover{
+    text-decoration:underline;
+}
+
+
+.btn_default {
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    background: url('/media/globocom/img/bg_btndefault.png') repeat-x 0 0;
+    border:0;
+    cursor:pointer;
+    font-family:arial, sans-serif;
+    font-size:14px;
+    font-weight:bold;
+    height:27px;
+    margin:0px 5px 24px 0;
+    letter-spacing:-1px;
+    padding:4px;
+}
+
+.btn_default:hover {
+    background-position: 0 -28px;
+}
+
+.btn_default:active {
+    background-position: 0 -56px;
+}
+

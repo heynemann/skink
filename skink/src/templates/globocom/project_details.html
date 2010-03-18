@@ -34,22 +34,23 @@
             <p><strong>{{ build.commit_author }}</strong> <span>({{ build.commit_author|email }}) em {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span></p>
 		</div>	
 	</div>
-	{% endif %}
-
+	
 	<div class="grid_12">
 		<div class="build_log">
 		    <h6>Build Log</h6>
-			    <div class="scroll">
-					<pre>{{ build.log }}</pre>
-			    </div>
-			</div>
+		    <div class="scroll">
+				<pre>{{ build.log }}</pre>
+		    </div>
+		</div>
 	</div>
+
+    {% endif %}
 		
 	<div class="grid_12">
 		<form class="frm_buildproject" method="post" action="/project/{{ project.id }}/build">
 			<fieldset>
 				<legend>Build Project</legend>
-				<button class="button_build" type="submit">Build the last commit</button>
+				<button class="btn_default" type="submit">Build the last commit</button>
 				in the repository (por rebuild the latest)
 			</fieldset>	
 		</form>

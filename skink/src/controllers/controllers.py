@@ -127,22 +127,19 @@ class BuildController(Controller):
         results = []
         for project in projects:
             result = {}
+            result['id'] = project.id
+            result['name'] = project.name
+            
             if project.id in projects_being_built:
-                result['id'] = project.id
-                result['name'] = project.name
                 result['execution_status'] = "BUILDING"
-                if project.last_build is not None:
-                    result['status'] = project.last_build.status
-                else:
-                    result['status'] = 'UNKNOWN'
             else:
-                result['id'] = project.id
-                result['name'] = project.name
                 result['execution_status'] = "BUILT"
-                if project.last_build is not None:
-                    result['status'] = project.last_build.status
-                else:
-                    result['status'] = 'UNKNOWN'
+                
+            if project.last_build is not None:
+                result['status'] = project.last_build.status
+            else:
+                result['status'] = 'UNKNOWN'
+                    
             results.append(result)
         return demjson.encode(results)
 

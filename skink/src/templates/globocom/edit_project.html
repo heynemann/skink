@@ -12,7 +12,7 @@
 	<div class="grid_6">
 			<form method="post" action="update">
 				<fieldset>
-					<legend>New Pipeline</legend>
+					<legend>Editing {{ project.name }}</legend>
 
                     <h6>Name</h6>
                     <input class="input_gray" id="name" name="name" type="text" value="{{ project.name }}" />
@@ -26,12 +26,9 @@
 
                     <h6><input name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?</h6>
 					
-
-					<button class="button_pipeline" type="submit">Update</button>
-				</fieldset>			
-			</form>
-			
-			
+					<button class="btn_default" type="submit">Update</button>
+				</fieldset>
+			</form>	
 		</div>
 </div>
 {% endblock %}
