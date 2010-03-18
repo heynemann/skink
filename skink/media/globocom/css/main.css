@@ -579,6 +579,7 @@
 
 }
 
+<<<<<<< HEAD
 #currently_building{
     background-image: url(/media/globocom/img/bg.jpg);
 	background-repeat:repeat-x;
@@ -626,5 +627,13 @@
 
 .btn_default:active {
     background-position: 0 -56px;
+}
+
+.invalid {
+    border: 1px solid red;
+}
+
+.failed_auth {
+    color: #990000;
 }
 

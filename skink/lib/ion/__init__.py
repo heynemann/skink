@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Version="0.5.1"
+Version="0.5.6"
 
 from context import *
 from bus import *

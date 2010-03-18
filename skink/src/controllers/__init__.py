@@ -16,3 +16,4 @@
 # limitations under the License.
 
 from controllers import *
+from login_controller import *

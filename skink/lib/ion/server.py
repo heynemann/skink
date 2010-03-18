@@ -23,10 +23,11 @@ import inspect
 import cherrypy
 
 from ion.controllers import Controller
-from sqlalchemy_tool import metadata, session, mapper
+from sqlalchemy_tool import metadata, session, mapper, configure_session_for_app
 from ion.context import Context
 from ion.cache import Cache
 from sqlalchemy.exc import DBAPIError
+import logging
 
 class ServerStatus(object):
     Unknown = 0
@@ -60,8 +61,9 @@ class Server(object):
         self.cache = Cache(size=1000, age="5s", log=cherrypy.log)
 
         if self.context.settings.Ion.as_bool('debug'):
-            from storm.tracer import debug
-            debug(True, stream=sys.stdout)
+            logging.basicConfig()
+            logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+            logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
 
         self.import_template_filters()
         self.import_controllers()
@@ -103,7 +105,8 @@ class Server(object):
 
         return {
                    'server.socket_host': sets.Ion.host,
-                   'server.socket_port': int(sets.Ion.port),
+                   'server.socket_port': sets.Ion.as_int('port'),
+                   'server.thread_pool': sets.Ion.as_int('threads'),
                    'request.base': sets.Ion.baseurl,
                    'tools.encode.on': True, 
                    'tools.encode.encoding': 'utf-8',
@@ -178,9 +181,6 @@ class Server(object):
         self.context.use_db = self.test_connection()
 
         if not self.context.use_db:
-#            cherrypy.engine.subscribe('start_thread', self.connect_db)
-#            cherrypy.engine.subscribe('stop_thread', self.disconnect_db)
-#        else:
             cherrypy.config.update({'tools.SATransaction.on': False})
 
         cherrypy.engine.start()
@@ -188,11 +188,13 @@ class Server(object):
             cherrypy.engine.block()
 
     def test_connection(self):
-        from sqlalchemy_tool import configure_session_for_app
         configure_session_for_app(self.app)
         try:
             session.execute("select 1 from dual")
-        except DBAPIError:
+        except DBAPIError, err:
+            msg = '''\n\n============================ IMPORTANT ERROR ============================\nNo connection to the database could be made with the supplied parameters.\nPLEASE VERIFY YOUR CONFIG.INI FILE AND CHANGE IT ACCORDINGLY.\n=========================================================================\n\n'''
+            cherrypy.log.error(msg, 'DB')
+            self.test_connection_error = err
             return False
         return True
 
@@ -201,18 +203,6 @@ class Server(object):
 
     def publish(self, subject, data):
         self.context.bus.publish(subject, data)
-
-#    def connect_db(self, thread_index):
-#        cherrypy.thread_data.store = session
-
-#    def disconnect_db(self, thread_index):
-#        s = self.storm_stores.pop(thread_index, None)
-#        if s is not None:
-#            cherrypy.log("Cleaning up store.", "STORM")
-#            s.close()
-#        else:
-#            cherrypy.log("Could not find store.", "STORM")
-#        cherrypy.thread_data.store = None
 
     def connstr(self, protocol, username, password, host, port, database):
         return "%s://%s:%s@%s:%d/%s" % (

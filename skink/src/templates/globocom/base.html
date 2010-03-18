@@ -13,6 +13,7 @@
         <script src="/media/common/js/lib/jquery-min.js"></script>
         <script src="/media/common/js/lib/jquery-ui.min.js"></script>
         <script src="/media/common/js/lib/jquery.timers-1.1.2.js"></script>
+        <script src="/media/globocom/js/login.js"></script>
         <script language="javascript" type="text/javascript">
             $(function(){
                 document.authenticated = '{{ user }}' != '';
@@ -30,16 +31,20 @@
                             <li class="two"><a href="/pipeline">Pipelines</a></li>
                         </ul>                   
                         <div class="login">
-                            <form method="get" action="#">
+                            {% if user %}
+                                Welcome {{ user }}! <a href="/authentication/logoff">Logoff</a>
+                            {% else %}
+                            <form method="post" action="/authentication">
                                 <fieldset>
                                     <legend>Logon</legend>
                                     <label class="text_login" for="login">Login</label>
                                     <input name="login" type="text" id="login" class="textarea_login" value="nome de usu&aacute;rio" onfocus="if(this.value=='nome de usu&aacute;rio')this.value='';" onblur="if(this.value=='')this.value='nome de usu&aacute;rio';" />
                                     <label for="password"></label> 
                                     <input name="password" id="password" type="password" class="textarea_login" value="senha" onfocus="if(this.value=='senha')this.value='';" onblur="if(this.value=='')this.value='senha';" /> 
-                                    <button type="submit" class="button"></button>
+                                    <button type="submit" id="doLogin" class="button"></button>
                                 </fieldset>
                             </form>
+                            {% endif %}
                         </div>
                     </div>
                     <!-- end .grid_12 -->

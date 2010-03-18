@@ -129,12 +129,15 @@ class TestRunnerProvider(Provider):
 
         argv = ["-d", "-s", "--verbose"]
 
+        if exists(join(path, 'nose.cfg')):
+            argv.append("--config=%s" % (join(path, 'nose.cfg')))
+
         use_coverage = True
         try:
             import coverage
             argv.append("--with-coverage")
             argv.append("--cover-erase")
-            argv.append("--cover-package=%s" % project_name)
+            #argv.append("--cover-package=%s" % project_name)
             argv.append("--cover-inclusive")
         except ImportError:
             pass
