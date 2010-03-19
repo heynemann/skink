@@ -119,7 +119,7 @@ class Pipeline(Base):
         self.name = name
 
     def load_pipeline_items(self, pipeline_definition):
-        all_projects = dict([(project.name, project) for project in session.query(Project).all()])
+        all_projects = dict([(project.name.lower(), project) for project in session.query(Project).all()])
 
         pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
 

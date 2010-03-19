@@ -88,16 +88,19 @@ class ProjectController(Controller):
     def delete(self, id):
         project_id = int(id)
 
-        prj = self.store.get(Project, project_id)
+        prj = self.store.query(Project).get(project_id)
 
-        pipelines = self.store.find(Pipeline,
-                                    PipelineItem.pipeline_id == Pipeline.id,
-                                    PipelineItem.project_id == project_id)
+        pipelines = self.store.query(Pipeline, PipelineItem) \
+                              .filter(PipelineItem.pipeline_id == Pipeline.id) \
+                              .filter(PipelineItem.project_id == project_id) \
+                              .all()
 
-        for pipeline in pipelines:
-            self.store.remove(pipeline)
+        for pipeline, pipeline_item in pipelines:
+            for item in pipeline.items:
+                self.store.delete(item)
+            self.store.delete(pipeline)
 
-        self.store.remove(prj)
+        self.store.delete(prj)
 
         self.redirect('/')
 
@@ -211,9 +214,9 @@ class PipelineController(Controller):
 
     def validate_pipe_definition(self, pipeline_definition):
         errors = []
-        all_projects = dict([(project.name, project) for project in self.store.query(Project).all()])
+        all_projects = dict([(project.name.lower(), project) for project in self.store.query(Project).all()])
 
-        pipeline_items = [item.strip().lower() for item in pipeline_definition.split(">")]
+        pipeline_items = [item.strip().lower() for item in pipeline_definition.lower().split(">")]
 
         for index, pipeline_item in enumerate(pipeline_items):
             key = pipeline_item
