@@ -32,6 +32,12 @@ class IndexController(Controller):
         projects = self.store.query(Project).all()
         return self.render_template("mini.html", projects=projects)
 
+    @route("/twocolumns")
+    def mini(self):
+        projects = self.store.query(Project).all()
+        return self.render_template("twocolumns.html", projects=projects)
+
+
 class ProjectController(Controller):
 
     @route("/project/new")
