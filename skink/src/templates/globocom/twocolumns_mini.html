@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block title %}Two Columns projects view{% endblock %}
+
+{% block extrahead %}
+        {{ super() }}
+        
+        <style>
+            body { background-color:#323232;}
+            .btn_default, h1, #views_icon, .header, .footer, #currently_building {display:none; }
+            #currently_building {border:0 none; color:#333333; font-size:0; height:0; margin:0; padding:0; width:0;}
+            .content {margin:10px 0 0 0; padding:0; width:100%;}
+
+            .email, .comments_detail, .comments {display:none;}
+            .project { width: 420px; float:left; margin: 1px 5px 10px;}
+            .title { width: 300px; margin:14px 0 0 0;}
+            .photo_project {margin: 6px 4px 0 0;}
+        </style>
+{% endblock %}

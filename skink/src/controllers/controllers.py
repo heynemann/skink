@@ -27,15 +27,15 @@ class IndexController(Controller):
         projects = self.store.query(Project).all()
         return self.render_template("index.html", projects=projects, at="projects")
 
-    @route("/mini")
-    def mini(self):
-        projects = self.store.query(Project).all()
-        return self.render_template("mini.html", projects=projects)
-
     @route("/twocolumns")
-    def mini(self):
+    def twocolumns(self):
         projects = self.store.query(Project).all()
-        return self.render_template("twocolumns.html", projects=projects)
+        return self.render_template("twocolumns.html", projects=projects, at="projects")
+
+    @route("/threecolumns")
+    def threecolumns(self):
+        projects = self.store.query(Project).all()
+        return self.render_template("threecolumns.html", projects=projects, at="projects")
 
 
 class ProjectController(Controller):
@@ -156,9 +156,6 @@ class BuildController(Controller):
     def current_build_report(self, **data):
         return self.render_template("current_build.html")
 
-    @route("/currentbuild_mini")
-    def current_build_report_mini(self, **data):
-        return self.render_template("current_build_mini.html")
 
     @route("/currentstatus")
     def current_status(self, **data):
@@ -244,3 +241,27 @@ class PipelineController(Controller):
         self.store.delete(pipeline)
 
         self.redirect('/pipeline')
+        
+        
+class MiniController(Controller):
+    
+    @route("/mini/")
+    def mini(self):
+        projects = self.store.query(Project).all()
+        return self.render_template("mini.html", projects=projects, page="index")
+
+    @route("/mini/currentbuild")
+    def current_build_report_mini(self, **data):
+        return self.render_template("current_build_mini.html")
+            
+    @route("/mini/twocolumns")
+    def twocolumns(self):
+        projects = self.store.query(Project).all()
+        return self.render_template("twocolumns_mini.html", projects=projects)
+
+    @route("/mini/threecolumns")
+    def threecolumns(self):
+        projects = self.store.query(Project).all()
+        return self.render_template("threecolumns_mini.html", projects=projects)
+            
+            

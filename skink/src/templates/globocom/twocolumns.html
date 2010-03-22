@@ -1,14 +1,14 @@
 {% extends "index.html" %}
 
-{% block title %}Mini{% endblock %}
+{% block title %}Two Columns projects view{% endblock %}
 
 {% block extrahead %}
         {{ super() }}
         
         <style>
-            .title {width:300px;margin:14px 0 0 0;}
             .email, .comments_detail, .comments {display:none;}
-            .project { width: 420px; float:left; margin: 1px 5px 10px;}
-            .title { width: 288px; margin:14px 0 0 5px;}
+            .project { width: 420px; float:left; margin: 0px 10px 10px 0px;}
+            .title { width: 300px; margin:14px 0 0 0;}
+            .photo_project {margin: 6px 4px 0 0;}
         </style>
 {% endblock %}
