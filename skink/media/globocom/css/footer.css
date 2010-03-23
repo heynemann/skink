@@ -9,17 +9,13 @@
 
 .footer p {
 	color:#999;
-	font-family:arial, sans-serif;
-	font-size:16px;
-	font-style:normal;
+	font:normal 16px Arial, Sans-serif;
 	letter-spacing:-1px;
 }
 
 .template {
 	color:#999;
-	font-family:arial, sans-serif;
-	font-size:11px;
-	font-style:normal;
+	font:normal 11px Arial, Sans-serif;
 }
 
 .template a {
@@ -29,5 +25,4 @@
 
 .template a:hover {
 	color:#ccc;
-	text-decoration:underline;
 }

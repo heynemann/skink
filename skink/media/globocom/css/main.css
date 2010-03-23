@@ -67,7 +67,7 @@
 
 
 .build_Successful {
-	background: transparent url(/media/globocom/img/successful-small.png) 5px 2px no-repeat;
+	background: transparent url(/media/globocom/img/successful-small.png) 2px 6px no-repeat;
 }
 
 .build_Successful h2 {
@@ -76,7 +76,7 @@
 }
 
 .build_Failed {
-	background: transparent url(/media/globocom/img/failed-small.png) 5px 2px no-repeat;
+	background: transparent url(/media/globocom/img/failed-small.png) 2px 6px no-repeat;
 }
 
 .build_Failed h2 {
@@ -357,6 +357,7 @@
 	overflow:hidden;
 	width:360px;
 	white-space:nowrap;
+	height: 50px;
 }
 
 .icon{

@@ -20,10 +20,9 @@ ul#navigation li.one, ul#navigation li.two {
 ul#navigation li.one a, ul#navigation li.two a {
 	color:#fff;
 	display:block;
-	font-family:arial, sans-serif;
-	font-size:16px;
-	font-weight:bold;
+	font:bold 16px Arial, Sans-serif;
 	height:31px;
+	letter-spacing:-1px;
 	text-decoration:none;
 }
 
@@ -33,10 +32,9 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 
 .login {
 	float:right;
-	margin:0;
+	height:23px;
 	padding:0;
 	margin-top:8px;
-	height:23px;
 }
 
 .login a {
@@ -56,26 +54,22 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 .text_login {
 	color:#ccc;
 	float:left;
-	font-family:arial, sans-serif;
-	font-size:11px;
-	font-weight:bold;
-	margin-right:6px;
-	margin-top:4px;
+	font:bold 11px Arial, Sans-serif;
+	margin: 4px 6px 0 0;
 }
 
 .textarea_login {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
-	background:transparent url('/media/globocom/img/bg_form.png') repeat-x;
+	background:transparent url('/media/globocom/img/bg_form_login.png') repeat-x;
 	border:solid 0px #191919;
 	color:#ccc;
 	float:left;
-	font-size:11px;
-	font-family:arial, sans-serif;
-	padding:4px 0 0 5px;
-	margin-right:4px;
-	width:134px;
+	font:11px Arial, Sans-serif;
 	height:19px;
+	margin-right:4px;
+	padding:4px 0 0 5px;
+	width:134px;
 }
 
 .button {
