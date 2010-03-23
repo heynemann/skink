@@ -27,7 +27,7 @@ ul#navigation li.one a, ul#navigation li.two a {
 }
 
 ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.two a:hover, ul#navigation li.two a.active {
-	background:transparent url(/media/globocom/img/arrow-menu.png) center 25px no-repeat;
+	background:transparent url('/media/globocom/img/arrow-menu.png') center 25px no-repeat;
 }
 
 .login {
@@ -61,7 +61,7 @@ ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.tw
 .textarea_login {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
-	background:transparent url('/media/globocom/img/bg_form_login.png') repeat-x;
+	background:transparent url('/media/globocom/img/bg_form.png') repeat-x;
 	border:solid 0px #191919;
 	color:#ccc;
 	float:left;
