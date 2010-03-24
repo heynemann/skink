@@ -658,3 +658,13 @@
     color: #990000;
 }
 
+.with_errors {
+    color: red;
+    font-size:14px;
+}
+
+
+#project_hint span:hover{
+    cursor:pointer;
+    text-decoration:underline;
+}

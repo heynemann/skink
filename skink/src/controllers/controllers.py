@@ -25,17 +25,17 @@ class IndexController(Controller):
     @route("/")
     def index(self):
         projects = self.store.query(Project).all()
-        return self.render_template("index.html", projects=projects, at="projects")
+        return self.render_template("index.html", projects=projects)
 
     @route("/twocolumns")
     def twocolumns(self):
         projects = self.store.query(Project).all()
-        return self.render_template("twocolumns.html", projects=projects, at="projects")
+        return self.render_template("twocolumns.html", projects=projects)
 
     @route("/threecolumns")
     def threecolumns(self):
         projects = self.store.query(Project).all()
-        return self.render_template("threecolumns.html", projects=projects, at="projects")
+        return self.render_template("threecolumns.html", projects=projects)
 
 
 class ProjectController(Controller):
@@ -172,7 +172,9 @@ class PipelineController(Controller):
     @route("/pipeline", priority=5)
     def index(self):
         pipelines = self.store.query(Pipeline).all()
-        return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=None, at="pipelines")
+        projects = self.store.query(Project).all()
+        
+        return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=None)
 
     @route("/pipeline/create")
     def create(self, name, pipeline_definition):
@@ -186,14 +188,18 @@ class PipelineController(Controller):
             self.redirect("/pipeline")
         except (ProjectNotFoundError, CyclicalPipelineError), err:
             pipelines = self.store.query(Pipeline).all()
-            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=[err.message,])
+            projects = self.store.query(Project).all()
+            
+            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=[err.message,])
 
     @route("/pipeline/:id", priority=1)
     def edit(self, id):
         pipeline_id = int(id)
         pipelines = self.store.query(Pipeline).all()
         pipeline = self.store.query(Pipeline).get(pipeline_id)
-        return self.render_template("pipeline_index.html", pipeline=pipeline, pipelines=pipelines, errors=None)
+        projects = self.store.query(Project).all()
+        
+        return self.render_template("pipeline_index.html", pipeline=pipeline, pipelines=pipelines, projects=projects, errors=None)
 
     @route("/pipeline/:id/update")
     def update(self, id, name, pipeline_definition):
@@ -203,7 +209,9 @@ class PipelineController(Controller):
         errors = self.validate_pipe_definition(pipeline_definition)
         if errors:
             pipelines = self.store.query(Pipeline).all()
-            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, errors=errors)
+            projects = self.store.query(Project).all()
+            
+            return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=errors)
 
         pipeline.name = name
 
@@ -248,7 +256,7 @@ class MiniController(Controller):
     @route("/mini/")
     def mini(self):
         projects = self.store.query(Project).all()
-        return self.render_template("mini.html", projects=projects, page="index")
+        return self.render_template("mini.html", projects=projects)
 
     @route("/mini/currentbuild")
     def current_build_report_mini(self, **data):

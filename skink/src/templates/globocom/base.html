@@ -18,17 +18,26 @@
             $(function(){
                 document.authenticated = '{{ user }}' != '';
             });
+            $(document).ready(function() {
+                if (window.location.href.indexOf("pipeline") > 0){
+                    $('#navprojects').removeClass("active");
+                    $('#navpipelines').addClass('active');
+                } else {
+                    $('#navprojects').addClass("active");
+                    $('#navpipelines').removeClass('active');
+                }
+            });
         </script>
         {% block extrahead %}{% endblock %}
     </head>
     <body>
-        <div class="wrapper">           
+        <div class="wrapper">
             <div class="header">
                 <div class="container_12">
                     <div class="grid_12">
                         <ul id="navigation">
-                            <li class="one"><a {% if at == "projects"  %}class="active"{% endif %} href="/">Projects</a></li>
-                            <li class="two"><a {% if at == "pipelines" %}class="active"{% endif %} href="/pipeline">Pipelines</a></li>
+                            <li class="one"><a id="navprojects" href="/">Projects</a></li>
+                            <li class="two"><a id="navpipelines" href="/pipeline">Pipelines</a></li>
                         </ul>                   
                         <div class="login">
                             {% if user %}

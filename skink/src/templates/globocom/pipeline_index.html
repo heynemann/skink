@@ -3,8 +3,24 @@
 {% block title %}Pipelines{% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="/media/common/script/lib/css/redmond/jquery-ui-1.7.1.custom.css" type="text/css" media="screen" title="default css" charset="utf-8" />
+    {{ super() }}
     <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
+    
+    <script>
+     $( document ).ready( function() { 
+        $('#project_hint span').bind('click',  function(){
+            pipeline_definition = $('#pipeline_definition').val();
+            if (pipeline_definition  == ""){
+                $('#pipeline_definition').val($(this).text());
+                
+            }else{
+                $('#pipeline_definition').val(pipeline_definition + " > " + $(this).text());
+            }
+            
+            return false;
+        });
+    });
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -29,7 +45,7 @@
                 {% endif %}
                 
 				<h4>{% if pipeline %}Edit the "{{ pipeline.name }}" Pipeline{% else %}Create a new Pipeline{% endif %}:</h4>
-				<form class="frm_newpipeline" method="post" action="/pipeline/{% if pipeline %}{{ pipeline.id }}/update{% else %}create{% endif %}">
+				<form class="frm_newpipeline" id="frm_newpipeline" method="post" action="/pipeline/{% if pipeline %}{{ pipeline.id }}/update{% else %}create{% endif %}">
 					<fieldset>
 						<legend>New Pipeline</legend>
 						<h6>Name</h6>
@@ -37,6 +53,11 @@
 						<input class="input_gray" id="name" name="name" type="text"  value="{{ pipeline.name }}"  />
 						<h6>Definition</h6>
 						<label for="definition"></label>
+						<div id="project_hint">
+						    {% for project in projects %}
+						        <span>{{ project.name }}</span> |
+						    {% endfor %}
+						</div>
 						<input class="input_gray" id="pipeline_definition" name="pipeline_definition" type="text"  value="{% if pipeline %}{{ pipeline }}{% endif %}"  />	
 						<button class="btn_default" type="submit">{% if pipeline %}Update{% else %}Create{% endif %}</button>
 					</fieldset>			
