@@ -141,7 +141,8 @@
 	border:solid 1px #ccc;
 	height:400px;
   	margin-top:5px;
-  	overflow:scroll;
+  	overflow-y:scroll;
+  	overflow-x:hidden;
 	padding:10px;
 	width:870px;
 	color:#DDD;
