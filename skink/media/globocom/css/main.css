@@ -491,7 +491,41 @@
 
 #views_icon li {
 	display:inline;
-	margin-left:5px;
+}
+
+#views_icon ul li.one_column a {
+    background:transparent url(/media/globocom/img/views.png) no-repeat scroll 0 -23px;
+    float:left;
+    height:20px;
+    width:23px;
+}
+
+#views_icon ul li.one_column a:hover, #views_icon ul li.one_column a.active {
+    background-position: 0 0;
+}
+
+#views_icon ul li.two_columns a {
+    background:transparent url(/media/globocom/img/views.png) no-repeat scroll -24px 0;
+    float:left;
+    height:20px;
+    margin-left:10px;
+    width:24px;
+}
+
+#views_icon ul li.two_columns a:hover, #views_icon ul li.two_columns a.active {
+    background-position: -24px -23px;
+}
+
+#views_icon ul li.three_columns a {
+    background:transparent url(/media/globocom/img/views.png) no-repeat scroll -49px 0;
+    float:left;
+    height:20px;
+    margin-left:10px;
+    width:23px;
+}
+
+#views_icon ul li.three_columns a:hover, #views_icon ul li.three_columns a.active {
+    background-position: -49px -46px;
 }
 
 .nav01

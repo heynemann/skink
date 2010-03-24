@@ -4,10 +4,18 @@
 
 {% block extrahead %}
         {{ super() }}
-        
+
         <style>
             .email, .comments_detail, .comments, .photo_project {display:none;}
             .project { width: 264px; float:left; margin: 0px 5px 10px 5px;}
             .title { width: 190px; margin:14px 0 0 0;}
         </style>
+
+        <script>
+            $(document).ready(function() {
+                $('#onecolumn').removeClass("active");
+                $('#twocolumns').removeClass('active');
+                $('#threecolumns').addClass("active");
+            });
+        </script>
 {% endblock %}
