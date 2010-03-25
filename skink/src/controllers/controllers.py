@@ -19,6 +19,7 @@ import skink.lib
 from ion.controllers import Controller, route, authenticated
 from skink.src.models import *
 import demjson
+import template_filters
 
 class IndexController(Controller):
 
@@ -139,6 +140,7 @@ class BuildController(Controller):
             result['id'] = project.id
             result['name'] = project.name
             
+            
             if project.id in projects_being_built:
                 result['execution_status'] = "BUILDING"
             else:
@@ -146,6 +148,15 @@ class BuildController(Controller):
                 
             if project.last_build is not None:
                 result['status'] = project.last_build.status
+                result['author'] = project.last_build.commit_author
+                result['email'] = template_filters.email(project.last_build.commit_author)
+                result['gravatar'] = template_filters.gravatar(project.last_build.commit_author)
+                
+                commit_text = project.last_build.commit_text[:50] 
+                if len(project.last_build.commit_text) > 50:
+                    commit_text = commit_text + "..."
+                
+                result['commit_text'] = commit_text
             else:
                 result['status'] = 'UNKNOWN'
                     

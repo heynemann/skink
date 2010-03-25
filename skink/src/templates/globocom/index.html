@@ -44,7 +44,7 @@
                                 <div class="comments">{{ project.last_build.commit_text[:50] }}{% if project.last_build.commit_text|length > 50 %}...{% endif %}</div>
                                 <div class="comments_detail"></div>
                                 <div class="photo_project"><img src="{{ project.last_build.commit_author|gravatar }}?s=52"/></div>
-                                <div class="email"><p>{{ project.last_build.commit_author }} <br /><span>({{ project.last_build.commit_author|email }})</span></p></div>
+                                <div class="email"><p>{{ project.last_build.commit_author }} <br /><span>{{ project.last_build.commit_author|email }}</span></p></div>
                             {% endif %}
                         </div>                        
                         {% endfor %}

@@ -354,6 +354,11 @@
 	padding:9px 20px 40px 17px;
 }
 
+.project .title a {
+	text-decoration:none;
+	color:#ccc;
+}
+
 .project .title a:hover {
 	text-decoration:underline;
 }
@@ -467,6 +472,8 @@
 .photo_project {
 	float:left;
 	margin:6px 15px 0 0;
+	height:52px;
+    width:52px;
 }
 
 .email {
