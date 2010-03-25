@@ -594,10 +594,10 @@
 }
 
 #no_current_builds {
-    font-size:18px;
+    font-size:25px;
     text-align:center;
     font-weight:bold;
-    color:333;
+    color:#DDD;
 }
 
 #current_project, #current_project a {
