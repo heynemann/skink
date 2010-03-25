@@ -29,7 +29,7 @@ function query_status(){
 
                 $project_div = $('#project_' + project_id);
 
-                $project_div.find(".photo_project").html("<img src=\""+author_photo+"?s=52/>");
+                $project_div.find(".photo_project").html("<img src=\""+author_photo+"?s=52\"/>");
                 $project_div.find(".email").html("<p>" + author_name + "<br /><span>"  + author_email + "</span></p>");
                 $project_div.find(".comments").html(commit_text);
                 
