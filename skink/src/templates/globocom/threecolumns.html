@@ -6,9 +6,17 @@
         {{ super() }}
 
         <style>
-            .email, .comments_detail, .comments, .photo_project {display:none;}
-            .project { width: 264px; float:left; margin: 0px 5px 10px 5px;}
-            .title { width: 190px; margin:14px 0 0 0;}
+            .email {margin-top:5px;}
+            .email p {white-space:nowrap;}
+            .photo_project, .email p span  {display:none;}
+            .project {background:transparent url(/media/globocom/img/bg_three_columns.jpg) repeat-x scroll 0 0; float:left; height:100px; margin: 0px 5px 10px 5px; width: 264px;}
+            .title {font-size:23px; margin:0; width: 215px;}
+            .icon {float:left; height:30px; margin-top:8px; margin-right:10px; width:30px;}
+            .comments {-moz-border-radius-topleft:8px; -moz-border-radius-topright:8px; -moz-border-radius-bottomleft:0; border-top:1px solid #cdcdcd; border-left:1px solid #cdcdcd; border-right:1px solid #cdcdcd; border-bottom:0; margin-top:-10px; padding:6px 12px 6px 15px; width:240px;}
+            .comments_detail {background: url(/media/globocom/img/bg_comments_detail.png) no-repeat scroll 0 0; float:left; height:15px; width:270px;}
+            .Successful .icon {background: url(/media/globocom/img/successful-small.png) no-repeat scroll 0 0;}
+            .Building .icon {background: url(/media/globocom/img/refresh-small.png) no-repeat scroll 0 0;}
+            .Failed .icon {background: url(/media/globocom/img/failed-small.png) no-repeat scroll 0 0;}
         </style>
 
         <script>
