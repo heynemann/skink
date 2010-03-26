@@ -109,8 +109,6 @@
 	font-size:10px;
 }
 
-
-
 .comments_build {
 	-moz-border-radius:10px;
 	-webkit-border-radius:10px;
@@ -434,11 +432,9 @@
 	text-decoration:none;
 }
 
-
 .Failed .icon{
 	background: url(/media/globocom//img/failed.png) no-repeat;
 }
-
 
 .comments {
 	-moz-border-radius-bottomleft:8px;

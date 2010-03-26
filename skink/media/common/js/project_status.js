@@ -41,6 +41,7 @@ function query_status(){
                     $('#currently_building').show()
                 }
                 if (project_execution_status == 'BUILT') {
+                    $project_div.removeClass('Building')
                     $project_div.addClass(project_status)
                     
                 }
