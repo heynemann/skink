@@ -59,54 +59,50 @@
     float:left;
     width:513px;
     overflow:hidden;
-    padding:10px 12px 12px 15px;
+    padding:10px 12px 12px 3px;
     height:44px;
     margin-top: 7px;
 }
 
-
-
-.build_Successful {
-	background: transparent url(/media/globocom/img/successful-small.png) 2px 6px no-repeat;
-}
-
-.build_Successful h2 {
-	color:#66cc00;
-	margin:1px 0 0 41px;
-}
-
-.build_Failed {
-	background: transparent url(/media/globocom/img/failed-small.png) 2px 6px no-repeat;
-}
-
-.build_Failed h2 {
-	color:#ce3201;
-	margin:1px 0 0 41px;
-}
-
-.build_Building {
-	background: transparent url(/media/globocom/img/refresh-small.gif) 2px 6px no-repeat;
-}
-
-.build_Building h2 {
-	color:#ce3201;
-	margin:1px 0 0 41px;
-}
-
-.build_Successful p, .build_Failed p, .build_Building p {
+.build p {
 	float:left;
-	margin-top:2px;
+	margin-top:5px;
 	width:100%;
+    color:#666;
 }
 
-.build_Successful p strong, .build_Failed p strong, .build_Building p strong {
+.build p strong {
 	font-size:10px;
 	font-weight:bold;
 }
 
-.build_Successful span, .build_Failed span, .build_Building span {
+.build span {
 	color:#8c8c8c;
 	font-size:10px;
+}
+
+.build h2 {
+	margin:1px 0 0 41px;
+}
+
+.build.Successful {
+	background: transparent url(/media/globocom/img/successful-small.png) 2px 6px no-repeat;
+	border: none;
+}
+
+.build.Failed {
+	background: transparent url(/media/globocom/img/failed-small.png) 2px 6px no-repeat;
+	border: none;
+}
+
+.build.Building {
+	background: transparent url(/media/globocom/img/refresh-small.gif) 2px 2px no-repeat;
+	border: none;
+}
+
+.build.UNKNOWN {
+	background: transparent url(/media/globocom/img/unknown-small.png) 2px 2px no-repeat;
+	border: none;
 }
 
 .comments_build {
@@ -350,11 +346,11 @@
 	width:900px;
 	margin:0px 0 10px 0;
 	padding:9px 20px 40px 17px;
+	color:#CCC;
 }
 
 .project .title a {
 	text-decoration:none;
-	color:#ccc;
 }
 
 .project .title a:hover {
@@ -362,7 +358,6 @@
 }
 
 .title {
-	color:#ccc;
 	font-size:28px;
 	font-weight:bold;
 	float:left;
@@ -379,8 +374,25 @@
 	height:60px;
 }
 
+.Successful {
+	border:solid 1px #669900;
+	color:#669900;
+}
+
+.Successful a {
+	color:#669900;
+}
+
+.Successful .icon {
+	background: url(/media/globocom//img/successful.png) no-repeat;
+}
+
 .Building {
 	border:solid 1px #ccc;
+	color:#666;
+}
+
+.Building a {
 	color:#666;
 }
 
@@ -388,52 +400,31 @@
     background: url(/media/globocom//img/refresh.gif) no-repeat;
 }
 
-.Building img, .Successful img, .Failed img, .UNKNOWN img {
-	float:left;
-}
-
-.Building .title a {
-    color:#333;
-	text-decoration:none;
-}
-
-.Successful {
-	border:solid 1px #669900;
-	color:#669900;
-}
-
-.Successful .title a {
-	color:#60b011;
-	text-decoration:none;
-}
-
-
-.Successful .icon {
-	background: url(/media/globocom//img/successful.png) no-repeat;
-}
-
 .Failed {
 	border:solid 1px #cc3300;
 	color:#cc3300;
 }
+
+.Failed a {
+	color:#cc3300;
+}
+
+.Failed .icon{
+	background: url(/media/globocom//img/failed.png) no-repeat;
+}
+
 
 .UNKNOWN {
 	border:solid 1px #CCC;
 	color:#CCC;
 }
 
-.Failed .title a {
-	color:#ce3201;
-	text-decoration:none;
-}
-
-.UNKNOWN .title a {
+.UNKNOWN a {
 	color:#CCC;
-	text-decoration:none;
 }
 
-.Failed .icon{
-	background: url(/media/globocom//img/failed.png) no-repeat;
+.UNKNOWN .icon{
+	background: url(/media/globocom//img/unknown.png) no-repeat;
 }
 
 .comments {
@@ -541,23 +532,6 @@
     background-position: -49px -46px;
 }
 
-.nav01
-{
-    background: url(/media/globocom/img/icon-views-1.jpg) no-repeat 0 0;
-    display:inline;
-}
-
-.nav02
-{
-    background: url(/media/globocom/img/icon-views-2.jpg) no-repeat 0 0;
-    display:inline;
-}
-
-.nav03
-{
-    background: url(/media/globocom/img/icon-views-3.jpg) no-repeat 0 0;
-    display:inline;
-}
 
 #del_project {
 	background-color:#fff;
