@@ -25,6 +25,8 @@
     
 	<!-- end .grid_12 -->
 	<div class="grid_12">
+	    <div id="currently_building"></div>
+	    
 		<div class="build {{ build.status }}" id="project_{{ project.id }}" >
 			<h2>Build {%if build.commit_number %}{{ build.commit_number[:7] }}{%endif%} {% if build.status == "Successful" %}succeeded{% else %}failed{% endif %}</h2>
 			<p class="info">#{{ build.commit_number }}</p>
