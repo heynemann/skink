@@ -100,7 +100,7 @@
 	border: none;
 }
 
-.build.UNKNOWN {
+.build.UNKNOWN, .build.Unknown {
 	background: transparent url(/media/globocom/img/unknown-small.png) 2px 2px no-repeat;
 	border: none;
 }
@@ -135,9 +135,8 @@
 	border:solid 1px #ccc;
 	height:400px;
   	margin-top:5px;
-  	overflow-y:scroll;
-  	overflow-x:hidden;
-	padding:10px;
+  	overflow:scroll;
+  	padding:10px;
 	width:870px;
 	color:#DDD;
 	font-size:12px;
@@ -183,7 +182,7 @@
 	font-weight:bold;
 }
 
-.UNKNOWN .build_title {
+.UNKNOWN .build_title, .Unknown .build_title {
    	color:#CCC; 
     font-size:18px;
 	font-weight:bold;
@@ -414,16 +413,16 @@
 }
 
 
-.UNKNOWN {
+.UNKNOWN, .Unknown {
 	border:solid 1px #CCC;
 	color:#CCC;
 }
 
-.UNKNOWN a {
+.UNKNOWN a, .Unknown a {
 	color:#CCC;
 }
 
-.UNKNOWN .icon{
+.UNKNOWN .icon, .Unknown .icon{
 	background: url(/media/globocom//img/unknown.png) no-repeat;
 }
 

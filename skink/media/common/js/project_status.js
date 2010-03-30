@@ -29,10 +29,15 @@ function query_status(){
 
                 $project_div = $('#project_' + project_id);
 
-                $project_div.find(".photo_project").html("<img src=\""+author_photo+"?s=52\"/>");
-                $project_div.find(".email").html("<p>" + author_name + "<br /><span>"  + author_email + "</span></p>");
-                $project_div.find(".comments").html(commit_text);
-                
+                if (project_status == 'UNKNOWN') {
+                    $project_div.find(".photo_project").html("<img src=\"/media/globocom/img/skink52x52.jpg\"/>");
+                    $project_div.find(".email").html("<p>Skink ci <br /><span>&nbsp;</span></p>");
+                    $project_div.find(".comments").html("Project " + project_name + ". <br \> No builds happened so far.");
+                } else { 
+                    $project_div.find(".photo_project").html("<img src=\""+author_photo+"?s=52\"/>");
+                    $project_div.find(".email").html("<p>" + author_name + "<br /><span>"  + author_email + "</span></p>");
+                    $project_div.find(".comments").html(commit_text);
+                }
                 
                 if (project_execution_status == 'BUILDING') {
                     $project_div.removeClass(project_status);
@@ -40,6 +45,7 @@ function query_status(){
                     $('#currently_building').html('Currently building project ' + project_name + '. <a href="/currentbuild">[more info]</a>');
                     $('#currently_building').show()
                 }
+                
                 if (project_execution_status == 'BUILT') {
                     $project_div.removeClass('Building')
                     $project_div.addClass(project_status)
