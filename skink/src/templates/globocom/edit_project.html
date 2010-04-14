@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Project - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container_12">
+	<div class="grid_12">
+		<h1><a href="/project/{{ project.id }}">{{ project.name }}</a></h1>
+		<hr />
+	</div>
+	<!-- end .grid_12 -->
+	<div class="grid_6">
+			<form method="post" action="update">
+				<fieldset>
+					<legend>Editing {{ project.name }}</legend>
+
+                    <h6>Name</h6>
+                    <input class="input_gray" id="name" name="name" type="text" value="{{ project.name }}" />
+					
+					<h6>Git repository</h6>
+					<label for="scm_repository"></label>
+					<input class="input_gray" id="scm_repository" name="scm_repository" type="text" value="{{ project.scm_repository }}" />
+
+					<h6>Build script</h6>
+					<input class="input_gray" id="build_script" name="build_script" type="text" value="{{ project.build_script }}" />
+
+                    <h6><input name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?</h6>
+					
+					<button class="btn_default" type="submit">Update</button>
+				</fieldset>
+			</form>	
+		</div>
+</div>
+{% endblock %}
+

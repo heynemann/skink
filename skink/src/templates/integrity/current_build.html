@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Current Build{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/current_build.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div id="no_current_builds">There are currently no projects being built.</div>
+    
+    <div id="current_builds">
+        <div>Project: <span id="current_project"></span></div>
+        <div>Command: <span id="current_command"></span></div>
+        <span id="current_log"></span>
+    </div>
+{% endblock %}

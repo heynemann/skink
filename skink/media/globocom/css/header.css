@@ -1,0 +1,89 @@
+.header {
+	background-color:#2c2c2c;
+	height:40px;
+	margin-bottom:45px;
+}
+
+ul#navigation {
+	float:left;
+	height:28px;
+	margin-top:11px;
+	width:250px;
+}
+
+ul#navigation li.one, ul#navigation li.two {
+	display:inline;
+	float:left;
+	margin-right:30px;
+}
+
+ul#navigation li.one a, ul#navigation li.two a {
+	color:#fff;
+	display:block;
+	font:bold 16px Arial, Sans-serif;
+	height:31px;
+	letter-spacing:-1px;
+	text-decoration:none;
+}
+
+ul#navigation li.one a:hover, ul#navigation li.one a.active, ul#navigation li.two a:hover, ul#navigation li.two a.active {
+	background:transparent url('/media/globocom/img/arrow-menu.png') center 25px no-repeat;
+}
+
+.login {
+	float:right;
+	height:23px;
+	padding:0;
+	margin-top:8px;
+}
+
+.login a {
+	color:#ccc;
+	text-decoration:none;		
+}
+
+.login .username {
+	font-size: 18px;
+	margin-right:10px;		
+}
+
+.login a:hover {
+	text-decoration:underline;		
+}
+
+.text_login {
+	color:#ccc;
+	float:left;
+	font:bold 11px Arial, Sans-serif;
+	margin: 4px 6px 0 0;
+}
+
+.textarea_login {
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	background:transparent url('/media/globocom/img/bg_form.png') repeat-x;
+	border:solid 0px #191919;
+	color:#ccc;
+	float:left;
+	font:11px Arial, Sans-serif;
+	height:19px;
+	margin-right:4px;
+	padding:4px 0 0 5px;
+	width:134px;
+}
+
+.button {
+	background: url('/media/globocom/img/button.png') no-repeat 0 0;
+	border:0;
+	height:28px;
+	margin-left:6px;
+	width:27px;
+}
+
+.button:active {
+	background: url('/media/globocom/img/button.png') no-repeat scroll -56px 0;
+}
+
+.button:hover {
+	background: url('/media/globocom/img/button.png') no-repeat scroll -28px 0;
+}

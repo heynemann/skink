@@ -1,0 +1,26 @@
+{% extends "index.html" %}
+
+{% block title %}Three Columns projects view{% endblock %}
+
+{% block extrahead %}
+        {{ super() }}
+        
+        <style>
+            body { background-color:#323232;}
+            .btn_default, h1, #views_icon, .header, .footer, #currently_building {display:none; }
+            #currently_building {border:0 none; color:#333333; font-size:0; height:0; margin:0; padding:0; width:0;}
+            .content {margin:10px 0 0 0; padding:0; width:100%;}
+
+            .email {margin-top:5px;}
+            .email p {white-space:nowrap;}
+            .photo_project, .email p span  {display:none;}
+            .project {background:transparent url(/media/globocom/img/bg_three_columns.jpg) repeat-x scroll 0 0; float:left; height:100px; margin: 0px 5px 10px 5px; width: 264px;}
+            .title {font-size:23px; margin:0; width: 215px;}
+            .icon {float:left; height:30px; margin-top:8px; margin-right:10px; width:30px;}
+            .comments {-moz-border-radius-topleft:8px; -moz-border-radius-topright:8px; -moz-border-radius-bottomleft:0; border-top:1px solid #cdcdcd; border-left:1px solid #cdcdcd; border-right:1px solid #cdcdcd; border-bottom:0; margin-top:-10px; padding:6px 12px 6px 15px; width:240px;}
+            .comments_detail {background: url(/media/globocom/img/bg_comments_detail.png) no-repeat scroll 0 0; float:left; height:15px; width:270px;}
+            .Successful .icon {background: url(/media/globocom/img/successful-small.png) no-repeat scroll 0 0;}
+            .Building .icon {background: url(/media/globocom/img/refresh-small.gif) no-repeat scroll -2px -4px;}
+            .Failed .icon {background: url(/media/globocom/img/failed-small.png) no-repeat scroll 0 0;}
+        </style>
+{% endblock %}

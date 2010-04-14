@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Current Build{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/current_build.js"></script>
+        
+        <style>
+            html{background-color:#111}
+            a{text-decoration:none;color:#C0C0C0;}
+            #current_builds, 
+            #no_current_builds, 
+            #current_project, 
+            #current_command {
+                margin 5px;
+                background-color:#111;
+                color:#C0C0C0;
+                text-align:center;
+                font-size:22px;
+                height:60px;
+                margin-top:10px;
+            }
+                
+            #current_log {
+                font-size:18px;
+                text-align:left;
+            }
+                
+            #header, #footer {display:none;}
+            #content {margin:0;padding:0;width:100%}
+        </style>
+{% endblock %}
+
+{% block content %}
+    <div id="no_current_builds">There are currently no projects being built.</div>
+    
+    <div id="current_builds">
+        <span id="current_project"></span>: <span id="current_command"></span>
+        <div id="current_log"></div>
+        <div id="focus" onload="this.focus()"></div>
+    </div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Project {{ project.name }}{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/project_status.js"></script>
+        <script src="/media/integrity/js/project_details.js"></script>
+{% endblock %}
+
+{% block content %}
+    <span class="breadcrumb" style="display:none;">
+        / <a class="integrity_link" href="/project/{{ project.id }}">{{ project.name }}</a>
+    </span>
+    <div id='administrative'>
+        <a class="integrity_link" href='/project/{{ project.id }}/edit'>Edit Project</a> | <a class="integrity_link" id="delete_project" href='/project/{{ project.id }}/delete'>Delete Project</a> | <a class="integrity_link" id="build_project" href="/project/{{ project.id }}/build">Build Project</a> | <a class="integrity_link" id="stop_project" href="/project/{{ project.id }}/stopbuild">Stop Project</a>
+    </div>
+    {% if current_build %}
+        {% set build = current_build %}
+    <div class="{% if build and (build.status == 'Successful') %}success{% else %}failed{% endif %}" id='last_build'>
+        <div>
+            <h1><img src="/media/common/images/accept.png" 
+                 class="project_status" 
+                 title="This project has been built." 
+                 id="build_status_{{ project.id }}" align="absMiddle" />Build {%if build.commit_number %}{{ build.commit_number[:7] }}{% endif %} {% if build.status == "Successful" %}succeeded{% else %}failed{% endif %}</h1>
+
+            <blockquote>
+                <p>{{ build.commit_text|escape }}</p>
+                <p class='meta'><span class='who'>by {{ project.last_build.commit_author }}</span>
+                {% if build.commit_committer_date %}
+                    |
+                    <span class='when' title='{{ build.commit_committer_date }}'>on {{ build.commit_committer_date.strftime("%d/%m/%Y %H:%M") }}</span>
+                {% endif %}
+                <br />
+                <span class='what'># {{ build.commit_number }}</span></p>
+            </blockquote>
+
+            <h2>Build Output:</h2>
+            <div id="current-build-tabs">
+                <ul>
+                    <li><a href="#buildlog" style="font-size:12px;">Build Log</a></li>
+                </ul>
+                <div id="buildlog">
+                    <pre class='output'>{{ build.log }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if not project.last_builds %}
+    <div ">
+        <br />
+        <img class="project_status" src="/media/common/images/error.png" title="This project has never been built." id="build_status_{{ project.id }}" />No builds happened so far.
+    </div>
+    {% endif %}
+    
+    <form action='/project/{{ project.id }}/build' method='post'>
+        <p class='submit manual-build'>
+            <button title='Fetch the last commit and build it' type='submit'>Build the last commit</button>
+            in the repository (or rebuild the latest)
+        </p>
+    </form>
+    
+    <h2>Previous builds</h2>
+    {% if project.last_builds %}
+    <ul id='previous_builds'>
+        {% for build in project.last_builds %}
+        <li class="{% if build.status == 'Successful'%}success{% else %}failed{% endif %}">
+            <a class="integrity_link" href="/project/{{ project.id }}/builds/{{ build.id }}">
+                <strong class='build'>Build {% if build.commit_number %}{{ build.commit_number[:7] }}{% else %}UNKNOWN{% endif %}</strong>
+                <span class='attribution'>by {{ build.commit_author }}, on {% if build.commit_committer_date %}{{ build.commit_committer_date.strftime("%b %d") }}{% endif %}</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p id='previous_builds'>
+        No builds happened so far
+    </p>
+    {% endif %}
+{% endblock %}

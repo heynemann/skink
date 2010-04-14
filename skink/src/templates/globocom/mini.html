@@ -1,0 +1,15 @@
+{% extends "index.html" %}
+
+{% block title %}Mini{% endblock %}
+
+{% block extrahead %}
+        {{ super() }}
+        
+        <style>
+            body { background-color:#323232;}
+            .btn_default, h1, #views_icon, .header, .footer, #currently_building {display:none; }
+            #currently_building {border:0 none; color:#333333; font-size:0; height:0; margin:0; padding:0; width:0;}
+            .content {margin:10px 0 0 0; padding:0; width:100%;}
+            .project {margin: 2px;}
+        </style>
+{% endblock %}

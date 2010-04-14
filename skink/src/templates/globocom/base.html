@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt-br" lang="pt-br">
+    <head>
+        <title>Skink {% block title %}{% endblock %}</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/960.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/header.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/main.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/reset.css" />
+        <link rel="stylesheet" type="text/css" href="/media/globocom/css/text.css" />
+        <link rel="stylesheet" href="/media/common/js/lib/css/smoothness/jquery-ui-1.7.1.custom.css" type="text/css" />
+        <script src="/media/common/js/lib/jquery-min.js"></script>
+        <script src="/media/common/js/lib/jquery-ui.min.js"></script>
+        <script src="/media/common/js/lib/jquery.timers-1.1.2.js"></script>
+        <script src="/media/globocom/js/login.js"></script>
+        <script language="javascript" type="text/javascript">
+            $(function(){
+                document.authenticated = '{{ user }}' != '';
+            });
+            $(document).ready(function() {
+                if (window.location.href.indexOf("pipeline") > 0){
+                    $('#navprojects').removeClass("active");
+                    $('#navpipelines').addClass('active');
+                } else {
+                    $('#navprojects').addClass("active");
+                    $('#navpipelines').removeClass('active');
+                }
+            });
+        </script>
+        {% block extrahead %}{% endblock %}
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="header">
+                <div class="container_12">
+                    <div class="grid_12">
+                        <ul id="navigation">
+                            <li class="one"><a id="navprojects" href="/">Projects</a></li>
+                            <li class="two"><a id="navpipelines" href="/pipeline">Pipelines</a></li>
+                        </ul>                   
+                        <div class="login">
+                            {% if user %}
+                                <span class="username">Welcome {{ user }}</span> <a href="/authentication/logoff"><img src="/media/globocom/img/logout.png"/  alt="click to logout" title="click to logout"></a>
+                            {% else %}
+                            <form method="post" action="/authentication">
+                                <fieldset>
+                                    <legend>Logon</legend>
+                                    <label class="text_login" for="login">Login</label>
+                                    <input name="login" type="text" id="login" class="textarea_login" value="username" onfocus="if(this.value=='username')this.value='';" onblur="if(this.value=='')this.value='username';" />
+                                    <label for="password"></label> 
+                                    <input name="password" id="password" type="password" class="textarea_login" value="password" onfocus="if(this.value=='password')this.value='';" onblur="if(this.value=='')this.value='password';" /> 
+                                    <button type="submit" id="doLogin" class="button"></button>
+                                </fieldset>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- end .grid_12 -->
+                </div>
+                <!-- end .container_12 -->
+            </div>
+            <!-- end .header -->
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+            <div class="footer">
+                <div class="container_12">
+                    <div class="grid_12">
+                        <p>built with Skink ci<p>
+                        <div class="template">template by <a href="http://www.globo.com" target="_blank">globo.com</a></div>
+                    </div>
+                    <!-- end .grid_12 -->
+                </div>
+                <!-- end .container_12 -->
+            </div>
+            <!-- end .footer -->
+        </div>
+    </body>
+</html>

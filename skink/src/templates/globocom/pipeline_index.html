@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Pipelines{% endblock %}
+
+{% block extrahead %}
+    {{ super() }}
+    <script type="text/javascript" language="javascript" src="/media/common/script/Pipeline.js"></script>
+    
+    <script>
+     $( document ).ready( function() { 
+        $('#project_hint span').bind('click',  function(){
+            pipeline_definition = $('#pipeline_definition').val();
+            if (pipeline_definition  == ""){
+                $('#pipeline_definition').val($(this).text());
+                
+            }else{
+                $('#pipeline_definition').val(pipeline_definition + " > " + $(this).text());
+            }
+            
+            return false;
+        });
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container_12">
+		<div class="grid_12">
+			<h1>Pipelines</h1>
+			<hr />
+		</div>
+		<!-- end .grid_12 -->
+		<div class="grid_6">
+			<div class="new_pipeline">
+			    {% if errors %}
+                <h2>
+                    Some errors occurred:<br />
+
+                    {% for error in errors %}
+                    <label class="with_errors">
+                        {{ error }}<br />
+                    </label>
+                    {% endfor %}
+                </h2>
+                {% endif %}
+                
+				<h4>{% if pipeline %}Edit the "{{ pipeline.name }}" Pipeline{% else %}Create a new Pipeline{% endif %}:</h4>
+				<form class="frm_newpipeline" id="frm_newpipeline" method="post" action="/pipeline/{% if pipeline %}{{ pipeline.id }}/update{% else %}create{% endif %}">
+					<fieldset>
+						<legend>New Pipeline</legend>
+						<h6>Name</h6>
+						<label for="name"></label>
+						<input class="input_gray" id="name" name="name" type="text"  value="{{ pipeline.name }}"  />
+						<h6>Definition</h6>
+						<label for="definition"></label>
+						<div id="project_hint">
+						    {% for project in projects %}
+						        <span>{{ project.name }}</span> |
+						    {% endfor %}
+						</div>
+						<input class="input_gray" id="pipeline_definition" name="pipeline_definition" type="text"  value="{% if pipeline %}{{ pipeline }}{% endif %}"  />	
+						<button class="btn_default" type="submit">{% if pipeline %}Update{% else %}Create{% endif %}</button>
+					</fieldset>			
+				</form>
+				<p><strong>Creating Pipelines</strong></p>
+				<p>To create a new Pipeline enter the Pipeline using the following format:<br />Project A > Project A2 > Project A3</p>
+				<p>This means that:<br />ProjectA2 will get built upon ProjectsA's sucess<br />ProjectA3 will get built upon ProjectsA's sucess</p>
+			</div>	
+		</div>
+		<!-- end .grid_6 -->
+		<div class="grid_6">
+			<h4>Existing Pipelines</h4>
+			<div id="subcontent_pipe">
+			    {% for pipeline in pipelines %}
+			        <a href="/pipeline/{{ pipeline.id }}">
+				        <h5>[{{ pipeline.name }}]</h5>
+        			</a>
+        			{{ pipeline }}
+        			
+        			<a href="/pipeline/{{ pipeline.id }}/delete">
+                        <img border="0" align="absMiddle" 
+                                        src="/media/globocom/img/delete.png" 
+                                        alt="Delete Pipeline: {{ pipeline.name }}" 
+                                        title="Delete Pipeline: {{ pipeline.name }}" />
+                    </a>
+    				
+    				<hr />
+    			{% endfor %}
+				
+			</div>
+		</div>
+	</div>
+{% endblock %}

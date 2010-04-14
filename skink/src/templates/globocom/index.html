@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block extrahead %}
+        <script src="/media/common/js/project_status.js"></script>
+        
+        <script>
+            $(document).ready(function() {
+                $('#onecolumn').addClass("active");
+                $('#twocolumns').removeClass('active');
+                $('#threecolumns').removeClass("active");
+            });
+        </script>
+{% endblock %}
+
+{% block content %}
+                <div class="container_12">
+                    <div class="grid_12">
+                        <h1>Projects</h1>
+                        <div id="views_icon">
+                            <ul>
+                                <li class="one_column"><a id="onecolumn" href="/"></a></li>
+                                <li class="two_columns"><a id="twocolumns" href="/twocolumns"></a></li>
+                                <li class="three_columns"><a id="threecolumns" href="/threecolumns"></a></li>
+                            </ul>
+                        </div>
+                        <!-- end .views_icon -->
+                    </div>
+                    <!-- end .grid_12 -->
+                    {% if projects %}   
+                    <div class="grid_12">
+                        <div id="currently_building"></div>
+                        {% for project in projects %}
+                        <div class="project {{ project.build_status }}" id="project_{{ project.id }}">
+                            <div class="icon"></div>
+                            <div class="title"><a href="/project/{{ project.id }}">{{ project.name[:30] }}{% if project.name|length > 30 %}...{% endif %}</a></div>
+                            {% if not project.last_build %}
+                                <div class="comments">Project {{ project.name }}. <br \> No builds happened so far.</div>
+                                <div class="comments_detail"></div>
+                                <div class="photo_project"><img src="/media/globocom/img/skink52x52.jpg"/></div>
+                                <div class="email"><p>Skink ci <br /><span>&nbsp;</span></p></div>
+                            {% else %}
+                                <div class="comments">{{ project.last_build.commit_text[:50] }}{% if project.last_build.commit_text|length > 50 %}...{% endif %}</div>
+                                <div class="comments_detail"></div>
+                                <div class="photo_project"><img src="{{ project.last_build.commit_author|gravatar }}?s=52"/></div>
+                                <div class="email"><p>{{ project.last_build.commit_author }} <br /><span>{{ project.last_build.commit_author|email }}</span></p></div>
+                            {% endif %}
+                        </div>                        
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <!-- end .grid_6 -->
+                    <div class="grid_12">
+                        <form method="get" action="/project/new">
+                            <button class="btn_default" type="submit">Add a new project</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- end .container_12 -->  
+{% endblock %}

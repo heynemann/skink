@@ -1,0 +1,26 @@
+{% extends "current_build.html" %}
+
+{% block title %}Current Build Mini{% endblock %}
+
+{% block extrahead %}
+    {{ super() }}
+    
+    <style>
+        body { background-color:#323232;}
+        .build_log h6, .header, .footer {display:none; }
+        .content {margin:10px 0 0 0 ;padding:0;width:100%}
+        #current_project, #current_project a {color:#FFF; margin-left:14px;}
+        #current_command {margin-left:28px;}
+        .scroll{ font-size:13px;}
+        
+        .scroll, .build_log, .container_12, .grid_12 {
+            overflow: visible;
+            width:100%;
+            margin: 0;
+            border: 0;
+            height: 100%;
+            -moz-border-radius:0px 0px 0px 0px;
+        }
+        
+    </style>
+{% endblock %}

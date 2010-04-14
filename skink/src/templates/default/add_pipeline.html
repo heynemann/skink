@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Pipelines</h1>
+
+<div class="add-pipeline">
+	<h2>New Pipeline</h2>
+	
+	<form class="form-add-pipeline">
+		<p>
+			<label for="name">Name *</label>
+			<input type="text" name="name" />
+		</p>
+		<p>
+			<label for="definition">Definition *</label>
+			<input type="text" name="definition" />
+		</p>
+		<p>
+			<input type="submit" name="create" value="create" />
+		</p>
+	</form>
+	<div class='about-creation-pipelines'>
+		<h3>Creating Pipelines</h3>
+		<p>
+			To create a new Pipeline enter the Pipeline using the following format:
+			<br /> 
+			Project A > ProjectA2 > Project A3
+		</p>
+		</p>
+			This means that: 
+			<br />
+			ProjectA2 will get built upon ProjectA’s sucess
+			<br />
+			ProjectA3 will get built upon ProjectA’s sucess
+		</p>
+	</div>
+</div>
+<div class="existing-pipelines">
+	<h2>Exisiting Pipelines</h2>
+	
+	<div class="pipeline">
+		<strong>[Vegetables Pipe]</strong><br />
+		<p>vegetables-ge3-unit > vegetables-ge3-func > vegetables-ge3-acc</p>
+		<a href="">remove pipeline</a>
+	</div>
+	
+</div>
+{% endblock %}
