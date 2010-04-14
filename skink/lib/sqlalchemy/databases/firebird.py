@@ -174,7 +174,7 @@ class FBDateTime(sqltypes.DateTime):
         return process
 
 
-class FBDate(sqltypes.DateTime):
+class FBDate(sqltypes.Date):
     """Handle ``DATE`` datatype."""
 
     def get_col_spec(self):
@@ -253,7 +253,7 @@ ischema_names = {
        'DATE': lambda r: FBDate(),
        'TIME': lambda r: FBTime(),
        'TEXT': lambda r: FBString(r['flen']),
-      'INT64': lambda r: FBNumeric(precision=r['fprec'], length=r['fscale'] * -1), # This generically handles NUMERIC()
+      'INT64': lambda r: FBNumeric(precision=r['fprec'], scale=r['fscale'] * -1), # This generically handles NUMERIC()
      'DOUBLE': lambda r: FBFloat(),
   'TIMESTAMP': lambda r: FBDateTime(),
     'VARYING': lambda r: FBString(r['flen']),
@@ -394,11 +394,10 @@ class FBDialect(default.DefaultDialect):
             return False
 
     def is_disconnect(self, e):
-        if isinstance(e, self.dbapi.OperationalError):
-            return 'Unable to complete network request to host' in str(e)
-        elif isinstance(e, self.dbapi.ProgrammingError):
+        if isinstance(e, (self.dbapi.OperationalError, self.dbapi.ProgrammingError)):
             msg = str(e)
-            return ('Invalid connection state' in msg or
+            return ('Unable to complete network request to host' in msg or
+                    'Invalid connection state' in msg or
                     'Invalid cursor state' in msg)
         else:
             return False

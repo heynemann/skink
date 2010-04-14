@@ -7,6 +7,7 @@ if sys.version < '2.4':
     from sets import ImmutableSet as frozenset
 
 from routes import request_config
+from routes.lru import LRUCache
 from routes.util import controller_scan, MatchException, RoutesException
 from routes.route import Route
 
@@ -18,6 +19,38 @@ def strip_slashes(name):
     if name.endswith('/'):
         name = name[:-1]
     return name
+
+
+class SubMapper(object):
+    """Partial mapper for use with_options"""
+    def __init__(self, obj, **kwargs):
+        self.kwargs = kwargs
+        self.obj = obj
+        
+    def connect(self, *args, **kwargs):
+        newkargs = {}
+        newargs = args
+        for key in self.kwargs:
+            if key == 'path_prefix':
+                if len(args) > 1:
+                    newargs = (args[0], self.kwargs[key] + args[1])
+                else:
+                    newargs = (self.kwargs[key] + args[0],)
+            elif key in kwargs:
+                newkargs[key] = self.kwargs[key] + kwargs[key]
+            else:
+                newkargs[key] = self.kwargs[key]
+        for key in kwargs:
+            if key not in self.kwargs:
+                newkargs[key] = kwargs[key]
+        return self.obj.connect(*newargs, **newkargs)
+
+    # Provided for those who prefer using the 'with' syntax in Python 2.5+
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, type, value, tb):
+        pass
 
 
 class Mapper(object):
@@ -44,6 +77,10 @@ class Mapper(object):
             ``directory`` keyword arg is present, it will be passed
             into the function during its call. This option defaults to
             a function that will scan a directory for controllers.
+            
+            Alternatively, a list of controllers or None can be passed
+            in which are assumed to be the definitive list of
+            controller names valid when matching 'controller'.
         
         ``directory``
             Passed into controller_scan for the directory to scan. It
@@ -98,9 +135,10 @@ class Mapper(object):
         self.matchlist = []
         self.maxkeys = {}
         self.minkeys = {}
-        self.urlcache = {}
+        self.urlcache = LRUCache(1600)
         self._created_regs = False
         self._created_gens = False
+        self._master_regexp = None
         self.prefix = None
         self.req_data = threadinglocal.local()
         self.directory = directory
@@ -133,7 +171,79 @@ class Mapper(object):
     def _envdel(self):
         del self.req_data.environ
     environ = property(_envget, _envset, _envdel)
-
+    
+    def submapper(self, **kargs):
+        """Create a partial version of the Mapper with the designated
+        options set
+        
+        This results in a :class:`routes.mapper.SubMapper` object.
+        
+        Only keyword arguments can be saved for use with the submapper
+        and only a 'connect' method is present on the submapper.
+        
+        If keyword arguments provided to this method also exist in the
+        keyword arguments provided to the submapper, their values will
+        be merged with the saved options going first.
+        
+        In addition to :class:`routes.route.Route` arguments, submapper
+        can also take a ``path_prefix`` argument which will be
+        prepended to the path of all routes that are connected.
+        
+        Example::
+            
+            >>> map = Mapper(controller_scan=None)
+            >>> map.connect('home', '/', controller='home', action='splash')
+            >>> map.matchlist[0].name == 'home'
+            True
+            >>> m = map.submapper(controller='home')
+            >>> m.connect('index', '/index', action='index')
+            >>> map.matchlist[1].name == 'index'
+            True
+            >>> map.matchlist[1].defaults['controller'] == 'home'
+            True
+        
+        """
+        return SubMapper(self, **kargs)
+    
+    def extend(self, routes, path_prefix=''):
+        """Extends the mapper routes with a list of Route objects
+        
+        If a path_prefix is provided, all the routes will have their
+        path prepended with the path_prefix.
+        
+        Example::
+            
+            >>> map = Mapper(controller_scan=None)
+            >>> map.connect('home', '/', controller='home', action='splash')
+            >>> map.matchlist[0].name == 'home'
+            True
+            >>> routes = [Route('index', '/index.htm', controller='home',
+            ...                 action='index')]
+            >>> map.extend(routes)
+            >>> len(map.matchlist) == 2
+            True
+            >>> map.extend(routes, path_prefix='/subapp')
+            >>> len(map.matchlist) == 3
+            True
+            >>> map.matchlist[2].routepath == 'subapp/index.htm'
+            True
+        
+        .. note::
+            
+            This function does not merely extend the mapper with the
+            given list of routes, it actually creates new routes with
+            identical calling arguments.
+        
+        """
+        for route in routes:
+            if path_prefix and route.minimization:
+                routepath = '/'.join([path_prefix, route.routepath])
+            elif path_prefix:
+                routepath = path_prefix + route.routepath
+            else:
+                routepath = route.routepath
+            self.connect(route.name, routepath, **route._kargs)
+                
     def connect(self, *args, **kargs):
         """Create and connect a new Route to the Mapper.
         
@@ -154,7 +264,8 @@ class Mapper(object):
         routename = None
         if len(args) > 1:
             routename = args[0]
-            args = args[1:]
+        else:
+            args = (None,) + args
         if '_explicit' not in kargs:
             kargs['_explicit'] = self.explicit
         if '_minimize' not in kargs:
@@ -243,17 +354,33 @@ class Mapper(object):
         if clist is None:
             if self.directory:
                 clist = self.controller_scan(self.directory)
-            else:
+            elif callable(self.controller_scan):
                 clist = self.controller_scan()
-            
+            elif not self.controller_scan:
+                clist = []
+            else:
+                clist = self.controller_scan
+        
         for key, val in self.maxkeys.iteritems():
             for route in val:
                 route.makeregexp(clist)
         
+        regexps = []
+        routematches = []
+        for route in self.matchlist:
+            if not route.static:
+                routematches.append(route)
+                regexps.append(route.makeregexp(clist, include_names=False))
+        self._routematches = routematches
         
         # Create our regexp to strip the prefix
         if self.prefix:
             self._regprefix = re.compile(self.prefix + '(.*)')
+        
+        # Save the master regexp
+        regexp = '|'.join(['(?:%s)' % x for x in regexps])
+        self._master_reg = regexp
+        self._master_regexp = re.compile(regexp)
         self._created_regs = True
     
     def _match(self, url):
@@ -283,11 +410,19 @@ class Mapper(object):
                     url = '/'
             else:
                 return (None, None, matchlog)
+                
         environ = self.environ
         sub_domains = self.sub_domains
         sub_domains_ignore = self.sub_domains_ignore
         domain_match = self.domain_match
         debug = self.debug
+        
+        # Check to see if its a valid url against the main regexp
+        # Done for faster invalid URL elimination
+        valid_url = re.match(self._master_regexp, url)
+        if not valid_url:
+            return (None, None, matchlog)
+        
         for route in self.matchlist:
             if route.static:
                 if debug:
@@ -297,7 +432,7 @@ class Mapper(object):
                                 domain_match)
             if debug:
                 matchlog.append(dict(route=route, regexp=bool(match)))
-            if match:
+            if isinstance(match, dict) or match:
                 return (match, route, matchlog)
         return (None, None, matchlog)
     
@@ -318,7 +453,7 @@ class Mapper(object):
         result = self._match(url)
         if self.debug:
             return result[0], result[1], result[2]
-        if result[0]:
+        if isinstance(result[0], dict) or result[0]:
             return result[0]
         return None
     
@@ -336,7 +471,7 @@ class Mapper(object):
         result = self._match(url)
         if self.debug:
             return result[0], result[1], result[2]
-        if result[0]:
+        if isinstance(result[0], dict) or result[0]:
             return result[0], result[1]
         return None
     
@@ -456,6 +591,10 @@ class Mapper(object):
                 kval = kargs.get(key)
                 if not kval:
                     continue
+                if isinstance(kval, str):
+                    kval = kval.decode(self.encoding)
+                else:
+                    kval = unicode(kval)
                 if kval != route.defaults[key]:
                     fail = True
                     break
@@ -670,6 +809,7 @@ class Mapper(object):
             '_member_name': member_name,
             '_collection_name': collection_name,
             '_parent_resource': parent_resource,
+            '_filter': kwargs.get('_filter')
         }
         
         def requirements_for(meth):

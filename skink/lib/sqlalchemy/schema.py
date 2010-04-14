@@ -72,14 +72,9 @@ class SchemaItem(visitors.Visitable):
         m = self.metadata
         return m and m.bind or None
 
-    @property
+    @util.memoized_property
     def info(self):
-        try:
-            return self._info
-        except AttributeError:
-            self._info = {}
-            return self._info
-
+        return {}
 
 def _get_table_key(name, schema):
     if schema is None:
@@ -224,8 +219,8 @@ class Table(SchemaItem, expression.TableClause):
 
         self.quote = kwargs.pop('quote', None)
         self.quote_schema = kwargs.pop('quote_schema', None)
-        if kwargs.get('info'):
-            self._info = kwargs.pop('info')
+        if 'info' in kwargs:
+            self.info = kwargs.pop('info')
 
         self._prefixes = kwargs.pop('prefixes', [])
 
@@ -264,7 +259,7 @@ class Table(SchemaItem, expression.TableClause):
                 setattr(self, key, kwargs.pop(key))
 
         if 'info' in kwargs:
-            self._info = kwargs.pop('info')
+            self.info = kwargs.pop('info')
 
         self.__extra_kwargs(**kwargs)
         self.__post_init(*args, **kwargs)
@@ -472,7 +467,7 @@ class Column(SchemaItem, expression.ColumnClause):
             or :meth:`create_all()`.  The flag has no relevance at any
             other time.
           * The database supports autoincrementing behavior, such as 
-            Postgres or MySQL, and this behavior can be disabled (which does
+            PostgreSQL or MySQL, and this behavior can be disabled (which does
             not include SQLite).
 
         :param default: A scalar, Python callable, or :class:`~sqlalchemy.sql.expression.ClauseElement`
@@ -602,8 +597,9 @@ class Column(SchemaItem, expression.ColumnClause):
         self.foreign_keys = util.OrderedSet()
         util.set_creation_order(self)
 
-        if kwargs.get('info'):
-            self._info = kwargs.pop('info')
+        if 'info' in kwargs:
+            self.info = kwargs.pop('info')
+            
         if kwargs:
             raise exc.ArgumentError(
                 "Unknown arguments passed to Column: " + repr(kwargs.keys()))
@@ -701,7 +697,7 @@ class Column(SchemaItem, expression.ColumnClause):
 
         toinit = list(self.args)
         if self.default is not None:
-            if isinstance(self.default, ColumnDefault):
+            if isinstance(self.default, DefaultGenerator):
                 toinit.append(self.default)
             else:
                 toinit.append(ColumnDefault(self.default))
@@ -711,7 +707,10 @@ class Column(SchemaItem, expression.ColumnClause):
             else:
                 toinit.append(DefaultClause(self.server_default))
         if self.onupdate is not None:
-            toinit.append(ColumnDefault(self.onupdate, for_update=True))
+            if isinstance(self.onupdate, DefaultGenerator):
+                toinit.append(self.onupdate)
+            else:
+                toinit.append(ColumnDefault(self.onupdate, for_update=True))
         if self.server_onupdate is not None:
             if isinstance(self.server_onupdate, FetchedValue):
                 toinit.append(self.server_default)
@@ -727,7 +726,33 @@ class Column(SchemaItem, expression.ColumnClause):
         This is used in ``Table.tometadata``.
 
         """
-        return Column(self.name, self.type, self.default, key = self.key, primary_key = self.primary_key, nullable = self.nullable, quote=self.quote, index=self.index, autoincrement=self.autoincrement, *[c.copy(**kw) for c in self.constraints])
+        
+        if self.args:
+            # if not Table initialized
+            args = []
+            for a in self.args:
+                if isinstance(a, Constraint):
+                    a = a.copy()
+            args.append(a)
+        else:
+            # if Table initialized
+            args = [c.copy(**kw) for c in self.constraints]
+            
+        return Column(
+                name=self.name, 
+                type_=self.type, 
+                key = self.key, 
+                primary_key = self.primary_key, 
+                nullable = self.nullable, 
+                quote=self.quote, 
+                index=self.index, 
+                autoincrement=self.autoincrement, 
+                default=self.default,
+                server_default=self.server_default,
+                onupdate=self.onupdate,
+                server_onupdate=self.server_onupdate,
+                *args
+                )
 
     def _make_proxy(self, selectable, name=None):
         """Create a *proxy* for this column.
@@ -842,8 +867,13 @@ class ForeignKey(SchemaItem):
             return schema + "." + self.column.table.name + "." + self.column.key
         elif isinstance(self._colspec, basestring):
             return self._colspec
+        elif hasattr(self._colspec, '__clause_element__'):
+            _column = self._colspec.__clause_element__()
         else:
-            return "%s.%s" % (self._colspec.table.fullname, self._colspec.key)
+            _column = self._colspec
+            
+        return "%s.%s" % (_column.table.fullname, _column.key)
+
     target_fullname = property(_get_colspec)
 
     def references(self, table):
@@ -876,17 +906,33 @@ class ForeignKey(SchemaItem):
                 raise exc.ArgumentError(
                     "Parent column '%s' does not descend from a "
                     "table-attached Column" % str(self.parent))
-            m = re.match(r"^(.+?)(?:\.(.+?))?(?:\.(.+?))?$", self._colspec,
-                         re.UNICODE)
+
+            m = self._colspec.split('.')
+
             if m is None:
                 raise exc.ArgumentError(
                     "Invalid foreign key column specification: %s" %
                     self._colspec)
-            if m.group(3) is None:
-                (tname, colname) = m.group(1, 2)
-                schema = None
+
+            # A FK between column 'bar' and table 'foo' can be
+            # specified as 'foo', 'foo.bar', 'dbo.foo.bar',
+            # 'otherdb.dbo.foo.bar'. Once we have the column name and
+            # the table name, treat everything else as the schema
+            # name. Some databases (e.g. Sybase) support
+            # inter-database foreign keys. See tickets#1341 and --
+            # indirectly related -- Ticket #594. This assumes that '.'
+            # will never appear *within* any component of the FK.
+
+            (schema, tname, colname) = (None, None, None)
+            if (len(m) == 1):
+                tname   = m.pop()
             else:
-                (schema, tname, colname) = m.group(1, 2, 3)
+                colname = m.pop()
+                tname   = m.pop()
+
+            if (len(m) > 0):
+                schema = '.'.join(m)
+
             if _get_table_key(tname, schema) not in parenttable.metadata:
                 raise exc.NoReferencedTableError(
                     "Could not find table '%s' with which to generate a "
@@ -1812,7 +1858,7 @@ class ThreadLocalMetaData(MetaData):
     def __init__(self):
         """Construct a ThreadLocalMetaData."""
 
-        self.context = util.ThreadLocal()
+        self.context = util.threading.local()
         self.__engines = {}
         super(ThreadLocalMetaData, self).__init__()
 

@@ -54,40 +54,41 @@ def _generative(*assertions):
     return generate
 
 class Query(object):
-    """Encapsulates the object-fetching operations provided by Mappers."""
-
+    """ORM-level SQL construction object."""
+    
+    _enable_eagerloads = True
+    _enable_assertions = True
+    _with_labels = False
+    _criterion = None
+    _yield_per = None
+    _lockmode = None
+    _order_by = False
+    _group_by = False
+    _having = None
+    _distinct = False
+    _offset = None
+    _limit = None
+    _statement = None
+    _joinpoint = None
+    _correlate = frozenset()
+    _populate_existing = False
+    _version_check = False
+    _autoflush = True
+    _current_path = ()
+    _only_load_props = None
+    _refresh_state = None
+    _from_obj = ()
+    _filter_aliases = None
+    _from_obj_alias = None
+    _currenttables = frozenset()
+    
     def __init__(self, entities, session=None):
         self.session = session
 
         self._with_options = []
-        self._lockmode = None
-        self._order_by = False
-        self._group_by = False
-        self._distinct = False
-        self._offset = None
-        self._limit = None
-        self._statement = None
         self._params = {}
-        self._yield_per = None
-        self._criterion = None
-        self._correlate = set()
-        self._joinpoint = None
-        self._with_labels = False
-        self._enable_eagerloads = True
-        self.__joinable_tables = None
-        self._having = None
-        self._populate_existing = False
-        self._version_check = False
-        self._autoflush = True
         self._attributes = {}
-        self._current_path = ()
-        self._only_load_props = None
-        self._refresh_state = None
-        self._from_obj = ()
         self._polymorphic_adapters = {}
-        self._filter_aliases = None
-        self._from_obj_alias = None
-        self.__currenttables = set()
         self._set_entities(entities)
 
     def _set_entities(self, entities, entity_wrapper=None):
@@ -97,9 +98,9 @@ class Query(object):
         for ent in util.to_list(entities):
             entity_wrapper(self, ent)
 
-        self.__setup_aliasizers(self._entities)
+        self._setup_aliasizers(self._entities)
 
-    def __setup_aliasizers(self, entities):
+    def _setup_aliasizers(self, entities):
         if hasattr(self, '_mapper_adapter_map'):
             # usually safe to share a single map, but copying to prevent
             # subtle leaks if end-user is reusing base query with arbitrary
@@ -114,7 +115,8 @@ class Query(object):
                     mapper, selectable, is_aliased_class = _entity_info(entity)
                     if not is_aliased_class and mapper.with_polymorphic:
                         with_polymorphic = mapper._with_polymorphic_mappers
-                        self.__mapper_loads_polymorphically_with(mapper, sql_util.ColumnAdapter(selectable, mapper._equivalent_columns))
+                        self.__mapper_loads_polymorphically_with(mapper, 
+                                sql_util.ColumnAdapter(selectable, mapper._equivalent_columns))
                         adapter = None
                     elif is_aliased_class:
                         adapter = sql_util.ColumnAdapter(selectable, mapper._equivalent_columns)
@@ -131,7 +133,7 @@ class Query(object):
             for m in m2.iterate_to_root():
                 self._polymorphic_adapters[m.mapped_table] = self._polymorphic_adapters[m.local_table] = adapter
 
-    def __set_select_from(self, from_obj):
+    def _set_select_from(self, from_obj):
         if isinstance(from_obj, expression._SelectBaseMixin):
             from_obj = from_obj.alias()
 
@@ -142,7 +144,8 @@ class Query(object):
             self._from_obj_alias = sql_util.ColumnAdapter(from_obj, equivs)
 
     def _get_polymorphic_adapter(self, entity, selectable):
-        self.__mapper_loads_polymorphically_with(entity.mapper, sql_util.ColumnAdapter(selectable, entity.mapper._equivalent_columns))
+        self.__mapper_loads_polymorphically_with(entity.mapper, 
+                                sql_util.ColumnAdapter(selectable, entity.mapper._equivalent_columns))
 
     def _reset_polymorphic_adapter(self, mapper):
         for m2 in mapper._with_polymorphic_mappers:
@@ -151,7 +154,7 @@ class Query(object):
                 self._polymorphic_adapters.pop(m.mapped_table, None)
                 self._polymorphic_adapters.pop(m.local_table, None)
 
-    def __reset_joinpoint(self):
+    def _reset_joinpoint(self):
         self._joinpoint = None
         self._filter_aliases = None
 
@@ -210,9 +213,17 @@ class Query(object):
             return clause
 
         if getattr(self, '_disable_orm_filtering', not orm_only):
-            return visitors.replacement_traverse(clause, {'column_collections':False}, self.__replace_element(adapters))
+            return visitors.replacement_traverse(
+                                clause, 
+                                {'column_collections':False}, 
+                                self.__replace_element(adapters)
+                            )
         else:
-            return visitors.replacement_traverse(clause, {'column_collections':False}, self.__replace_orm_element(adapters))
+            return visitors.replacement_traverse(
+                                clause, 
+                                {'column_collections':False}, 
+                                self.__replace_orm_element(adapters)
+                            )
 
     def _entity_zero(self):
         return self._entities[0]
@@ -243,12 +254,16 @@ class Query(object):
 
     def _only_mapper_zero(self, rationale=None):
         if len(self._entities) > 1:
-            raise sa_exc.InvalidRequestError(rationale or "This operation requires a Query against a single mapper.")
+            raise sa_exc.InvalidRequestError(
+                    rationale or "This operation requires a Query against a single mapper."
+                )
         return self._mapper_zero()
 
     def _only_entity_zero(self, rationale=None):
         if len(self._entities) > 1:
-            raise sa_exc.InvalidRequestError(rationale or "This operation requires a Query against a single mapper.")
+            raise sa_exc.InvalidRequestError(
+                    rationale or "This operation requires a Query against a single mapper."
+                )
         return self._entity_zero()
 
     def _generate_mapper_zero(self):
@@ -264,7 +279,9 @@ class Query(object):
             equivs.update(ent.mapper._equivalent_columns)
         return equivs
 
-    def __no_criterion_condition(self, meth):
+    def _no_criterion_condition(self, meth):
+        if not self._enable_assertions:
+            return
         if self._criterion or self._statement or self._from_obj or \
                 self._limit is not None or self._offset is not None or \
                 self._group_by:
@@ -273,28 +290,51 @@ class Query(object):
         self._from_obj = ()
         self._statement = self._criterion = None
         self._order_by = self._group_by = self._distinct = False
-        self.__joined_tables = {}
 
-    def __no_clauseelement_condition(self, meth):
+    def _no_clauseelement_condition(self, meth):
+        if not self._enable_assertions:
+            return
         if self._order_by:
             raise sa_exc.InvalidRequestError("Query.%s() being called on a Query with existing criterion. " % meth)
-        self.__no_criterion_condition(meth)
+        self._no_criterion_condition(meth)
 
-    def __no_statement_condition(self, meth):
+    def _no_statement_condition(self, meth):
+        if not self._enable_assertions:
+            return
         if self._statement:
             raise sa_exc.InvalidRequestError(
                 ("Query.%s() being called on a Query with an existing full "
                  "statement - can't apply criterion.") % meth)
 
-    def __no_limit_offset(self, meth):
+    def _no_limit_offset(self, meth):
+        if not self._enable_assertions:
+            return
         if self._limit is not None or self._offset is not None:
-            # TODO: do we want from_self() to be implicit here ?  i vote explicit for the time being
-            raise sa_exc.InvalidRequestError("Query.%s() being called on a Query which already has LIMIT or OFFSET applied. "
-            "To modify the row-limited results of a Query, call from_self() first.  Otherwise, call %s() before limit() or offset() are applied." % (meth, meth)
+            raise sa_exc.InvalidRequestError(
+                "Query.%s() being called on a Query which already has LIMIT or OFFSET applied. "
+                "To modify the row-limited results of a Query, call from_self() first.  "
+                "Otherwise, call %s() before limit() or offset() are applied." % (meth, meth)
             )
 
+    def _no_select_modifiers(self, meth):
+        if not self._enable_assertions:
+            return
+        for attr, methname, notset in (
+            ('_limit', 'limit()', None),
+            ('_offset', 'offset()', None),
+            ('_order_by', 'order_by()', False),
+            ('_group_by', 'group_by()', False),
+            ('_distinct', 'distinct()', False),
+        ):
+            if getattr(self, attr) is not notset:
+                raise sa_exc.InvalidRequestError(
+                    "Can't call Query.%s() when %s has been called" % (meth, methname)
+                )
 
-    def __get_options(self, populate_existing=None, version_check=None, only_load_props=None, refresh_state=None):
+    def _get_options(self, populate_existing=None, 
+                            version_check=None, 
+                            only_load_props=None, 
+                            refresh_state=None):
         if populate_existing:
             self._populate_existing = populate_existing
         if version_check:
@@ -315,7 +355,8 @@ class Query(object):
     def statement(self):
         """The full SELECT statement represented by this Query."""
 
-        return self._compile_context(labels=self._with_labels).statement._annotate({'_halt_adapt': True})
+        return self._compile_context(labels=self._with_labels).\
+                        statement._annotate({'_halt_adapt': True})
 
     def subquery(self):
         """return the full SELECT statement represented by this Query, embedded within an Alias.
@@ -358,7 +399,29 @@ class Query(object):
 
         """
         self._with_labels = True
-
+    
+    @_generative()
+    def enable_assertions(self, value):
+        """Control whether assertions are generated.
+        
+        When set to False, the returned Query will 
+        not assert its state before certain operations, 
+        including that LIMIT/OFFSET has not been applied
+        when filter() is called, no criterion exists
+        when get() is called, and no "from_statement()"
+        exists when filter()/order_by()/group_by() etc.
+        is called.  This more permissive mode is used by 
+        custom Query subclasses to specify criterion or 
+        other modifiers outside of the usual usage patterns.
+        
+        Care should be taken to ensure that the usage 
+        pattern is even possible.  A statement applied
+        by from_statement() will override any criterion
+        set by filter() or order_by(), for example.
+        
+        """
+        self._enable_assertions = value
+        
     @property
     def whereclause(self):
         """The WHERE criterion for this Query."""
@@ -375,7 +438,7 @@ class Query(object):
         """
         self._current_path = path
 
-    @_generative(__no_clauseelement_condition)
+    @_generative(_no_clauseelement_condition)
     def with_polymorphic(self, cls_or_mappers, selectable=None, discriminator=None):
         """Load columns for descendant mappers of this Query's mapper.
 
@@ -438,7 +501,9 @@ class Query(object):
         if hasattr(ident, '__composite_values__'):
             ident = ident.__composite_values__()
 
-        key = self._only_mapper_zero("get() can only be used against a single mapped class.").identity_key_from_primary_key(ident)
+        key = self._only_mapper_zero(
+                    "get() can only be used against a single mapped class."
+                ).identity_key_from_primary_key(ident)
         return self._get(key, ident)
 
     @classmethod
@@ -526,7 +591,11 @@ class Query(object):
                 if isinstance(prop, properties.PropertyLoader) and prop.mapper is self._mapper_zero():
                     break
             else:
-                raise sa_exc.InvalidRequestError("Could not locate a property which relates instances of class '%s' to instances of class '%s'" % (self._mapper_zero().class_.__name__, instance.__class__.__name__))
+                raise sa_exc.InvalidRequestError(
+                            "Could not locate a property which relates instances "
+                            "of class '%s' to instances of class '%s'" % 
+                            (self._mapper_zero().class_.__name__, instance.__class__.__name__)
+                        )
         else:
             prop = mapper.get_property(property, resolve_synonyms=True)
         return self.filter(prop.compare(operators.eq, instance, value_is_parent=True))
@@ -540,7 +609,7 @@ class Query(object):
 
         self._entities = list(self._entities)
         m = _MapperEntity(self, entity)
-        self.__setup_aliasizers([m])
+        self._setup_aliasizers([m])
 
     def from_self(self, *entities):
         """return a Query that selects from this Query's SELECT statement.
@@ -562,7 +631,7 @@ class Query(object):
         self._statement = self._criterion = None
         self._order_by = self._group_by = self._distinct = False
         self._limit = self._offset = None
-        self.__set_select_from(fromclause)
+        self._set_select_from(fromclause)
 
     def values(self, *columns):
         """Return an iterator yielding result tuples corresponding to the given list of columns"""
@@ -592,20 +661,20 @@ class Query(object):
         _ColumnEntity(self, column)
         # _ColumnEntity may add many entities if the
         # given arg is a FROM clause
-        self.__setup_aliasizers(self._entities[l:])
+        self._setup_aliasizers(self._entities[l:])
 
     def options(self, *args):
         """Return a new Query object, applying the given list of
         MapperOptions.
 
         """
-        return self.__options(False, *args)
+        return self._options(False, *args)
 
     def _conditional_options(self, *args):
-        return self.__options(True, *args)
+        return self._options(True, *args)
 
     @_generative()
-    def __options(self, conditional, *args):
+    def _options(self, conditional, *args):
         # most MapperOptions write to the '_attributes' dictionary,
         # so copy that as well
         self._attributes = self._attributes.copy()
@@ -641,7 +710,7 @@ class Query(object):
         self._params = self._params.copy()
         self._params.update(kwargs)
 
-    @_generative(__no_statement_condition, __no_limit_offset)
+    @_generative(_no_statement_condition, _no_limit_offset)
     def filter(self, criterion):
         """apply the given filtering criterion to the query and return the newly resulting ``Query``
 
@@ -670,7 +739,7 @@ class Query(object):
         return self.filter(sql.and_(*clauses))
 
 
-    @_generative(__no_statement_condition, __no_limit_offset)
+    @_generative(_no_statement_condition, _no_limit_offset)
     @util.accepts_a_list_as_starargs(list_deprecation='pending')
     def order_by(self, *criterion):
         """apply one or more ORDER BY criterion to the query and return the newly resulting ``Query``"""
@@ -685,7 +754,7 @@ class Query(object):
             else:
                 self._order_by = self._order_by + criterion
 
-    @_generative(__no_statement_condition, __no_limit_offset)
+    @_generative(_no_statement_condition, _no_limit_offset)
     @util.accepts_a_list_as_starargs(list_deprecation='pending')
     def group_by(self, *criterion):
         """apply one or more GROUP BY criterion to the query and return the newly resulting ``Query``"""
@@ -699,7 +768,7 @@ class Query(object):
         else:
             self._group_by = self._group_by + criterion
 
-    @_generative(__no_statement_condition, __no_limit_offset)
+    @_generative(_no_statement_condition, _no_limit_offset)
     def having(self, criterion):
         """apply a HAVING criterion to the query and return the newly resulting ``Query``."""
 
@@ -867,7 +936,7 @@ class Query(object):
         aliased, from_joinpoint = kwargs.pop('aliased', False), kwargs.pop('from_joinpoint', False)
         if kwargs:
             raise TypeError("unknown arguments: %s" % ','.join(kwargs.iterkeys()))
-        return self.__join(props, outerjoin=False, create_aliases=aliased, from_joinpoint=from_joinpoint)
+        return self._join(props, outerjoin=False, create_aliases=aliased, from_joinpoint=from_joinpoint)
 
     @util.accepts_a_list_as_starargs(list_deprecation='pending')
     def outerjoin(self, *props, **kwargs):
@@ -880,26 +949,26 @@ class Query(object):
         aliased, from_joinpoint = kwargs.pop('aliased', False), kwargs.pop('from_joinpoint', False)
         if kwargs:
             raise TypeError("unknown arguments: %s" % ','.join(kwargs.iterkeys()))
-        return self.__join(props, outerjoin=True, create_aliases=aliased, from_joinpoint=from_joinpoint)
+        return self._join(props, outerjoin=True, create_aliases=aliased, from_joinpoint=from_joinpoint)
 
-    @_generative(__no_statement_condition, __no_limit_offset)
-    def __join(self, keys, outerjoin, create_aliases, from_joinpoint):
+    @_generative(_no_statement_condition, _no_limit_offset)
+    def _join(self, keys, outerjoin, create_aliases, from_joinpoint):
 
         # copy collections that may mutate so they do not affect
         # the copied-from query.
-        self.__currenttables = set(self.__currenttables)
+        self._currenttables = set(self._currenttables)
         self._polymorphic_adapters = self._polymorphic_adapters.copy()
 
         # start from the beginning unless from_joinpoint is set.
         if not from_joinpoint:
-            self.__reset_joinpoint()
+            self._reset_joinpoint()
 
         clause = replace_clause_index = None
         
         # after the method completes,
         # the query's joinpoint will be set to this.
         right_entity = None
-
+        
         for arg1 in util.to_list(keys):
             aliased_entity = False
             alias_criterion = False
@@ -963,12 +1032,17 @@ class Query(object):
                 if not clause:
                     clause = left_selectable
                     
-            if not clause:
+            if not clause and left_entity:
                 for ent in self._entities:
                     if ent.corresponds_to(left_entity):
                         clause = ent.selectable
                         break
 
+            # TODO:
+            # this provides one kind of "backwards join"
+            # tested in test/orm/query.py.
+            # removal of this has been considered, but maybe not
+            # see [ticket:1445]
             if not clause:
                 if isinstance(onclause, interfaces.PropComparator):
                     clause = onclause.__clause_element__()
@@ -1022,11 +1096,11 @@ class Query(object):
 
                 elif prop:
                     # for joins across plain relation()s, try not to specify the
-                    # same joins twice.  the __currenttables collection tracks
+                    # same joins twice.  the _currenttables collection tracks
                     # what plain mapped tables we've joined to already.
 
-                    if prop.table in self.__currenttables:
-                        if prop.secondary is not None and prop.secondary not in self.__currenttables:
+                    if prop.table in self._currenttables:
+                        if prop.secondary is not None and prop.secondary not in self._currenttables:
                             # TODO: this check is not strong enough for different paths to the same endpoint which
                             # does not use secondary tables
                             raise sa_exc.InvalidRequestError("Can't join to property '%s'; a path to this "
@@ -1035,8 +1109,8 @@ class Query(object):
                         continue
 
                     if prop.secondary:
-                        self.__currenttables.add(prop.secondary)
-                    self.__currenttables.add(prop.table)
+                        self._currenttables.add(prop.secondary)
+                    self._currenttables.add(prop.table)
 
                     if of_type:
                         right_entity = of_type
@@ -1092,7 +1166,7 @@ class Query(object):
         # future joins with from_joinpoint=True join from our established right_entity.
         self._joinpoint = right_entity
 
-    @_generative(__no_statement_condition)
+    @_generative(_no_statement_condition)
     def reset_joinpoint(self):
         """return a new Query reset the 'joinpoint' of this Query reset
         back to the starting mapper.  Subsequent generative calls will
@@ -1102,9 +1176,9 @@ class Query(object):
         the root.
 
         """
-        self.__reset_joinpoint()
+        self._reset_joinpoint()
 
-    @_generative(__no_clauseelement_condition)
+    @_generative(_no_clauseelement_condition)
     def select_from(self, from_obj):
         """Set the `from_obj` parameter of the query and return the newly
         resulting ``Query``.  This replaces the table which this Query selects
@@ -1125,7 +1199,7 @@ class Query(object):
             from_obj = from_obj[-1]
         if not isinstance(from_obj, expression.FromClause):
             raise sa_exc.ArgumentError("select_from() accepts FromClause objects only.")
-        self.__set_select_from(from_obj)
+        self._set_select_from(from_obj)
 
     def __getitem__(self, item):
         if isinstance(item, slice):
@@ -1148,7 +1222,7 @@ class Query(object):
         else:
             return list(self[item:item+1])[0]
 
-    @_generative(__no_statement_condition)
+    @_generative(_no_statement_condition)
     def slice(self, start, stop):
         """apply LIMIT/OFFSET to the ``Query`` based on a range and return the newly resulting ``Query``."""
         if start is not None and stop is not None:
@@ -1159,7 +1233,7 @@ class Query(object):
         elif start is not None and stop is None:
             self._offset = (self._offset or 0) + start
 
-    @_generative(__no_statement_condition)
+    @_generative(_no_statement_condition)
     def limit(self, limit):
         """Apply a ``LIMIT`` to the query and return the newly resulting
 
@@ -1168,7 +1242,7 @@ class Query(object):
         """
         self._limit = limit
 
-    @_generative(__no_statement_condition)
+    @_generative(_no_statement_condition)
     def offset(self, offset):
         """Apply an ``OFFSET`` to the query and return the newly resulting
         ``Query``.
@@ -1176,7 +1250,7 @@ class Query(object):
         """
         self._offset = offset
 
-    @_generative(__no_statement_condition)
+    @_generative(_no_statement_condition)
     def distinct(self):
         """Apply a ``DISTINCT`` to the query and return the newly resulting
         ``Query``.
@@ -1192,7 +1266,7 @@ class Query(object):
         """
         return list(self)
 
-    @_generative(__no_clauseelement_condition)
+    @_generative(_no_clauseelement_condition)
     def from_statement(self, statement):
         """Execute the given SELECT statement and return results.
 
@@ -1330,7 +1404,7 @@ class Query(object):
             rowtuple.keys = labels.keys
 
         while True:
-            context.progress = set()
+            context.progress = {}
             context.partials = {}
 
             if self._yield_per:
@@ -1354,13 +1428,13 @@ class Query(object):
                 rows = filter(rows)
 
             if context.refresh_state and self._only_load_props and context.refresh_state in context.progress:
-                context.refresh_state.commit(self._only_load_props)
-                context.progress.remove(context.refresh_state)
+                context.refresh_state.commit(context.refresh_state.dict, self._only_load_props)
+                context.progress.pop(context.refresh_state)
 
             session._finalize_loaded(context.progress)
 
-            for ii, attrs in context.partials.items():
-                ii.commit(attrs)
+            for ii, (dict_, attrs) in context.partials.items():
+                ii.commit(dict_, attrs)
 
             for row in rows:
                 yield row
@@ -1393,7 +1467,7 @@ class Query(object):
 
         if refresh_state is None:
             q = self._clone()
-            q.__no_criterion_condition("get")
+            q._no_criterion_condition("get")
         else:
             q = self._clone()
 
@@ -1410,12 +1484,12 @@ class Query(object):
                     params[_get_params[primary_key].key] = ident[i]
                 except IndexError:
                     raise sa_exc.InvalidRequestError("Could not find enough values to formulate primary key for "
-                        "query.get(); primary key columns are %s" % ', '.join("'%s'" % c for c in q.mapper.primary_key))
+                        "query.get(); primary key columns are %s" % ', '.join("'%s'" % c for c in mapper.primary_key))
             q._params = params
 
         if lockmode is not None:
             q._lockmode = lockmode
-        q.__get_options(
+        q._get_options(
             populate_existing=bool(refresh_state),
             version_check=(lockmode is not None),
             only_load_props=only_load_props,
@@ -1445,18 +1519,24 @@ class Query(object):
                 kwargs.get('distinct', False))
 
     def count(self):
-        """Apply this query's criterion to a SELECT COUNT statement.
-
-        If column expressions or LIMIT/OFFSET/DISTINCT are present,
-        the query "SELECT count(1) FROM (SELECT ...)" is issued,
-        so that the result matches the total number of rows
-        this query would return.  For mapped entities,
-        the primary key columns of each is written to the
-        columns clause of the nested SELECT statement.
-
-        For a Query which is only against mapped entities,
-        a simpler "SELECT count(1) FROM table1, table2, ...
-        WHERE criterion" is issued.
+        """Return a count of rows this Query would return.
+        
+        For simple entity queries, count() issues
+        a SELECT COUNT, and will specifically count the primary
+        key column of the first entity only.  If the query uses 
+        LIMIT, OFFSET, or DISTINCT, count() will wrap the statement 
+        generated by this Query in a subquery, from which a SELECT COUNT
+        is issued, so that the contract of "how many rows
+        would be returned?" is honored.
+        
+        For queries that request specific columns or expressions, 
+        count() again makes no assumptions about those expressions
+        and will wrap everything in a subquery.  Therefore,
+        ``Query.count()`` is usually not what you want in this case.   
+        To count specific columns, often in conjunction with 
+        GROUP BY, use ``func.count()`` as an individual column expression
+        instead of ``Query.count()``.  See the ORM tutorial
+        for an example.
 
         """
         should_nest = [self._should_nest_selectable]
@@ -1548,6 +1628,9 @@ class Query(object):
 
         if synchronize_session not in [False, 'evaluate', 'fetch']:
             raise sa_exc.ArgumentError("Valid strategies for session synchronization are False, 'evaluate' and 'fetch'")
+        self._no_select_modifiers("delete")
+
+        self = self.enable_eagerloads(False)
 
         context = self._compile_context()
         if len(context.statement.froms) != 1 or not isinstance(context.statement.froms[0], schema.Table):
@@ -1640,8 +1723,11 @@ class Query(object):
         #TODO: updates of manytoone relations need to be converted to fk assignments
         #TODO: cascades need handling.
 
+        self._no_select_modifiers("update")
         if synchronize_session not in [False, 'evaluate', 'expire']:
             raise sa_exc.ArgumentError("Valid strategies for session synchronization are False, 'evaluate' and 'expire'")
+
+        self = self.enable_eagerloads(False)
 
         context = self._compile_context()
         if len(context.statement.froms) != 1 or not isinstance(context.statement.froms[0], schema.Table):
@@ -1679,14 +1765,14 @@ class Query(object):
                 evaluated_keys = value_evaluators.keys()
 
                 if issubclass(cls, target_cls) and eval_condition(obj):
-                    state = attributes.instance_state(obj)
+                    state, dict_ = attributes.instance_state(obj), attributes.instance_dict(obj)
 
                     # only evaluate unmodified attributes
                     to_evaluate = state.unmodified.intersection(evaluated_keys)
                     for key in to_evaluate:
-                        state.dict[key] = value_evaluators[key](obj)
+                        dict_[key] = value_evaluators[key](obj)
 
-                    state.commit(list(to_evaluate))
+                    state.commit(dict_, list(to_evaluate))
 
                     # expire attributes with pending changes (there was no autoflush, so they are overwritten)
                     state.expire_attributes(set(evaluated_keys).difference(to_evaluate))
@@ -1697,7 +1783,7 @@ class Query(object):
             for primary_key in matched_rows:
                 identity_key = target_mapper.identity_key_from_primary_key(list(primary_key))
                 if identity_key in session.identity_map:
-                    session.expire(session.identity_map[identity_key], values.keys())
+                    session.expire(session.identity_map[identity_key], [expression._column_as_key(k) for k in values])
 
         for ext in session.extensions:
             ext.after_bulk_update(session, self, context, result)
@@ -2010,7 +2096,9 @@ class _ColumnEntity(_QueryEntity):
                 return
 
         if not isinstance(column, sql.ColumnElement):
-            raise sa_exc.InvalidRequestError("Invalid column expression '%r'" % column)
+            raise sa_exc.InvalidRequestError(
+                "SQL expression, column, or mapped entity expected - got '%r'" % column
+            )
 
         # if the Column is unnamed, give it a
         # label() so that mutable column expressions
@@ -2050,14 +2138,14 @@ class _ColumnEntity(_QueryEntity):
         self.froms.add(from_obj)
 
     def corresponds_to(self, entity):
-        if _is_aliased_class(entity):
+        if self.entity_zero is None:
+            return False
+        elif _is_aliased_class(entity):
             return entity is self.entity_zero
         else:
-            # TODO: this will fail with inheritance, entity_zero
-            # is not a base mapper.  MapperEntity has path_entity
-            # which serves this purpose (when saying: query(FooBar.somecol).join(SomeClass, FooBar.id==SomeClass.foo_id))
-            return entity.base_mapper is self.entity_zero
-
+            return not _is_aliased_class(self.entity_zero) and \
+                entity.base_mapper.common_parent(self.entity_zero)
+            
     def _resolve_expr_against_query_aliases(self, query, expr, context):
         return query._adapt_clause(expr, False, True)
 
@@ -2111,7 +2199,8 @@ class QueryContext(object):
         self.froms = []
         self.adapter = None
 
-        self.options = query._with_options
+        self.options = set(query._with_options)
+        self.propagate_options = self.options.difference(o for o in self.options if not o.propagate_to_loaders)
         self.attributes = query._attributes.copy()
 
 class AliasOption(interfaces.MapperOption):

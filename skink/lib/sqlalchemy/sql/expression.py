@@ -400,8 +400,8 @@ def not_(clause):
 
 def distinct(expr):
     """Return a ``DISTINCT`` clause."""
-
-    return _UnaryExpression(expr, operator=operators.distinct_op)
+    expr = _literal_as_binds(expr)
+    return _UnaryExpression(expr, operator=operators.distinct_op, type_=expr.type)
 
 def between(ctest, cleft, cright):
     """Return a ``BETWEEN`` predicate clause.
@@ -484,8 +484,7 @@ def cast(clause, totype, **kwargs):
 def extract(field, expr):
     """Return the clause ``extract(field FROM expr)``."""
 
-    expr = _BinaryExpression(text(field), expr, operators.from_)
-    return func.extract(expr)
+    return _Extract(field, expr)
 
 def collate(expression, collation):
     """Return the clause ``expression COLLATE collation``."""
@@ -1477,8 +1476,7 @@ class _CompareMixin(ColumnOperators):
 
     def distinct(self):
         """Produce a DISTINCT clause, i.e. ``DISTINCT <columnname>``"""
-
-        return _UnaryExpression(self, operator=operators.distinct_op)
+        return _UnaryExpression(self, operator=operators.distinct_op, type_=self.type)
 
     def between(self, cleft, cright):
         """Produce a BETWEEN clause, i.e. ``<column> BETWEEN <cleft> AND <cright>``"""
@@ -1508,11 +1506,17 @@ class _CompareMixin(ColumnOperators):
 
           somecolumn * 5
 
-        operator
-          a string which will be output as the infix operator between
+        
+        :param operator: a string which will be output as the infix operator between
           this ``ClauseElement`` and the expression passed to the
           generated function.
 
+        This function can also be used to make bitwise operators explicit. For example::
+
+          somecolumn.op('&')(0xff)
+
+        is a bitwise AND of the value in somecolumn.
+          
         """
         return lambda other: self.__operate(operator, other)
 
@@ -1588,7 +1592,7 @@ class ColumnElement(ClauseElement, _CompareMixin):
     def shares_lineage(self, othercolumn):
         """Return True if the given ``ColumnElement`` has a common ancestor to this ``ColumnElement``."""
 
-        return len(self.proxy_set.intersection(othercolumn.proxy_set)) > 0
+        return bool(self.proxy_set.intersection(othercolumn.proxy_set))
 
     def _make_proxy(self, selectable, name=None):
         """Create a new ``ColumnElement`` representing this
@@ -1839,7 +1843,8 @@ class FromClause(Selectable):
         target_set = column.proxy_set
         cols = self.c
         for c in cols:
-            i = c.proxy_set.intersection(target_set)
+            i = target_set.intersection(itertools.chain(*[p._cloned_set for p in c.proxy_set]))
+
             if i and \
                 (not require_embedded or c.proxy_set.issuperset(target_set)):
                 
@@ -2005,15 +2010,12 @@ class _BindParamClause(ColumnElement):
         else:
             return obj.type
 
-    def compare(self, other):
-        """Compare this ``_BindParamClause`` to the given clause.
-
-        Since ``compare()`` is meant to compare statement syntax, this
-        method returns True if the two ``_BindParamClauses`` have just
-        the same type.
-
-        """
-        return isinstance(other, _BindParamClause) and other.type.__class__ == self.type.__class__
+    def compare(self, other, **kw):
+        """Compare this ``_BindParamClause`` to the given clause."""
+ 
+        return isinstance(other, _BindParamClause) and \
+                 self.type._compare_type_affinity(other.type) and \
+                  self.value == other.value
 
     def __getstate__(self):
         """execute a deferred value for serialization purposes."""
@@ -2078,7 +2080,7 @@ class _TextClause(ClauseElement):
         if bindparams is not None:
             for b in bindparams:
                 self.bindparams[b.key] = b
-
+                
     @property
     def type(self):
         if self.typemap is not None and len(self.typemap) == 1:
@@ -2205,13 +2207,17 @@ class _Case(ColumnElement):
             whenlist = [(_literal_as_binds(c).self_group(), _literal_as_binds(r)) for (c, r) in whens]
         else:
             whenlist = [(_no_literals(c).self_group(), _literal_as_binds(r)) for (c, r) in whens]
-            
+
         if whenlist:
             type_ = list(whenlist[-1])[-1].type
         else:
             type_ = None
-            
-        self.value = value
+
+        if value is None:
+            self.value = None
+        else:
+            self.value = _literal_as_binds(value)
+
         self.type = type_
         self.whens = whenlist
         if else_ is not None:
@@ -2237,7 +2243,7 @@ class _Case(ColumnElement):
 
     @property
     def _from_objects(self):
-        return itertools.chain(*[x._from_objects for x in self.get_children()])
+        return list(itertools.chain(*[x._from_objects for x in self.get_children()]))
 
 class Function(ColumnElement, FromClause):
     """Describe a SQL function."""
@@ -2311,6 +2317,26 @@ class _Cast(ColumnElement):
     @property
     def _from_objects(self):
         return self.clause._from_objects
+
+
+class _Extract(ColumnElement):
+
+    __visit_name__ = 'extract'
+
+    def __init__(self, field, expr, **kwargs):
+        self.type = sqltypes.Integer()
+        self.field = field
+        self.expr = _literal_as_binds(expr, None)
+
+    def _copy_internals(self, clone=_clone):
+        self.expr = clone(self.expr)
+
+    def get_children(self, **kwargs):
+        return self.expr,
+
+    @property
+    def _from_objects(self):
+        return self.expr._from_objects
 
 
 class _UnaryExpression(ColumnElement):
@@ -2634,7 +2660,7 @@ class Alias(FromClause):
         self.element = _clone(self.element)
         baseselectable = self.element
         while isinstance(baseselectable, Alias):
-            baseselectable = baseselectable.selectable
+            baseselectable = baseselectable.element
         self.original = baseselectable
 
     def get_children(self, column_collections=True, aliased_selectables=True, **kwargs):
@@ -3148,10 +3174,19 @@ class CompoundSelect(_SelectBaseMixin, FromClause):
 
     def _populate_column_collection(self):
         for cols in zip(*[s.c for s in self.selects]):
-            proxy = cols[0]._make_proxy(self, name=self.use_labels and cols[0]._label or None)
+            # this is a slightly hacky thing - the union exports a column that
+            # resembles just that of the *first* selectable.  to get at a "composite" column,
+            # particularly foreign keys, you have to dig through the proxies collection 
+            # which we generate below.  We may want to improve upon this,
+            # such as perhaps _make_proxy can accept a list of other columns that
+            # are "shared" - schema.column can then copy all the ForeignKeys in.
+            # this would allow the union() to have all those fks too.
+            proxy = cols[0]._make_proxy(
+                            self, name=self.use_labels and cols[0]._label or None)
             
-            # place a 'weight' annotation corresponding to how low in the list of select()s
-            # the column occurs, so that the corresponding_column() operation
+            # hand-construct the "proxies" collection to include all derived columns
+            # place a 'weight' annotation corresponding to how low in the list of
+            # select()s the column occurs, so that the corresponding_column() operation
             # can resolve conflicts
             proxy.proxies = [c._annotate({'weight':i + 1}) for i, c in enumerate(cols)]
             

@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from status import Status
-from executer import Executer
+from cleese.status import Status
+from cleese.executer import Executer
 
+__version__ = '0.2.0'

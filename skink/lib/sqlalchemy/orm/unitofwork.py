@@ -33,7 +33,9 @@ class UOWEventHandler(interfaces.AttributeExtension):
     """An event handler added to all relation attributes which handles
     session cascade operations.
     """
-
+    
+    active_history = False
+    
     def __init__(self, key):
         self.key = key
 
@@ -96,6 +98,8 @@ class UOWTransaction(object):
         # information.
         self.attributes = {}
         
+        self.processors = set()
+        
     def get_attribute_history(self, state, key, passive=True):
         hashkey = ("history", state, key)
 
@@ -119,14 +123,17 @@ class UOWTransaction(object):
             return history.as_state()
 
     def register_object(self, state, isdelete=False, listonly=False, postupdate=False, post_update_cols=None):
+        
         # if object is not in the overall session, do nothing
         if not self.session._contains_state(state):
             if self._should_log_debug:
-                self.logger.debug("object %s not part of session, not registering for flush" % (mapperutil.state_str(state)))
+                self.logger.debug("object %s not part of session, not registering for flush" % 
+                                        (mapperutil.state_str(state)))
             return
 
         if self._should_log_debug:
-            self.logger.debug("register object for flush: %s isdelete=%s listonly=%s postupdate=%s" % (mapperutil.state_str(state), isdelete, listonly, postupdate))
+            self.logger.debug("register object for flush: %s isdelete=%s listonly=%s postupdate=%s"
+                                    % (mapperutil.state_str(state), isdelete, listonly, postupdate))
 
         mapper = _state_mapper(state)
 
@@ -136,6 +143,16 @@ class UOWTransaction(object):
         else:
             task.append(state, listonly=listonly, isdelete=isdelete)
 
+        # ensure the mapper for this object has had its 
+        # DependencyProcessors added.
+        if mapper not in self.processors:
+            mapper._register_processors(self)
+            self.processors.add(mapper)
+
+            if mapper.base_mapper not in self.processors:
+                mapper.base_mapper._register_processors(self)
+                self.processors.add(mapper.base_mapper)
+            
     def set_row_switch(self, state):
         """mark a deleted object as a 'row switch'.
 
@@ -147,7 +164,7 @@ class UOWTransaction(object):
         task = self.get_task_by_mapper(mapper)
         taskelement = task._objects[state]
         taskelement.isdelete = "rowswitch"
-
+    
     def is_deleted(self, state):
         """return true if the given state is marked as deleted within this UOWTransaction."""
 
@@ -201,9 +218,9 @@ class UOWTransaction(object):
         self.dependencies.add((mapper, dependency))
 
     def register_processor(self, mapper, processor, mapperfrom):
-        """register a dependency processor, corresponding to dependencies between
-        the two given mappers.
-
+        """register a dependency processor, corresponding to 
+        operations which occur between two mappers.
+        
         """
         # correct for primary mapper
         mapper = mapper.primary_mapper()
@@ -417,12 +434,25 @@ class UOWTask(object):
                     yield rec
         return collection
 
+    def _polymorphic_collection_filtered(fn):
+
+        def collection(self, mappers):
+            for task in self.polymorphic_tasks:
+                if task.mapper in mappers:
+                    for rec in fn(task):
+                        yield rec
+        return collection
+
     @property
     def elements(self):
         return self._objects.values()
 
     @_polymorphic_collection
     def polymorphic_elements(self):
+        return self.elements
+
+    @_polymorphic_collection_filtered
+    def filter_polymorphic_elements(self):
         return self.elements
 
     @property
@@ -629,7 +659,19 @@ class UOWDependencyProcessor(object):
     def __init__(self, processor, targettask):
         self.processor = processor
         self.targettask = targettask
-
+        prop = processor.prop
+        
+        # define a set of mappers which
+        # will filter the lists of entities
+        # this UOWDP processes.  this allows
+        # MapperProperties to be overridden
+        # at least for concrete mappers.
+        self._mappers = set([
+            m
+            for m in self.processor.parent.polymorphic_iterator()
+            if m._props[prop.key] is prop
+        ]).union(self.processor.mapper.polymorphic_iterator())
+            
     def __repr__(self):
         return "UOWDependencyProcessor(%s, %s)" % (str(self.processor), str(self.targettask))
 
@@ -660,12 +702,16 @@ class UOWDependencyProcessor(object):
             return elem.state
 
         ret = False
-        elements = [getobj(elem) for elem in self.targettask.polymorphic_tosave_elements if self not in elem.preprocessed]
+        elements = [getobj(elem) for elem in 
+                        self.targettask.filter_polymorphic_elements(self._mappers)
+                        if self not in elem.preprocessed and not elem.isdelete]
         if elements:
             ret = True
             self.processor.preprocess_dependencies(self.targettask, elements, trans, delete=False)
 
-        elements = [getobj(elem) for elem in self.targettask.polymorphic_todelete_elements if self not in elem.preprocessed]
+        elements = [getobj(elem) for elem in 
+                        self.targettask.filter_polymorphic_elements(self._mappers)
+                        if self not in elem.preprocessed and elem.isdelete]
         if elements:
             ret = True
             self.processor.preprocess_dependencies(self.targettask, elements, trans, delete=True)
@@ -674,10 +720,10 @@ class UOWDependencyProcessor(object):
     def execute(self, trans, delete):
         """process all objects contained within this ``UOWDependencyProcessor``s target task."""
 
-        if delete:
-            elements = self.targettask.polymorphic_todelete_elements
-        else:
-            elements = self.targettask.polymorphic_tosave_elements
+
+        elements = [e for e in 
+                    self.targettask.filter_polymorphic_elements(self._mappers) 
+                    if bool(e.isdelete)==delete]
 
         self.processor.process_dependencies(
             self.targettask, 
@@ -720,6 +766,10 @@ class UOWExecutor(object):
 
     def execute_save_steps(self, trans, task):
         self.save_objects(trans, task)
+        for dep in task.polymorphic_cyclical_dependencies:
+            self.execute_dependency(trans, dep, False)
+        for dep in task.polymorphic_cyclical_dependencies:
+            self.execute_dependency(trans, dep, True)
         self.execute_cyclical_dependencies(trans, task, False)
         self.execute_dependencies(trans, task)
 
@@ -735,7 +785,5 @@ class UOWExecutor(object):
             self.execute_dependency(trans, dep, True)
 
     def execute_cyclical_dependencies(self, trans, task, isdelete):
-        for dep in task.polymorphic_cyclical_dependencies:
-            self.execute_dependency(trans, dep, isdelete)
         for t in task.dependent_tasks:
             self.execute(trans, [t], isdelete)

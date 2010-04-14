@@ -127,7 +127,7 @@ import datetime, random, re
 
 from sqlalchemy import util, sql, schema, log
 from sqlalchemy.engine import default, base
-from sqlalchemy.sql import compiler, visitors
+from sqlalchemy.sql import compiler, visitors, expression
 from sqlalchemy.sql import operators as sql_operators, functions as sql_functions
 from sqlalchemy import types as sqltypes
 
@@ -516,10 +516,13 @@ class OracleDialect(default.DefaultDialect):
     def table_names(self, connection, schema):
         # note that table_names() isnt loading DBLINKed or synonym'ed tables
         if schema is None:
-            s = "select table_name from all_tables where nvl(tablespace_name, 'no tablespace') NOT IN ('SYSTEM', 'SYSAUX')"
+            s = "select table_name from all_tables where nvl(tablespace_name, 'no tablespace') "\
+                "NOT IN ('SYSTEM', 'SYSAUX') AND IOT_NAME IS NULL"
             cursor = connection.execute(s)
         else:
-            s = "select table_name from all_tables where nvl(tablespace_name, 'no tablespace') NOT IN ('SYSTEM','SYSAUX') AND OWNER = :owner"
+            s = "select table_name from all_tables where nvl(tablespace_name, 'no tablespace') "\
+                "NOT IN ('SYSTEM','SYSAUX') AND OWNER = :owner "\
+                "AND IOT_NAME IS NULL"
             cursor = connection.execute(s, {'owner': self._denormalize_name(schema)})
         return [self._normalize_name(row[0]) for row in cursor]
 
@@ -769,7 +772,11 @@ class OracleCompiler(compiler.DefaultCompiler):
         """Oracle doesn't like ``FROM table AS alias``.  Is the AS standard SQL??"""
 
         if asfrom:
-            return self.process(alias.original, asfrom=asfrom, **kwargs) + " " + self.preparer.format_alias(alias, self._anonymize(alias.name))
+            alias_name = isinstance(alias.name, expression._generated_label) and \
+                            self._truncated_identifier("alias", alias.name) or alias.name
+            
+            return self.process(alias.original, asfrom=True, **kwargs) + " " +\
+                    self.preparer.format_alias(alias, alias_name)
         else:
             return self.process(alias.original, **kwargs)
 

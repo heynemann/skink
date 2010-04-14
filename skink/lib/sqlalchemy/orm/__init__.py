@@ -26,6 +26,7 @@ from sqlalchemy.orm.interfaces import (
      MapperExtension,
      PropComparator,
      SessionExtension,
+     AttributeExtension,
      )
 from sqlalchemy.orm.util import (
      AliasedClass as aliased,
@@ -61,6 +62,7 @@ __all__ = (
     'EXT_STOP',
     'InstrumentationManager',
     'MapperExtension',
+    'AttributeExtension',
     'Validator',
     'PropComparator',
     'Query',
@@ -81,11 +83,13 @@ __all__ = (
     'eagerload',
     'eagerload_all',
     'extension',
+    'join',
     'lazyload',
     'mapper',
     'noload',
     'object_mapper',
     'object_session',
+    'outerjoin',
     'polymorphic_union',
     'reconstructor',
     'relation',
@@ -336,7 +340,7 @@ def relation(argument, secondary=None, **kwargs):
       the foreign key in the database, and that the database will
       handle propagation of an UPDATE from a source column to
       dependent rows.  Note that with databases which enforce
-      referential integrity (i.e. Postgres, MySQL with InnoDB tables),
+      referential integrity (i.e. PostgreSQL, MySQL with InnoDB tables),
       ON UPDATE CASCADE is required for this operation.  The
       relation() will update the value of the attribute on related
       items which are locally present in the session during a flush.
@@ -613,11 +617,6 @@ def mapper(class_, local_table=None, *args, **params):
         from the database.  Usage of this flag is highly discouraged; as an
         alternative, see the method `populate_existing()` on
         :class:`~sqlalchemy.orm.query.Query`.
-
-      allow_column_override
-        If True, allows the usage of a ``relation()`` which has the
-        same name as a column in the mapped table.  The table column
-        will no longer be mapped.
 
       allow_null_pks
         Indicates that composite primary keys where one or more (but not all)
@@ -939,7 +938,7 @@ def contains_eager(*keys, **kwargs):
     if kwargs:
         raise exceptions.ArgumentError("Invalid kwargs for contains_eager: %r" % kwargs.keys())
 
-    return (strategies.EagerLazyOption(keys, lazy=False), strategies.LoadEagerFromAliasOption(keys, alias=alias))
+    return (strategies.EagerLazyOption(keys, lazy=False, propagate_to_loaders=False), strategies.LoadEagerFromAliasOption(keys, alias=alias))
 
 @sa_util.accepts_a_list_as_starargs(list_deprecation='pending')
 def defer(*keys):

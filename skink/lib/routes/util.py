@@ -11,6 +11,18 @@ import urllib
 from routes import request_config
 
 
+class RoutesException(Exception):
+    """Tossed during Route exceptions"""
+
+
+class MatchException(RoutesException):
+    """Tossed during URL matching exceptions"""
+
+
+class GenerationException(RoutesException):
+    """Tossed during URL generation exceptions"""
+
+
 def _screenargs(kargs, mapper, environ):
     """
     Private function that takes a dict, and screens it against the current 
@@ -382,9 +394,9 @@ class URLGenerator(object):
                 newargs = _subdomain_check(kargs, self.mapper, self.environ)
             else:
                 newargs = kargs
-            anchor = newargs.pop('_anchor', None) or anchor
-            host = newargs.pop('_host', None) or host
-            protocol = newargs.pop('_protocol', None) or protocol
+            anchor = anchor or newargs.pop('_anchor', None)
+            host = host or newargs.pop('_host', None)
+            protocol = protocol or newargs.pop('_protocol', None)
             url = self.mapper.generate(*route_args, **newargs)
         if anchor is not None:
             url += '#' + _url_quote(anchor, encoding)
@@ -495,15 +507,3 @@ def controller_scan(directory=None):
     controllers = find_controllers(directory)
     controllers.sort(longest_first)
     return controllers
-
-
-class RoutesException(Exception):
-    """Tossed during Route exceptions"""
-
-
-class MatchException(RoutesException):
-    """Tossed during URL matching exceptions"""
-
-
-class GenerationException(RoutesException):
-    """Tossed during URL generation exceptions"""

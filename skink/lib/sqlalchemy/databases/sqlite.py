@@ -302,7 +302,7 @@ class SLBoolean(sqltypes.Boolean):
         def process(value):
             if value is None:
                 return None
-            return value and True or False
+            return value == 1
         return process
 
 colspecs = {
@@ -329,7 +329,7 @@ ischema_names = {
     'DATE': SLDate,
     'DATETIME': SLDateTime,
     'DECIMAL': SLNumeric,
-    'FLOAT': SLNumeric,
+    'FLOAT': SLFloat,
     'INT': SLInteger,
     'INTEGER': SLInteger,
     'NUMERIC': SLNumeric,
@@ -557,11 +557,33 @@ class SQLiteCompiler(compiler.DefaultCompiler):
         }
     )
 
+    extract_map = compiler.DefaultCompiler.extract_map.copy()
+    extract_map.update({
+        'month': '%m',
+        'day': '%d',
+        'year': '%Y',
+        'second': '%S',
+        'hour': '%H',
+        'doy': '%j',
+        'minute': '%M',
+        'epoch': '%s',
+        'dow': '%w',
+        'week': '%W'
+    })
+
     def visit_cast(self, cast, **kwargs):
         if self.dialect.supports_cast:
             return super(SQLiteCompiler, self).visit_cast(cast)
         else:
             return self.process(cast.clause)
+
+    def visit_extract(self, extract):
+        try:
+            return "CAST(STRFTIME('%s', %s) AS INTEGER)" % (
+                self.extract_map[extract.field], self.process(extract.expr))
+        except KeyError:
+            raise exc.ArgumentError(
+                "%s is not a valid extract argument." % extract.field)
 
     def limit_clause(self, select):
         text = ""
@@ -592,6 +614,19 @@ class SQLiteSchemaGenerator(compiler.SchemaGenerator):
             colspec += " NOT NULL"
         return colspec
 
+    def visit_index(self, index):
+        preparer = self.preparer
+        self.append("CREATE ")
+        if index.unique:
+            self.append("UNIQUE ")
+        self.append("INDEX %s ON %s (%s)" \
+                    % (preparer.format_index(index,
+                       name=self._validate_identifier(index.name, True)),
+                       preparer.format_table(index.table, use_schema=False),
+                       ', '.join(preparer.quote(c.name, c.quote)
+                                 for c in index.columns)))
+        self.execute()
+
 class SQLiteIdentifierPreparer(compiler.IdentifierPreparer):
     reserved_words = set([
         'add', 'after', 'all', 'alter', 'analyze', 'and', 'as', 'asc',
@@ -610,11 +645,21 @@ class SQLiteIdentifierPreparer(compiler.IdentifierPreparer):
         'reindex', 'rename', 'replace', 'restrict', 'right', 'rollback',
         'row', 'select', 'set', 'table', 'temp', 'temporary', 'then', 'to',
         'transaction', 'trigger', 'true', 'union', 'unique', 'update', 'using',
-        'vacuum', 'values', 'view', 'virtual', 'when', 'where',
+        'vacuum', 'values', 'view', 'virtual', 'when', 'where', 'indexed',
         ])
 
     def __init__(self, dialect):
         super(SQLiteIdentifierPreparer, self).__init__(dialect)
+
+    def format_index(self, index, use_schema=True, name=None):
+        """Prepare a quoted index and schema name."""
+
+        if name is None:
+            name = index.name
+        result = self.quote(name, index.quote)
+        if not self.omit_schema and use_schema and getattr(index.table, "schema", None):
+            result = self.quote_schema(index.table.schema, index.table.quote_schema) + "." + result
+        return result
 
 dialect = SQLiteDialect
 dialect.poolclass = pool.SingletonThreadPool

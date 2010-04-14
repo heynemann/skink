@@ -33,12 +33,8 @@ class Executer(object):
         self.process.start()
     
     def poll(self):
-        if self.process.killed:
-            print "Process Killed"
-            self.result.exit_code = 1
-            last_log = self.process.read_log()
-            self.result.log = last_log and last_log or self.result.log
-            self.result.log += "Process aborted by user!"
+        if self.process.process_killed:
+            self.result.exit_code = 9
             self.result.status = Status.fail
             return True
 
@@ -55,7 +51,7 @@ class Executer(object):
             self.result.status = Status.success
 
         self.result.exit_code = exit_code
-        last_log = self.process.read_log()
+        last_log = self.process.process.communicate()[0]
         self.result.log = last_log and last_log or self.result.log
         return exit_code is not None
 
@@ -64,7 +60,7 @@ class Process(object):
         self.command = command
         self.buffer_size = buffer_size
         self.working_dir = working_dir
-        self.killed = False
+        self.process_killed = False
 
     def poll(self):
         if not self.process:
@@ -76,9 +72,9 @@ class Process(object):
         self.process = Popen(str(self.command), cwd=self.working_dir, shell=True, stdout=PIPE, stderr=STDOUT)
 
     def stop(self):
+        self.process_killed = True
         pid = self.process.pid
         os.kill(pid, 9)
-        self.killed = True
 
     def read_log(self):
         return self.process.asyncread()

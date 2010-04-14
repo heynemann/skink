@@ -20,7 +20,7 @@ Connecting
 
 URLs are of the form `postgres://user:password@host:port/dbname[?key=value&key=value...]`.
 
-Postgres-specific keyword arguments which are accepted by :func:`~sqlalchemy.create_engine()` are:
+PostgreSQL-specific keyword arguments which are accepted by :func:`~sqlalchemy.create_engine()` are:
 
 * *server_side_cursors* - Enable the usage of "server side cursors" for SQL statements which support
   this feature.  What this essentially means from a psycopg2 point of view is that the cursor is 
@@ -33,7 +33,7 @@ Postgres-specific keyword arguments which are accepted by :func:`~sqlalchemy.cre
 Sequences/SERIAL
 ----------------
 
-Postgres supports sequences, and SQLAlchemy uses these as the default means of creating
+PostgreSQL supports sequences, and SQLAlchemy uses these as the default means of creating
 new primary key values for integer-based primary key columns.   When creating tables, 
 SQLAlchemy will issue the ``SERIAL`` datatype for integer-based primary key columns, 
 which generates a sequence corresponding to the column and associated with it based on
@@ -53,7 +53,7 @@ that when an :func:`~sqlalchemy.sql.expression.insert()` construct is executed u
 "executemany" semantics, the sequence is not pre-executed and normal PG SERIAL behavior
 is used.
 
-Postgres 8.3 supports an ``INSERT...RETURNING`` syntax which SQLAlchemy supports 
+PostgreSQL 8.3 supports an ``INSERT...RETURNING`` syntax which SQLAlchemy supports 
 as well.  A future release of SQLA will use this feature by default in lieu of 
 sequence pre-execution in order to retrieve new primary key values, when available.
 
@@ -84,7 +84,7 @@ option to the Index constructor::
 Transactions
 ------------
 
-The Postgres dialect fully supports SAVEPOINT and two-phase commit operations.
+The PostgreSQL dialect fully supports SAVEPOINT and two-phase commit operations.
 
 
 """
@@ -93,7 +93,7 @@ import decimal, random, re, string
 
 from sqlalchemy import sql, schema, exc, util
 from sqlalchemy.engine import base, default
-from sqlalchemy.sql import compiler, expression
+from sqlalchemy.sql import compiler, expression, util as sql_util
 from sqlalchemy.sql import operators as sql_operators
 from sqlalchemy import types as sqltypes
 
@@ -166,7 +166,11 @@ class PGTime(sqltypes.Time):
 class PGInterval(sqltypes.TypeEngine):
     def get_col_spec(self):
         return "INTERVAL"
-
+    
+    @property
+    def _type_affinity(self):
+        return sqltypes.Interval
+        
 class PGText(sqltypes.Text):
     def get_col_spec(self):
         return "TEXT"
@@ -200,6 +204,10 @@ class PGBit(sqltypes.TypeEngine):
 class PGUuid(sqltypes.TypeEngine):
     def get_col_spec(self):
         return "UUID"
+
+class PGDoublePrecision(sqltypes.Float):
+    def get_col_spec(self):
+        return "DOUBLE PRECISION"
     
 class PGArray(sqltypes.MutableType, sqltypes.Concatenable, sqltypes.TypeEngine):
     def __init__(self, item_type, mutable=True):
@@ -267,6 +275,7 @@ colspecs = {
     sqltypes.Smallinteger : PGSmallInteger,
     sqltypes.Numeric : PGNumeric,
     sqltypes.Float : PGFloat,
+    PGDoublePrecision : PGDoublePrecision,
     sqltypes.DateTime : PGDateTime,
     sqltypes.Date : PGDate,
     sqltypes.Time : PGTime,
@@ -294,7 +303,7 @@ ischema_names = {
     'uuid':PGUuid,
     'bit':PGBit,
     'macaddr': PGMacAddr,
-    'double precision' : PGFloat,
+    'double precision' : PGDoublePrecision,
     'timestamp' : PGDateTime,
     'timestamp with time zone' : PGDateTime,
     'timestamp without time zone' : PGDateTime,
@@ -305,6 +314,8 @@ ischema_names = {
     'bytea' : PGBinary,
     'boolean' : PGBoolean,
     'interval':PGInterval,
+    'interval year to month':PGInterval,
+    'interval day to second':PGInterval,
 }
 
 # TODO: filter out 'FOR UPDATE' statements
@@ -411,7 +422,7 @@ class PGDialect(default.DefaultDialect):
 
     def last_inserted_ids(self):
         if self.context.last_inserted_ids is None:
-            raise exc.InvalidRequestError("no INSERT executed, or can't use cursor.lastrowid without Postgres OIDs enabled")
+            raise exc.InvalidRequestError("no INSERT executed, or can't use cursor.lastrowid without PostgreSQL OIDs enabled")
         else:
             return self.context.last_inserted_ids
 
@@ -421,11 +432,32 @@ class PGDialect(default.DefaultDialect):
             cursor = connection.execute("""select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname=current_schema() and lower(relname)=%(name)s""", {'name':table_name.lower().encode(self.encoding)});
         else:
             cursor = connection.execute("""select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname=%(schema)s and lower(relname)=%(name)s""", {'name':table_name.lower().encode(self.encoding), 'schema':schema});
-        return bool( not not cursor.rowcount )
+        try:
+            return bool(cursor.fetchone())
+        finally:
+            cursor.close()
 
-    def has_sequence(self, connection, sequence_name):
-        cursor = connection.execute('''SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace IN ( SELECT oid FROM pg_namespace WHERE nspname NOT LIKE 'pg_%%' AND nspname != 'information_schema' AND relname = %(seqname)s);''', {'seqname': sequence_name.encode(self.encoding)})
-        return bool(not not cursor.rowcount)
+    def has_sequence(self, connection, sequence_name, schema=None):
+        if schema is None:
+            cursor = connection.execute(
+                        sql.text("SELECT relname FROM pg_class c join pg_namespace n on "
+                            "n.oid=c.relnamespace where relkind='S' and n.nspname=current_schema() and lower(relname)=:name",
+                            bindparams=[sql.bindparam('name', unicode(sequence_name.lower()), type_=sqltypes.Unicode)] 
+                        )
+                    )
+        else:
+            cursor = connection.execute(
+                        sql.text("SELECT relname FROM pg_class c join pg_namespace n on "
+                            "n.oid=c.relnamespace where relkind='S' and n.nspname=:schema and lower(relname)=:name",
+                            bindparams=[sql.bindparam('name', unicode(sequence_name.lower()), type_=sqltypes.Unicode),
+                                sql.bindparam('schema', unicode(schema), type_=sqltypes.Unicode)] 
+                        )
+                    )
+        
+        try:
+            return bool(cursor.fetchone())
+        finally:
+            cursor.close()
 
     def is_disconnect(self, e):
         if isinstance(e, self.dbapi.OperationalError):
@@ -517,10 +549,10 @@ class PGDialect(default.DefaultDialect):
                 else:
                     numericprec, numericscale = charlen.split(',')
                 charlen = False
-            if attype == 'double precision':
-                numericprec, numericscale = (53, False)
+            elif attype == 'double precision':
+                numericprec, numericscale = (True, False)
                 charlen = False
-            if attype == 'integer':
+            elif attype == 'integer':
                 numericprec, numericscale = (32, 0)
                 charlen = False
 
@@ -706,7 +738,6 @@ class PGDialect(default.DefaultDialect):
         return domains
 
 
-
 class PGCompiler(compiler.DefaultCompiler):
     operators = compiler.DefaultCompiler.operators.copy()
     operators.update(
@@ -721,7 +752,7 @@ class PGCompiler(compiler.DefaultCompiler):
     functions = compiler.DefaultCompiler.functions.copy()
     functions.update (
         {
-            'TIMESTAMP':lambda x:'TIMESTAMP %s' % x,
+            'TIMESTAMP':util.deprecated(message="Use a literal string 'timestamp <value>' instead")(lambda x:'TIMESTAMP %s' % x),
         }
     )
 
@@ -792,6 +823,20 @@ class PGCompiler(compiler.DefaultCompiler):
         else:
             return text
 
+    def visit_extract(self, extract, **kwargs):
+        field = self.extract_map.get(extract.field, extract.field)
+        affinity = sql_util.determine_date_affinity(extract.expr)
+        
+        casts = {sqltypes.Date:'date', sqltypes.DateTime:'timestamp', sqltypes.Interval:'interval', sqltypes.Time:'time'}
+        cast = casts.get(affinity, None)
+        if isinstance(extract.expr, sql.ColumnElement) and cast is not None:
+            expr = extract.expr.op('::')(sql.literal_column(cast))
+        else:
+            expr = extract.expr
+        return "EXTRACT(%s FROM %s)" % (
+            field, self.process(expr))
+
+
 class PGSchemaGenerator(compiler.SchemaGenerator):
     def get_column_specification(self, column, **kwargs):
         colspec = self.preparer.format_column(column)
@@ -811,7 +856,7 @@ class PGSchemaGenerator(compiler.SchemaGenerator):
         return colspec
 
     def visit_sequence(self, sequence):
-        if not sequence.optional and (not self.checkfirst or not self.dialect.has_sequence(self.connection, sequence.name)):
+        if not sequence.optional and (not self.checkfirst or not self.dialect.has_sequence(self.connection, sequence.name, schema=sequence.schema)):
             self.append("CREATE SEQUENCE %s" % self.preparer.format_sequence(sequence))
             self.execute()
 
@@ -835,7 +880,7 @@ class PGSchemaGenerator(compiler.SchemaGenerator):
 
 class PGSchemaDropper(compiler.SchemaDropper):
     def visit_sequence(self, sequence):
-        if not sequence.optional and (not self.checkfirst or self.dialect.has_sequence(self.connection, sequence.name)):
+        if not sequence.optional and (not self.checkfirst or self.dialect.has_sequence(self.connection, sequence.name, schema=sequence.schema)):
             self.append("DROP SEQUENCE %s" % self.preparer.format_sequence(sequence))
             self.execute()
 

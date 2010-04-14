@@ -12,14 +12,14 @@ import sqlalchemy.exceptions as sa_exc
 from sqlalchemy import util, sql, engine, log
 from sqlalchemy.sql import util as sql_util, expression
 from sqlalchemy.orm import (
-    SessionExtension, attributes, exc, query, unitofwork, util as mapperutil,
+    SessionExtension, attributes, exc, query, unitofwork, util as mapperutil, state
     )
 from sqlalchemy.orm.util import object_mapper as _object_mapper
 from sqlalchemy.orm.util import class_mapper as _class_mapper
 from sqlalchemy.orm.util import (
     _class_to_mapper, _state_has_identity, _state_mapper,
     )
-from sqlalchemy.orm.mapper import Mapper
+from sqlalchemy.orm.mapper import Mapper, _none_set
 from sqlalchemy.orm.unitofwork import UOWTransaction
 from sqlalchemy.orm import identity
 
@@ -158,13 +158,13 @@ def sessionmaker(bind=None, class_=None, autoflush=True, autocommit=False,
       before each transaction is committed.
 
     weak_identity_map
-      When set to the default value of ``False``, a weak-referencing map is
+      When set to the default value of ``True``, a weak-referencing map is
       used; instances which are not externally referenced will be garbage
       collected immediately. For dereferenced instances which have pending
       changes present, the attribute management system will create a temporary
       strong-reference to the object which lasts until the changes are flushed
       to the database, at which point it's again dereferenced. Alternatively,
-      when using the value ``True``, the identity map uses a regular Python
+      when using the value ``False``, the identity map uses a regular Python
       dictionary to store instances. The session will maintain all instances
       present until they are removed using expunge(), clear(), or purge().
 
@@ -299,14 +299,14 @@ class SessionTransaction(object):
             self.session._expunge_state(s)
 
         for s in self.session.identity_map.all_states():
-            _expire_state(s, None)
+            _expire_state(s, None, instance_dict=self.session.identity_map)
 
     def _remove_snapshot(self):
         assert self._is_transaction_boundary
 
         if not self.nested and self.session.expire_on_commit:
             for s in self.session.identity_map.all_states():
-                _expire_state(s, None)
+                _expire_state(s, None, instance_dict=self.session.identity_map)
 
     def _connection_for_bind(self, bind):
         self._assert_is_active()
@@ -570,13 +570,11 @@ class Session(object):
         self._mapper_flush_opts = {}
 
         if binds is not None:
-            for mapperortable, value in binds.iteritems():
-                if isinstance(mapperortable, type):
-                    mapperortable = _class_mapper(mapperortable).base_mapper
-                self.__binds[mapperortable] = value
-                if isinstance(mapperortable, Mapper):
-                    for t in mapperortable._all_tables:
-                        self.__binds[t] = value
+            for mapperortable, bind in binds.iteritems():
+                if isinstance(mapperortable, (type, Mapper)):
+                    self.bind_mapper(mapperortable, bind)
+                else:
+                    self.bind_table(mapperortable, bind)
 
         if not self.autocommit:
             self.begin()
@@ -638,9 +636,9 @@ class Session(object):
         If no transaction is in progress, this method is a pass-through.
 
         This method rolls back the current transaction or nested transaction
-        regardless of subtransactions being in effect.  All subtrasactions up
+        regardless of subtransactions being in effect.  All subtransactions up
         to the first real transaction are closed.  Subtransactions occur when
-        begin() is called mulitple times.
+        begin() is called multiple times.
 
         """
         if self.transaction is None:
@@ -857,7 +855,7 @@ class Session(object):
                     "a binding.")
 
         c_mapper = mapper is not None and _class_to_mapper(mapper) or None
-
+        
         # manually bound?
         if self.__binds:
             if c_mapper:
@@ -866,7 +864,7 @@ class Session(object):
                 elif c_mapper.mapped_table in self.__binds:
                     return self.__binds[c_mapper.mapped_table]
             if clause:
-                for t in sql_util.find_tables(clause):
+                for t in sql_util.find_tables(clause, include_crud=True):
                     if t in self.__binds:
                         return self.__binds[t]
 
@@ -899,8 +897,8 @@ class Session(object):
             self.flush()
 
     def _finalize_loaded(self, states):
-        for state in states:
-            state.commit_all()
+        for state, dict_ in states.items():
+            state.commit_all(dict_, self.identity_map)
 
     def refresh(self, instance, attribute_names=None):
         """Refresh the attributes on the given instance.
@@ -935,7 +933,7 @@ class Session(object):
         """Expires all persistent instances within this Session."""
 
         for state in self.identity_map.all_states():
-            _expire_state(state, None)
+            _expire_state(state, None, instance_dict=self.identity_map)
 
     def expire(self, instance, attribute_names=None):
         """Expire the attributes on an instance.
@@ -956,14 +954,14 @@ class Session(object):
             raise exc.UnmappedInstanceError(instance)
         self._validate_persistent(state)
         if attribute_names:
-            _expire_state(state, attribute_names=attribute_names)
+            _expire_state(state, attribute_names=attribute_names, instance_dict=self.identity_map)
         else:
             # pre-fetch the full cascade since the expire is going to
             # remove associations
             cascaded = list(_cascade_state_iterator('refresh-expire', state))
-            _expire_state(state, None)
+            _expire_state(state, None, instance_dict=self.identity_map)
             for (state, m, o) in cascaded:
-                _expire_state(state, None)
+                _expire_state(state, None, instance_dict=self.identity_map)
 
     def prune(self):
         """Remove unreferenced instances cached in the identity map.
@@ -1017,15 +1015,15 @@ class Session(object):
             if state.key is None:
                 state.key = instance_key
             elif state.key != instance_key:
-                # primary key switch
-                self.identity_map.remove(state)
+                # primary key switch.
+                # use discard() in case another state has already replaced this
+                # one in the identity map (see test/orm/test_naturalpks.py ReversePKsTest)
+                self.identity_map.discard(state)
                 state.key = instance_key
-
-            if state.key in self.identity_map and not self.identity_map.contains_state(state):
-                self.identity_map.remove_key(state.key)
-            self.identity_map.add(state)
-            state.commit_all()
-
+            
+            self.identity_map.replace(state)
+            state.commit_all(state.dict, self.identity_map)
+            
         # remove from new last, might be the last strong ref
         if state in self._new:
             if self._enable_transaction_accounting and self.transaction:
@@ -1141,8 +1139,7 @@ class Session(object):
         for state, m, o in cascade_states:
             self._delete_impl(state)
 
-    def merge(self, instance, dont_load=False,
-              _recursive=None):
+    def merge(self, instance, dont_load=False):
         """Copy the state an instance onto the persistent instance with the same identifier.
 
         If there is no persistent instance currently associated with the
@@ -1155,13 +1152,18 @@ class Session(object):
         mapped with ``cascade="merge"``.
 
         """
-        if _recursive is None:
-            # TODO: this should be an IdentityDict for instances, but will
-            # need a separate dict for PropertyLoader tuples
-            _recursive = {}
-            # Autoflush only on the topmost call
-            self._autoflush()
-
+        # TODO: this should be an IdentityDict for instances, but will
+        # need a separate dict for PropertyLoader tuples
+        _recursive = {}
+        self._autoflush()
+        autoflush = self.autoflush
+        try:
+            self.autoflush = False
+            return self._merge(instance, dont_load=dont_load, _recursive=_recursive)
+        finally:
+            self.autoflush = autoflush
+        
+    def _merge(self, instance, dont_load=False, _recursive=None):
         mapper = _object_mapper(instance)
         if instance in _recursive:
             return _recursive[instance]
@@ -1169,6 +1171,7 @@ class Session(object):
         new_instance = False
         state = attributes.instance_state(instance)
         key = state.key
+        
         if key is None:
             if dont_load:
                 raise sa_exc.InvalidRequestError(
@@ -1178,24 +1181,24 @@ class Session(object):
                     "dont_load=True.")
             key = mapper._identity_key_from_state(state)
 
-        merged = None
-        if key:
-            if key in self.identity_map:
-                merged = self.identity_map[key]
-            elif dont_load:
-                if state.modified:
-                    raise sa_exc.InvalidRequestError(
-                        "merge() with dont_load=True option does not support "
-                        "objects marked as 'dirty'.  flush() all changes on "
-                        "mapped instances before merging with dont_load=True.")
-                merged = mapper.class_manager.new_instance()
-                merged_state = attributes.instance_state(merged)
-                merged_state.key = key
-                self._update_impl(merged_state)
-                new_instance = True
-            else:
-                merged = self.query(mapper.class_).autoflush(False).get(key[1])
-
+        if key in self.identity_map:
+            merged = self.identity_map[key]
+        elif dont_load:
+            if state.modified:
+                raise sa_exc.InvalidRequestError(
+                    "merge() with dont_load=True option does not support "
+                    "objects marked as 'dirty'.  flush() all changes on "
+                    "mapped instances before merging with dont_load=True.")
+            merged = mapper.class_manager.new_instance()
+            merged_state = attributes.instance_state(merged)
+            merged_state.key = key
+            self._update_impl(merged_state)
+            new_instance = True
+        elif not _none_set.issuperset(key[1]):
+            merged = self.query(mapper.class_).get(key[1])
+        else:
+            merged = None
+            
         if merged is None:
             merged = mapper.class_manager.new_instance()
             merged_state = attributes.instance_state(merged)
@@ -1208,7 +1211,7 @@ class Session(object):
             prop.merge(self, instance, merged, dont_load, _recursive)
 
         if dont_load:
-            attributes.instance_state(merged).commit_all()  # remove any history
+            attributes.instance_state(merged).commit_all(attributes.instance_dict(merged), self.identity_map)  # remove any history
 
         if new_instance:
             merged_state._run_on_load(merged)
@@ -1357,13 +1360,12 @@ class Session(object):
             not self._deleted and not self._new):
             return
 
-        
         dirty = self._dirty_states
         if not dirty and not self._deleted and not self._new:
-            self.identity_map.modified = False
+            self.identity_map._modified.clear()
             return
 
-        flush_context   = UOWTransaction(self)
+        flush_context = UOWTransaction(self)
 
         if self.extensions:
             for ext in self.extensions:
@@ -1386,15 +1388,19 @@ class Session(object):
                     raise exc.UnmappedInstanceError(o)
                 objset.add(state)
         else:
-            # or just everything
-            objset = set(self.identity_map.all_states()).union(new)
+            objset = None
 
         # store objects whose fate has been decided
         processed = set()
 
         # put all saves/updates into the flush context.  detect top-level
         # orphans and throw them into deleted.
-        for state in new.union(dirty).intersection(objset).difference(deleted):
+        if objset:
+            proc = new.union(dirty).intersection(objset).difference(deleted)
+        else:
+            proc = new.union(dirty).difference(deleted)
+            
+        for state in proc:
             is_orphan = _state_mapper(state)._is_orphan(state)
             if is_orphan and not _state_has_identity(state):
                 path = ", nor ".join(
@@ -1410,7 +1416,11 @@ class Session(object):
             processed.add(state)
 
         # put all remaining deletes into the flush context.
-        for state in deleted.intersection(objset).difference(processed):
+        if objset:
+            proc = deleted.intersection(objset).difference(processed)
+        else:
+            proc = deleted.difference(processed)
+        for state in proc:
             flush_context.register_object(state, isdelete=True)
 
         if len(flush_context.tasks) == 0:
@@ -1430,9 +1440,13 @@ class Session(object):
         
         flush_context.finalize_flush_changes()
 
-        if not objects:
-            self.identity_map.modified = False
-
+        # useful assertions:
+        #if not objects:
+        #    assert not self.identity_map._modified
+        #else:
+        #    assert self.identity_map._modified == self.identity_map._modified.difference(objects)
+        #self.identity_map._modified.clear()
+        
         for ext in self.extensions:
             ext.after_flush_postexec(self, flush_context)
 
@@ -1459,10 +1473,18 @@ class Session(object):
             state = attributes.instance_state(instance)
         except exc.NO_STATE:
             raise exc.UnmappedInstanceError(instance)
+        dict_ = state.dict
         for attr in state.manager.attributes:
-            if not include_collections and hasattr(attr.impl, 'get_collection'):
+            if \
+                (
+                    not include_collections and 
+                    hasattr(attr.impl, 'get_collection')
+                ) or not hasattr(attr.impl, 'get_history'):
                 continue
-            (added, unchanged, deleted) = attr.get_history(instance, passive=passive)
+                
+            (added, unchanged, deleted) = \
+                    attr.impl.get_history(state, dict_, passive=passive)
+                                            
             if added or deleted:
                 return True
         return False
@@ -1481,10 +1503,7 @@ class Session(object):
         those that were possibly deleted.
 
         """
-        return util.IdentitySet(
-            [state
-             for state in self.identity_map.all_states()
-             if state.check_modified()])
+        return self.identity_map._dirty_states()
 
     @property
     def dirty(self):
@@ -1523,7 +1542,7 @@ class Session(object):
 
         return util.IdentitySet(self._new.values())
 
-_expire_state = attributes.InstanceState.expire_attributes
+_expire_state = state.InstanceState.expire_attributes
     
 UOWEventHandler = unitofwork.UOWEventHandler
 
@@ -1543,16 +1562,19 @@ def _cascade_unknown_state_iterator(cascade, state, **kwargs):
         yield _state_for_unknown_persistence_instance(o), m
 
 def _state_for_unsaved_instance(instance, create=False):
-    manager = attributes.manager_of_class(instance.__class__)
-    if manager is None:
+    try:
+        state = attributes.instance_state(instance)
+    except AttributeError:
         raise exc.UnmappedInstanceError(instance)
-    if manager.has_state(instance):
-        state = manager.state_of(instance)
+    if state:
         if state.key is not None:
             raise sa_exc.InvalidRequestError(
                 "Instance '%s' is already persistent" %
                 mapperutil.state_str(state))
     elif create:
+        manager = attributes.manager_of_class(instance.__class__)
+        if manager is None:
+            raise exc.UnmappedInstanceError(instance)
         state = manager.setup_instance(instance)
     else:
         raise exc.UnmappedInstanceError(instance)

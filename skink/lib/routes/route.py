@@ -15,7 +15,13 @@ class Route(object):
     See Route.__init__ docs for usage.
     
     """
-    def __init__(self, routepath, **kargs):
+    # reserved keys that don't count
+    reserved_keys = ['requirements']
+    
+    # special chars to indicate a natural split in the URL
+    done_chars = ('/', ',', ';', '.', '#')
+    
+    def __init__(self, name, routepath, **kargs):
         """Initialize a route, with a given routepath for
         matching/generation
         
@@ -24,12 +30,12 @@ class Route(object):
         Usage::
         
             >>> from routes.base import Route
-            >>> newroute = Route(':controller/:action/:id')
+            >>> newroute = Route(None, ':controller/:action/:id')
             >>> sorted(newroute.defaults.items())
             [('action', 'index'), ('id', None)]
-            >>> newroute = Route('date/:year/:month/:day',  
+            >>> newroute = Route(None, 'date/:year/:month/:day',  
             ...     controller="blog", action="view")
-            >>> newroute = Route('archives/:page', controller="blog", 
+            >>> newroute = Route(None, 'archives/:page', controller="blog", 
             ...     action="by_page", requirements = { 'page':'\d{1,2}' })
             >>> newroute.reqs
             {'page': '\\\d{1,2}'}
@@ -43,7 +49,7 @@ class Route(object):
         self.sub_domains = False
         self.prior = None
         self.redirect = False
-        self.name = None
+        self.name = name
         self.minimization = kargs.pop('_minimize', True)
         self.encoding = kargs.pop('_encoding', 'utf-8')
         self.reqs = kargs.get('requirements', {})
@@ -65,13 +71,7 @@ class Route(object):
         
         # Determine if explicit behavior should be used
         self.explicit = kargs.pop('_explicit', False)
-        
-        # reserved keys that don't count
-        reserved_keys = ['requirements']
-        
-        # special chars to indicate a natural split in the URL
-        self.done_chars = ('/', ',', ';', '.', '#')
-        
+                
         # Since static need to be generated exactly, treat them as
         # non-minimized
         if self.static:
@@ -80,10 +80,13 @@ class Route(object):
         
         # Strip preceding '/' if present, and not minimizing
         if routepath.startswith('/') and self.minimization:
-            routepath = routepath[1:]
+            self.routepath = routepath[1:]
+        self._kargs = kargs
+        self._setup_route()
         
+    def _setup_route(self):
         # Build our routelist, and the keys used in the route
-        self.routelist = routelist = self._pathkeys(routepath)
+        self.routelist = routelist = self._pathkeys(self.routepath)
         routekeys = frozenset([key['name'] for key in routelist \
                                if isinstance(key, dict)])
         
@@ -97,7 +100,7 @@ class Route(object):
         # Update our defaults and set new default keys if needed. defaults
         # needs to be saved
         (self.defaults, defaultkeys) = self._defaults(routekeys, 
-                                                      reserved_keys, kargs)
+                                                      self.reserved_keys, self._kargs)
         # Save the maximum keys we could utilize
         self.maxkeys = defaultkeys | routekeys
         
@@ -259,7 +262,7 @@ class Route(object):
         
         return (defaults, newdefaultkeys)
         
-    def makeregexp(self, clist):
+    def makeregexp(self, clist, include_names=True):
         """Create a regular expression for matching purposes
         
         Note: This MUST be called before match can function properly.
@@ -269,24 +272,32 @@ class Route(object):
         framework after it knows all available controllers that can be
         utilized.
         
+        include_names indicates whether this should be a match regexp
+        assigned to itself using regexp grouping names, or if names
+        should be excluded for use in a single larger regexp to
+        determine if any routes match
+        
         """
         if self.minimization:
-            reg = self.buildnextreg(self.routelist, clist)[0]
+            reg = self.buildnextreg(self.routelist, clist, include_names)[0]
             if not reg:
                 reg = '/'
-            reg = reg + '(/)?' + '$'
+            reg = reg + '/?' + '$'
         
             if not reg.startswith('/'):
                 reg = '/' + reg
         else:
-            reg = self.buildfullreg(clist)
+            reg = self.buildfullreg(clist, include_names)
         
         reg = '^' + reg
+        
+        if not include_names:
+            return reg
         
         self.regexp = reg
         self.regmatch = re.compile(reg)
     
-    def buildfullreg(self, clist):
+    def buildfullreg(self, clist, include_names=True):
         """Build the regexp by iterating through the routelist and
         replacing dicts with the appropriate regexp match"""
         regparts = []
@@ -299,13 +310,16 @@ class Route(object):
                     partmatch = self.reqs.get(var) or '[^/]+?'
                 else:
                     partmatch = self.reqs.get(var) or '.+?'
-                regparts.append('(?P<%s>%s)' % (var, partmatch))
+                if include_names:
+                    regparts.append('(?P<%s>%s)' % (var, partmatch))
+                else:
+                    regparts.append('(?:%s)' % partmatch)
             else:
                 regparts.append(re.escape(part))
         regexp = ''.join(regparts) + '$'
         return regexp
     
-    def buildnextreg(self, path, clist):
+    def buildnextreg(self, path, clist, include_names=True):
         """Recursively build our regexp given a path, and a controller
         list.
         
@@ -325,7 +339,7 @@ class Route(object):
         (rest, noreqs, allblank) = ('', True, True)
         if len(path[1:]) > 0:
             self.prior = part
-            (rest, noreqs, allblank) = self.buildnextreg(path[1:], clist)
+            (rest, noreqs, allblank) = self.buildnextreg(path[1:], clist, include_names)
         
         if isinstance(part, dict) and part['type'] == ':':
             var = part['name']
@@ -333,15 +347,26 @@ class Route(object):
             
             # First we plug in the proper part matcher
             if self.reqs.has_key(var):
-                partreg = '(?P<' + var + '>' + self.reqs[var] + ')'
+                if include_names:
+                    partreg = '(?P<%s>%s)' % (var, self.reqs[var])
+                else:
+                    partreg = '(?:%s)' % self.reqs[var]
             elif var == 'controller':
-                partreg = '(?P<' + var + '>' + '|'.join(map(re.escape, clist))
-                partreg += ')'
+                if include_names:
+                    partreg = '(?P<%s>%s)' % (var, '|'.join(map(re.escape, clist)))
+                else:
+                    partreg = '(?:%s)' % '|'.join(map(re.escape, clist))
             elif self.prior in ['/', '#']:
-                partreg = '(?P<' + var + '>[^' + self.prior + ']+?)'
+                if include_names:
+                    partreg = '(?P<' + var + '>[^' + self.prior + ']+?)'
+                else:
+                    partreg = '(?:[^' + self.prior + ']+?)'
             else:
                 if not rest:
-                    partreg = '(?P<' + var + '>[^%s]+?)' % '/'
+                    if include_names:
+                        partreg = '(?P<%s>[^%s]+?)' % (var, '/')
+                    else:
+                        partreg = '(?:[^%s]+?)' % '/'
                 else:
                     end = ''.join(self.done_chars)
                     rem = rest
@@ -352,7 +377,10 @@ class Route(object):
                     else:
                         rem = end
                     rem = frozenset(rem) | frozenset(['/'])
-                    partreg = '(?P<' + var + '>[^%s]+?)' % ''.join(rem)
+                    if include_names:
+                        partreg = '(?P<%s>[^%s]+?)' % (var, ''.join(rem))
+                    else:
+                        partreg = '(?:[^%s]+?)' % ''.join(rem)
             
             if self.reqs.has_key(var):
                 noreqs = False
@@ -410,21 +438,31 @@ class Route(object):
         elif isinstance(part, dict) and part['type'] == '*':
             var = part['name']
             if noreqs:
-                if self.defaults.has_key(var):
-                    reg = '(?P<' + var + '>.*)' + rest
+                if include_names:
+                    reg = '(?P<%s>.*)' % var + rest
                 else:
-                    reg = '(?P<' + var + '>.*)' + rest
+                    reg = '(?:.*)' + rest
+                if not self.defaults.has_key(var):
                     allblank = False
                     noreqs = False
             else:
                 if allblank and self.defaults.has_key(var):
-                    reg = '(?P<' + var + '>.*)' + rest
+                    if include_names:
+                        reg = '(?P<%s>.*)' % var + rest
+                    else:
+                        reg = '(?:.*)' + rest
                 elif self.defaults.has_key(var):
-                    reg = '(?P<' + var + '>.*)' + rest
+                    if include_names:
+                        reg = '(?P<%s>.*)' % var + rest
+                    else:
+                        reg = '(?:.*)' + rest
                 else:
+                    if include_names:
+                        reg = '(?P<%s>.*)' % var + rest
+                    else:
+                        reg = '(?:.*)' + rest
                     allblank = False
                     noreqs = False
-                    reg = '(?P<' + var + '>.*)' + rest
         elif part and part[-1] in self.done_chars:
             if allblank:
                 reg = re.escape(part[:-1]) + '(' + re.escape(part[-1]) + rest
@@ -657,7 +695,7 @@ class Route(object):
                 val = kargs[key]
                 if isinstance(val, (tuple, list)):
                     for value in val:
-                        fragments.append((key, value))
+                        fragments.append((key, _str_encode(value, self.encoding)))
                 else:
                     fragments.append((key, _str_encode(val, self.encoding)))
             if fragments:

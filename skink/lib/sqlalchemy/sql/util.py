@@ -1,4 +1,4 @@
-from sqlalchemy import exc, schema, topological, util, sql
+from sqlalchemy import exc, schema, topological, util, sql, types as sqltypes
 from sqlalchemy.sql import expression, operators, visitors
 from itertools import chain
 
@@ -45,31 +45,122 @@ def find_join_source(clauses, join_to):
                 return i, f
     else:
         return None, None
+
+_date_affinities = None
+def determine_date_affinity(expr):
+    """Given an expression, determine if it returns 'interval', 'date', or 'datetime'.
     
-def find_tables(clause, check_columns=False, include_aliases=False, include_joins=False, include_selects=False):
+    the PG dialect uses this to generate the extract() function.
+    
+    It's less than ideal since it basically needs to duplicate PG's 
+    date arithmetic rules.   
+    
+    Rules are based on http://www.postgresql.org/docs/current/static/functions-datetime.html.
+    
+    Returns None if operators other than + or - are detected as well as types
+    outside of those above.
+    
+    """
+    
+    global _date_affinities
+    if _date_affinities is None:
+        Date, DateTime, Integer, \
+            Numeric, Interval, Time = \
+                                    sqltypes.Date, sqltypes.DateTime,\
+                                    sqltypes.Integer, sqltypes.Numeric,\
+                                    sqltypes.Interval, sqltypes.Time
+
+        _date_affinities = {
+            operators.add:{
+                (Date, Integer):Date,
+                (Date, Interval):DateTime,
+                (Date, Time):DateTime,
+                (Interval, Interval):Interval,
+                (DateTime, Interval):DateTime,
+                (Interval, Time):Time,
+            },
+            operators.sub:{
+                (Date, Integer):Date,
+                (Date, Interval):DateTime,
+                (Time, Time):Interval,
+                (Time, Interval):Time,
+                (DateTime, Interval):DateTime,
+                (Interval, Interval):Interval,
+                (DateTime, DateTime):Interval,
+            },
+            operators.mul:{
+                (Integer, Interval):Interval,
+                (Interval, Numeric):Interval,
+            },
+            operators.div: {
+                (Interval, Numeric):Interval
+            }
+        }
+    
+    if isinstance(expr, expression._BinaryExpression):
+        if expr.operator not in _date_affinities:
+            return None
+            
+        left_affin, right_affin = \
+            determine_date_affinity(expr.left), \
+            determine_date_affinity(expr.right)
+        
+        if left_affin is None or right_affin is None:
+            return None
+            
+        if operators.is_commutative(expr.operator):
+            key = tuple(sorted([left_affin, right_affin], key=lambda cls:cls.__name__))
+        else:
+            key = (left_affin, right_affin)
+        
+        lookup = _date_affinities[expr.operator]
+        return lookup.get(key, None)
+
+    # work around the fact that expressions put the wrong type
+    # on generated bind params when its "datetime + timedelta"
+    # and similar
+    if isinstance(expr, expression._BindParamClause):
+        type_ = sqltypes.type_map.get(type(expr.value), sqltypes.NullType)()
+    else:
+        type_ = expr.type
+
+    affinities = set([sqltypes.Date, sqltypes.DateTime, 
+                    sqltypes.Interval, sqltypes.Time, sqltypes.Integer])
+        
+    if type_ is not None and type_._type_affinity in affinities:
+        return type_._type_affinity
+    else:
+        return None
+    
+    
+    
+def find_tables(clause, check_columns=False, 
+                include_aliases=False, include_joins=False, 
+                include_selects=False, include_crud=False):
     """locate Table objects within the given expression."""
     
     tables = []
     _visitors = {}
     
-    def visit_something(elem):
-        tables.append(elem)
-        
     if include_selects:
-        _visitors['select'] = _visitors['compound_select'] = visit_something
+        _visitors['select'] = _visitors['compound_select'] = tables.append
     
     if include_joins:
-        _visitors['join'] = visit_something
+        _visitors['join'] = tables.append
         
     if include_aliases:
-        _visitors['alias']  = visit_something
-
+        _visitors['alias']  = tables.append
+    
+    if include_crud:
+        _visitors['insert'] = _visitors['update'] = \
+                    _visitors['delete'] = lambda ent: tables.append(ent.table)
+        
     if check_columns:
         def visit_column(column):
             tables.append(column.table)
         _visitors['column'] = visit_column
 
-    _visitors['table'] = visit_something
+    _visitors['table'] = tables.append
 
     visitors.traverse(clause, {'column_collections':False}, _visitors)
     return tables
@@ -300,7 +391,7 @@ def reduce_columns(columns, *clauses, **kw):
 
     omit = util.column_set()
     for col in columns:
-        for fk in col.foreign_keys:
+        for fk in chain(*[c.foreign_keys for c in col.proxy_set]):
             for c in columns:
                 if c is col:
                     continue
@@ -342,14 +433,14 @@ def criterion_as_pairs(expression, consider_as_foreign_keys=None, consider_as_re
             return
 
         if consider_as_foreign_keys:
-            if binary.left in consider_as_foreign_keys:
+            if binary.left in consider_as_foreign_keys and (binary.right is binary.left or binary.right not in consider_as_foreign_keys):
                 pairs.append((binary.right, binary.left))
-            elif binary.right in consider_as_foreign_keys:
+            elif binary.right in consider_as_foreign_keys and (binary.left is binary.right or binary.left not in consider_as_foreign_keys):
                 pairs.append((binary.left, binary.right))
         elif consider_as_referenced_keys:
-            if binary.left in consider_as_referenced_keys:
+            if binary.left in consider_as_referenced_keys and (binary.right is binary.left or binary.right not in consider_as_referenced_keys):
                 pairs.append((binary.left, binary.right))
-            elif binary.right in consider_as_referenced_keys:
+            elif binary.right in consider_as_referenced_keys and (binary.left is binary.right or binary.left not in consider_as_referenced_keys):
                 pairs.append((binary.right, binary.left))
         else:
             if isinstance(binary.left, schema.Column) and isinstance(binary.right, schema.Column):
@@ -500,11 +591,12 @@ class ColumnAdapter(ClauseAdapter):
     adapted_row() factory.
     
     """
-    def __init__(self, selectable, equivalents=None, chain_to=None, include=None, exclude=None):
+    def __init__(self, selectable, equivalents=None, chain_to=None, include=None, exclude=None, adapt_required=False):
         ClauseAdapter.__init__(self, selectable, equivalents, include, exclude)
         if chain_to:
             self.chain(chain_to)
         self.columns = util.populate_column_dict(self._locate_col)
+        self.adapt_required = adapt_required
 
     def wrap(self, adapter):
         ac = self.__class__.__new__(self.__class__)
@@ -532,6 +624,16 @@ class ColumnAdapter(ClauseAdapter):
             # anonymize labels in case they have a hardcoded name
             if isinstance(c, expression._Label):
                 c = c.label(None)
+                
+        # adapt_required indicates that if we got the same column
+        # back which we put in (i.e. it passed through), 
+        # it's not correct.  this is used by eagerloading which
+        # knows that all columns and expressions need to be adapted
+        # to a result row, and a "passthrough" is definitely targeting
+        # the wrong column.
+        if self.adapt_required and c is col:
+            return None
+            
         return c    
 
     def adapted_row(self, row):

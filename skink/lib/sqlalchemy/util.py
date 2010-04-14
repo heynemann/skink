@@ -11,12 +11,9 @@ types = __import__('types')
 from sqlalchemy import exc
 
 try:
-    import thread, threading
-    from threading import local as ThreadLocal
+    import threading
 except ImportError:
-    import dummy_thread as thread
     import dummy_threading as threading
-    from dummy_threading import local as ThreadLocal
 
 py3k = getattr(sys, 'py3kwarning', False) or sys.version_info >= (3, 0)
 
@@ -688,6 +685,12 @@ class OrderedDict(dict):
         self._list = []
         dict.clear(self)
 
+    def copy(self):
+        return self.__copy__()
+
+    def __copy__(self):
+        return OrderedDict(self)
+
     def sort(self, *arg, **kw):
         self._list.sort(*arg, **kw)
 
@@ -1121,14 +1124,7 @@ class ScopedRegistry(object):
 
     scopefunc
       a callable that will return a key to store/retrieve an object.
-      If None, ScopedRegistry uses a threading.local object instead.
-
     """
-    def __new__(cls, createfunc, scopefunc=None):
-        if not scopefunc:
-            return object.__new__(_TLocalRegistry)
-        else:
-            return object.__new__(cls)
 
     def __init__(self, createfunc, scopefunc):
         self.createfunc = createfunc
@@ -1154,8 +1150,8 @@ class ScopedRegistry(object):
         except KeyError:
             pass
 
-class _TLocalRegistry(ScopedRegistry):
-    def __init__(self, createfunc, scopefunc=None):
+class ThreadLocalRegistry(ScopedRegistry):
+    def __init__(self, createfunc):
         self.createfunc = createfunc
         self.registry = threading.local()
 

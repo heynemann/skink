@@ -42,7 +42,7 @@ Examples of pyodbc connection string URLs:
 * *mssql://mydsn* - connects using the specified DSN named ``mydsn``.
   The connection string that is created will appear like::
 
-    dsn=mydsn;TrustedConnection=Yes
+    dsn=mydsn;Trusted_Connection=Yes
 
 * *mssql://user:pass@mydsn* - connects using the DSN named
   ``mydsn`` passing in the ``UID`` and ``PWD`` information. The
@@ -242,14 +242,43 @@ Known Issues
 import datetime, decimal, inspect, operator, re, sys, urllib
 
 from sqlalchemy import sql, schema, exc, util
-from sqlalchemy.sql import compiler, expression, operators as sqlops, functions as sql_functions
-from sqlalchemy.sql import compiler, expression, operators as sql_operators, functions as sql_functions
+from sqlalchemy import Table, MetaData, Column, ForeignKey, String, Integer
+from sqlalchemy.sql import select, compiler, expression, operators as sql_operators, functions as sql_functions
 from sqlalchemy.engine import default, base
 from sqlalchemy import types as sqltypes
 from decimal import Decimal as _python_Decimal
 
 
-MSSQL_RESERVED_WORDS = set(['function'])
+RESERVED_WORDS = set(
+    ['add', 'all', 'alter', 'and', 'any', 'as', 'asc', 'authorization',
+     'backup', 'begin', 'between', 'break', 'browse', 'bulk', 'by', 'cascade',
+     'case', 'check', 'checkpoint', 'close', 'clustered', 'coalesce',
+     'collate', 'column', 'commit', 'compute', 'constraint', 'contains',
+     'containstable', 'continue', 'convert', 'create', 'cross', 'current',
+     'current_date', 'current_time', 'current_timestamp', 'current_user',
+     'cursor', 'database', 'dbcc', 'deallocate', 'declare', 'default',
+     'delete', 'deny', 'desc', 'disk', 'distinct', 'distributed', 'double',
+     'drop', 'dump', 'else', 'end', 'errlvl', 'escape', 'except', 'exec',
+     'execute', 'exists', 'exit', 'external', 'fetch', 'file', 'fillfactor',
+     'for', 'foreign', 'freetext', 'freetexttable', 'from', 'full',
+     'function', 'goto', 'grant', 'group', 'having', 'holdlock', 'identity',
+     'identity_insert', 'identitycol', 'if', 'in', 'index', 'inner', 'insert',
+     'intersect', 'into', 'is', 'join', 'key', 'kill', 'left', 'like',
+     'lineno', 'load', 'merge', 'national', 'nocheck', 'nonclustered', 'not',
+     'null', 'nullif', 'of', 'off', 'offsets', 'on', 'open', 'opendatasource',
+     'openquery', 'openrowset', 'openxml', 'option', 'or', 'order', 'outer',
+     'over', 'percent', 'pivot', 'plan', 'precision', 'primary', 'print',
+     'proc', 'procedure', 'public', 'raiserror', 'read', 'readtext',
+     'reconfigure', 'references', 'replication', 'restore', 'restrict',
+     'return', 'revert', 'revoke', 'right', 'rollback', 'rowcount',
+     'rowguidcol', 'rule', 'save', 'schema', 'securityaudit', 'select',
+     'session_user', 'set', 'setuser', 'shutdown', 'some', 'statistics',
+     'system_user', 'table', 'tablesample', 'textsize', 'then', 'to', 'top',
+     'tran', 'transaction', 'trigger', 'truncate', 'tsequal', 'union',
+     'unique', 'unpivot', 'update', 'updatetext', 'use', 'user', 'values',
+     'varying', 'view', 'waitfor', 'when', 'where', 'while', 'with',
+     'writetext',
+    ])
 
 
 class _StringType(object):
@@ -820,6 +849,68 @@ class MSVariant(sqltypes.TypeEngine):
     def get_col_spec(self):
         return "SQL_VARIANT"
 
+ischema = MetaData()
+
+schemata = Table("SCHEMATA", ischema,
+    Column("CATALOG_NAME", String, key="catalog_name"),
+    Column("SCHEMA_NAME", String, key="schema_name"),
+    Column("SCHEMA_OWNER", String, key="schema_owner"),
+    schema="INFORMATION_SCHEMA")
+
+tables = Table("TABLES", ischema,
+    Column("TABLE_CATALOG", String, key="table_catalog"),
+    Column("TABLE_SCHEMA", String, key="table_schema"),
+    Column("TABLE_NAME", String, key="table_name"),
+    Column("TABLE_TYPE", String, key="table_type"),
+    schema="INFORMATION_SCHEMA")
+
+columns = Table("COLUMNS", ischema,
+    Column("TABLE_SCHEMA", String, key="table_schema"),
+    Column("TABLE_NAME", String, key="table_name"),
+    Column("COLUMN_NAME", String, key="column_name"),
+    Column("IS_NULLABLE", Integer, key="is_nullable"),
+    Column("DATA_TYPE", String, key="data_type"),
+    Column("ORDINAL_POSITION", Integer, key="ordinal_position"),
+    Column("CHARACTER_MAXIMUM_LENGTH", Integer, key="character_maximum_length"),
+    Column("NUMERIC_PRECISION", Integer, key="numeric_precision"),
+    Column("NUMERIC_SCALE", Integer, key="numeric_scale"),
+    Column("COLUMN_DEFAULT", Integer, key="column_default"),
+    Column("COLLATION_NAME", String, key="collation_name"),
+    schema="INFORMATION_SCHEMA")
+
+constraints = Table("TABLE_CONSTRAINTS", ischema,
+    Column("TABLE_SCHEMA", String, key="table_schema"),
+    Column("TABLE_NAME", String, key="table_name"),
+    Column("CONSTRAINT_NAME", String, key="constraint_name"),
+    Column("CONSTRAINT_TYPE", String, key="constraint_type"),
+    schema="INFORMATION_SCHEMA")
+
+column_constraints = Table("CONSTRAINT_COLUMN_USAGE", ischema,
+    Column("TABLE_SCHEMA", String, key="table_schema"),
+    Column("TABLE_NAME", String, key="table_name"),
+    Column("COLUMN_NAME", String, key="column_name"),
+    Column("CONSTRAINT_NAME", String, key="constraint_name"),
+    schema="INFORMATION_SCHEMA")
+
+key_constraints = Table("KEY_COLUMN_USAGE", ischema,
+    Column("TABLE_SCHEMA", String, key="table_schema"),
+    Column("TABLE_NAME", String, key="table_name"),
+    Column("COLUMN_NAME", String, key="column_name"),
+    Column("CONSTRAINT_NAME", String, key="constraint_name"),
+    Column("ORDINAL_POSITION", Integer, key="ordinal_position"),
+    schema="INFORMATION_SCHEMA")
+
+ref_constraints = Table("REFERENTIAL_CONSTRAINTS", ischema,
+    Column("CONSTRAINT_CATALOG", String, key="constraint_catalog"),
+    Column("CONSTRAINT_SCHEMA", String, key="constraint_schema"),
+    Column("CONSTRAINT_NAME", String, key="constraint_name"),
+    Column("UNIQUE_CONSTRAINT_CATLOG", String, key="unique_constraint_catalog"),
+    Column("UNIQUE_CONSTRAINT_SCHEMA", String, key="unique_constraint_schema"),
+    Column("UNIQUE_CONSTRAINT_NAME", String, key="unique_constraint_name"),
+    Column("MATCH_OPTION", String, key="match_option"),
+    Column("UPDATE_RULE", String, key="update_rule"),
+    Column("DELETE_RULE", String, key="delete_rule"),
+    schema="INFORMATION_SCHEMA")
 
 def _has_implicit_sequence(column):
     return column.primary_key and  \
@@ -827,9 +918,9 @@ def _has_implicit_sequence(column):
         isinstance(column.type, sqltypes.Integer) and \
         not column.foreign_keys and \
         (
-            column.default is None or 
+            column.default is None or
             (
-                isinstance(column.default, schema.Sequence) and 
+                isinstance(column.default, schema.Sequence) and
                 column.default.optional)
             )
 
@@ -859,7 +950,7 @@ class MSSQLExecutionContext(default.DefaultExecutionContext):
                 self.IINSERT = False
 
             if self.IINSERT:
-                self.cursor.execute("SET IDENTITY_INSERT %s ON" % 
+                self.cursor.execute("SET IDENTITY_INSERT %s ON" %
                     self.dialect.identifier_preparer.format_table(self.compiled.statement.table))
 
     def handle_dbapi_exception(self, e):
@@ -974,13 +1065,13 @@ class MSSQLDialect(default.DefaultDialect):
     def __new__(cls, *args, **kwargs):
         if cls is not MSSQLDialect:
             # this gets called with the dialect specific class
-            return super(MSSQLDialect, cls).__new__(cls, *args, **kwargs)
+            return super(MSSQLDialect, cls).__new__(cls)
         dbapi = kwargs.get('dbapi', None)
         if dbapi:
             dialect = dialect_mapping.get(dbapi.__name__)
             return dialect(**kwargs)
         else:
-            return object.__new__(cls, *args, **kwargs)
+            return object.__new__(cls)
 
     def __init__(self,
                  auto_identity_insert=True, query_timeout=None,
@@ -1056,10 +1147,10 @@ class MSSQLDialect(default.DefaultDialect):
             newobj.dialect = self
         return newobj
 
-    def do_begin(self, connection):
-        cursor = connection.cursor()
-        cursor.execute("SET IMPLICIT_TRANSACTIONS OFF")
-        cursor.execute("BEGIN TRANSACTION")
+    def do_savepoint(self, connection, name):
+        util.warn("Savepoint support in mssql is experimental and may lead to data loss.")
+        connection.execute("IF @@TRANCOUNT = 0 BEGIN TRANSACTION")
+        connection.execute("SAVE TRANSACTION %s" % name)
 
     def do_release_savepoint(self, connection, name):
         pass
@@ -1086,24 +1177,13 @@ class MSSQLDialect(default.DefaultDialect):
         return self.schema_name
 
     def table_names(self, connection, schema):
-        from sqlalchemy.databases import information_schema as ischema
-        return ischema.table_names(connection, schema)
-
-    def uppercase_table(self, t):
-        # convert all names to uppercase -- fixes refs to INFORMATION_SCHEMA for case-senstive DBs, and won't matter for case-insensitive
-        t.name = t.name.upper()
-        if t.schema:
-            t.schema = t.schema.upper()
-        for c in t.columns:
-            c.name = c.name.upper()
-        return t
+        s = select([tables.c.table_name], tables.c.table_schema==schema)
+        return [row[0] for row in connection.execute(s)]
 
 
     def has_table(self, connection, tablename, schema=None):
-        import sqlalchemy.databases.information_schema as ischema
 
         current_schema = schema or self.get_default_schema_name(connection)
-        columns = self.uppercase_table(ischema.columns)
         s = sql.select([columns],
                    current_schema
                        and sql.and_(columns.c.table_name==tablename, columns.c.table_schema==current_schema)
@@ -1115,14 +1195,12 @@ class MSSQLDialect(default.DefaultDialect):
         return row is not None
 
     def reflecttable(self, connection, table, include_columns):
-        import sqlalchemy.databases.information_schema as ischema
         # Get base columns
         if table.schema is not None:
             current_schema = table.schema
         else:
             current_schema = self.get_default_schema_name(connection)
 
-        columns = self.uppercase_table(ischema.columns)
         s = sql.select([columns],
                    current_schema
                        and sql.and_(columns.c.table_name==table.name, columns.c.table_schema==current_schema)
@@ -1205,10 +1283,10 @@ class MSSQLDialect(default.DefaultDialect):
                 pass
 
         # Add constraints
-        RR = self.uppercase_table(ischema.ref_constraints)    #information_schema.referential_constraints
-        TC = self.uppercase_table(ischema.constraints)        #information_schema.table_constraints
-        C  = self.uppercase_table(ischema.pg_key_constraints).alias('C') #information_schema.constraint_column_usage: the constrained column
-        R  = self.uppercase_table(ischema.pg_key_constraints).alias('R') #information_schema.constraint_column_usage: the referenced column
+        RR = ref_constraints
+        TC = constraints
+        C  = key_constraints.alias('C') #information_schema.constraint_column_usage: the constrained column
+        R  = key_constraints.alias('R') #information_schema.constraint_column_usage: the referenced column
 
         # Primary key constraints
         s = sql.select([C.c.column_name, TC.c.constraint_type], sql.and_(TC.c.constraint_name == C.c.constraint_name,
@@ -1299,7 +1377,7 @@ class MSSQLDialect_pymssql(MSSQLDialect):
             if self.dbapi.version_info > (0, 8, 0):
                 r[1]['timeout'] = self.query_timeout
             else:
-                self.dbapi._mssql.set_query_timeout(self.query_timeout) 
+                self.dbapi._mssql.set_query_timeout(self.query_timeout)
         return r
 
     def make_connect_string(self, keys, query):
@@ -1373,12 +1451,12 @@ class MSSQLDialect_pyodbc(MSSQLDialect):
                 connectors.append("UID=%s" % user)
                 connectors.append("PWD=%s" % keys.pop('password', ''))
             else:
-                connectors.append("TrustedConnection=Yes")
+                connectors.append("Trusted_Connection=Yes")
 
-            # if set to 'Yes', the ODBC layer will try to automagically convert 
-            # textual data from your database encoding to your client encoding 
-            # This should obviously be set to 'No' if you query a cp1253 encoded 
-            # database from a latin1 client... 
+            # if set to 'Yes', the ODBC layer will try to automagically convert
+            # textual data from your database encoding to your client encoding
+            # This should obviously be set to 'No' if you query a cp1253 encoded
+            # database from a latin1 client...
             if 'odbc_autotranslate' in keys:
                 connectors.append("AutoTranslate=%s" % keys.pop("odbc_autotranslate"))
 
@@ -1466,6 +1544,14 @@ class MSSQLCompiler(compiler.DefaultCompiler):
         }
     )
 
+    extract_map = compiler.DefaultCompiler.extract_map.copy()
+    extract_map.update ({
+        'doy': 'dayofyear',
+        'dow': 'weekday',
+        'milliseconds': 'millisecond',
+        'microseconds': 'microsecond'
+    })
+
     def __init__(self, *args, **kwargs):
         super(MSSQLCompiler, self).__init__(*args, **kwargs)
         self.tablealiases = {}
@@ -1474,7 +1560,7 @@ class MSSQLCompiler(compiler.DefaultCompiler):
         """ MS-SQL puts TOP, it's version of LIMIT here """
         if select._distinct or select._limit:
             s = select._distinct and "DISTINCT " or ""
-            
+
             if select._limit:
                 if not select._offset:
                     s += "TOP %s " % (select._limit,)
@@ -1537,9 +1623,9 @@ class MSSQLCompiler(compiler.DefaultCompiler):
         kwargs['mssql_aliased'] = True
         return super(MSSQLCompiler, self).visit_alias(alias, **kwargs)
 
-    def visit_savepoint(self, savepoint_stmt):
-        util.warn("Savepoint support in mssql is experimental and may lead to data loss.")
-        return "SAVE TRANSACTION %s" % self.preparer.format_savepoint(savepoint_stmt)
+    def visit_extract(self, extract):
+        field = self.extract_map.get(extract.field, extract.field)
+        return 'DATEPART("%s", %s)' % (field, self.process(extract.expr))
 
     def visit_rollback_to_savepoint(self, savepoint_stmt):
         return "ROLLBACK TRANSACTION %s" % self.preparer.format_savepoint(savepoint_stmt)
@@ -1632,10 +1718,10 @@ class MSSQLSchemaGenerator(compiler.SchemaGenerator):
                 colspec += " NOT NULL"
             else:
                 colspec += " NULL"
-        
+
         if not column.table:
             raise exc.InvalidRequestError("mssql requires Table-bound columns in order to generate DDL")
-            
+
         seq_col = _table_sequence_column(column.table)
 
         # install a IDENTITY Sequence if we have an implicit IDENTITY column
@@ -1663,7 +1749,7 @@ class MSSQLSchemaDropper(compiler.SchemaDropper):
 
 
 class MSSQLIdentifierPreparer(compiler.IdentifierPreparer):
-    reserved_words = compiler.IdentifierPreparer.reserved_words.union(MSSQL_RESERVED_WORDS)
+    reserved_words = RESERVED_WORDS
 
     def __init__(self, dialect):
         super(MSSQLIdentifierPreparer, self).__init__(dialect, initial_quote='[', final_quote=']')
@@ -1671,6 +1757,11 @@ class MSSQLIdentifierPreparer(compiler.IdentifierPreparer):
     def _escape_identifier(self, value):
         #TODO: determine MSSQL's escaping rules
         return value
+
+    def quote_schema(self, schema, force=True):
+        """Prepare a quoted table and schema name."""
+        result = '.'.join([self.quote(x, force) for x in schema.split('.')])
+        return result
 
 dialect = MSSQLDialect
 dialect.statement_compiler = MSSQLCompiler

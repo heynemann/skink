@@ -1914,6 +1914,10 @@ class MySQLCompiler(compiler.DefaultCompiler):
         "utc_timestamp":"UTC_TIMESTAMP"
         })
 
+    extract_map = compiler.DefaultCompiler.extract_map.copy()
+    extract_map.update ({
+        'milliseconds': 'millisecond',
+    })
 
     def visit_typeclause(self, typeclause):
         type_ = typeclause.type.dialect_impl(self.dialect)
@@ -2467,7 +2471,7 @@ class MySQLSchemaReflector(object):
             r'%(iq)s(?P<name>(?:%(esc_fq)s|[^%(fq)s])+)%(fq)s +'
             r'FOREIGN KEY +'
             r'\((?P<local>[^\)]+?)\) REFERENCES +'
-            r'(?P<table>%(iq)s[^%(fq)s]+%(fq)s) +'
+            r'(?P<table>%(iq)s[^%(fq)s]+%(fq)s(?:\.%(iq)s[^%(fq)s]+%(fq)s)?) +'
             r'\((?P<foreign>[^\)]+?)\)'
             r'(?: +(?P<match>MATCH \w+))?'
             r'(?: +ON DELETE (?P<ondelete>%(on)s))?'

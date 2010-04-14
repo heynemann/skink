@@ -32,8 +32,8 @@ def _register_attribute(strategy, mapper, useobject,
 ):
 
     prop = strategy.parent_property
-    attribute_ext = util.to_list(prop.extension) or []
-
+    attribute_ext = list(util.to_list(prop.extension, default=[]))
+        
     if useobject and prop.single_parent:
         attribute_ext.append(_SingleParentValidator(prop))
 
@@ -45,9 +45,10 @@ def _register_attribute(strategy, mapper, useobject,
     
     if useobject:
         attribute_ext.append(sessionlib.UOWEventHandler(prop.key))
-
+    
     for m in mapper.polymorphic_iterator():
-        if (m is prop.parent or not m.concrete) and m.has_property(prop.key):
+        if prop is m._props.get(prop.key):
+            
             attributes.register_attribute_impl(
                 m.class_, 
                 prop.key, 
@@ -114,18 +115,20 @@ class ColumnLoader(LoaderStrategy):
         key, col = self.key, self.columns[0]
         if adapter:
             col = adapter.columns[col]
-        if col in row:
-            def new_execute(state, row, **flags):
-                state.dict[key] = row[col]
+        if col is not None and col in row:
+            def new_execute(state, dict_, row, **flags):
+                dict_[key] = row[col]
                 
             if self._should_log_debug:
                 new_execute = self.debug_callable(new_execute, self.logger,
                     "%s returning active column fetcher" % self,
-                    lambda state, row, **flags: "%s populating %s" % (self, mapperutil.state_attribute_str(state, key))
+                    lambda state, dict_, row, **flags: "%s populating %s" % \
+                                                      (self,
+                                                       mapperutil.state_attribute_str(state, key))
                 )
             return (new_execute, None)
         else:
-            def new_execute(state, row, isnew, **flags):
+            def new_execute(state, dict_, row, isnew, **flags):
                 if isnew:
                     state.expire_attributes([key])
             if self._should_log_debug:
@@ -171,20 +174,21 @@ class CompositeColumnLoader(ColumnLoader):
             columns = [adapter.columns[c] for c in columns]
         for c in columns:
             if c not in row:
-                def new_execute(state, row, isnew, **flags):
+                def new_execute(state, dict_, row, isnew, **flags):
                     if isnew:
                         state.expire_attributes([key])
                 if self._should_log_debug:
                     self.logger.debug("%s deferring load" % self)
                 return (new_execute, None)
         else:
-            def new_execute(state, row, **flags):
-                state.dict[key] = composite_class(*[row[c] for c in columns])
+            def new_execute(state, dict_, row, **flags):
+                dict_[key] = composite_class(*[row[c] for c in columns])
 
             if self._should_log_debug:
                 new_execute = self.debug_callable(new_execute, self.logger,
                     "%s returning active composite column fetcher" % self,
-                    lambda state, row, **flags: "populating %s" % (mapperutil.state_attribute_str(state, key))
+                    lambda state, dict_, row, **flags: "populating %s" % \
+                                                      (mapperutil.state_attribute_str(state, key))
                 )
 
             return (new_execute, None)
@@ -201,16 +205,19 @@ class DeferredColumnLoader(LoaderStrategy):
         if col in row:
             return self.parent_property._get_strategy(ColumnLoader).create_row_processor(selectcontext, path, mapper, row, adapter)
 
-        elif not self.is_class_level or len(selectcontext.options):
-            def new_execute(state, row, **flags):
-                state.set_callable(self.key, self.setup_loader(state))
+        elif not self.is_class_level:
+            def new_execute(state, dict_, row, **flags):
+                state.set_callable(self.key, LoadDeferredColumns(state, self.key))
         else:
-            def new_execute(state, row, **flags):
-                state.reset(self.key)
+            def new_execute(state, dict_, row, **flags):
+                # reset state on the key so that deferred callables
+                # fire off on next access.
+                state.reset(self.key, dict_)
 
         if self._should_log_debug:
             new_execute = self.debug_callable(new_execute, self.logger, None,
-                lambda state, row, **flags: "set deferred callable on %s" % mapperutil.state_attribute_str(state, self.key)
+                lambda state, dict_, row, **flags: "set deferred callable on %s" % \
+                                                  mapperutil.state_attribute_str(state, self.key)
             )
         return (new_execute, None)
 
@@ -227,7 +234,7 @@ class DeferredColumnLoader(LoaderStrategy):
              compare_function=self.columns[0].type.compare_values,
              copy_function=self.columns[0].type.copy_value,
              mutable_scalars=self.columns[0].type.is_mutable(),
-             callable_=self.class_level_loader,
+             callable_=self._class_level_loader,
              dont_expire_missing=True
         )
 
@@ -238,46 +245,31 @@ class DeferredColumnLoader(LoaderStrategy):
             
             self.parent_property._get_strategy(ColumnLoader).setup_query(context, entity, path, adapter, **kwargs)
     
-    def class_level_loader(self, state, props=None):
+    def _class_level_loader(self, state):
         if not mapperutil._state_has_identity(state):
             return None
             
-        localparent = mapper._state_mapper(state)
-
-        # adjust for the ColumnProperty associated with the instance
-        # not being our own ColumnProperty.  
-        # TODO: this may no longer be relevant without entity_name.
-        prop = localparent.get_property(self.key)
-        if prop is not self.parent_property:
-            return prop._get_strategy(DeferredColumnLoader).setup_loader(state)
-
-        return LoadDeferredColumns(state, self.key, props)
+        return LoadDeferredColumns(state, self.key)
         
-    def setup_loader(self, state, props=None, create_statement=None):
-        return LoadDeferredColumns(state, self.key, props)
                 
 log.class_logger(DeferredColumnLoader)
 
 class LoadDeferredColumns(object):
     """serializable loader object used by DeferredColumnLoader"""
     
-    def __init__(self, *args):
-        self.state, self.key, self.keys = args
+    def __init__(self, state, key):
+        self.state, self.key = state, key
 
     def __call__(self):
         state = self.state
         
-        if not mapper._state_has_identity(state):
-            return None
         
         localparent = mapper._state_mapper(state)
         
         prop = localparent.get_property(self.key)
         strategy = prop._get_strategy(DeferredColumnLoader)
 
-        if self.keys:
-            toload = self.keys
-        elif strategy.group:
+        if strategy.group:
             toload = [
                     p.key for p in 
                     localparent.iterate_properties 
@@ -292,11 +284,18 @@ class LoadDeferredColumns(object):
         group = [k for k in toload if k in state.unmodified]
 
         if strategy._should_log_debug:
-            strategy.logger.debug("deferred load %s group %s" % (mapperutil.state_attribute_str(state, self.key), group and ','.join(group) or 'None'))
+            strategy.logger.debug(
+                    "deferred load %s group %s" % 
+                    (mapperutil.state_attribute_str(state, self.key), group and ','.join(group) or 'None')
+                )
 
         session = sessionlib._state_session(state)
         if session is None:
-            raise sa_exc.UnboundExecutionError("Parent instance %s is not bound to a Session; deferred load operation of attribute '%s' cannot proceed" % (mapperutil.state_str(state), self.key))
+            raise sa_exc.UnboundExecutionError(
+                        "Parent instance %s is not bound to a Session; "
+                        "deferred load operation of attribute '%s' cannot proceed" % 
+                        (mapperutil.state_str(state), self.key)
+                    )
 
         query = session.query(localparent)
         ident = state.key[1]
@@ -304,6 +303,8 @@ class LoadDeferredColumns(object):
         return attributes.ATTR_WAS_SET
 
 class DeferredOption(StrategizedOption):
+    propagate_to_loaders = True
+    
     def __init__(self, key, defer=False):
         super(DeferredOption, self).__init__(key)
         self.defer = defer
@@ -315,6 +316,8 @@ class DeferredOption(StrategizedOption):
             return ColumnLoader
 
 class UndeferGroupOption(MapperOption):
+    propagate_to_loaders = True
+
     def __init__(self, group):
         self.group = group
     def process_query(self, query):
@@ -346,12 +349,13 @@ class NoLoader(AbstractRelationLoader):
         )
 
     def create_row_processor(self, selectcontext, path, mapper, row, adapter):
-        def new_execute(state, row, **flags):
+        def new_execute(state, dict_, row, **flags):
             self._init_instance_attribute(state)
 
         if self._should_log_debug:
             new_execute = self.debug_callable(new_execute, self.logger, None,
-                lambda state, row, **flags: "initializing blank scalar/collection on %s" % mapperutil.state_attribute_str(state, self.key)
+                lambda state, dict_, row, **flags: "initializing blank scalar/collection on %s" % \
+                                                  mapperutil.state_attribute_str(state, self.key)
             )
         return (new_execute, None)
 
@@ -368,7 +372,6 @@ class LazyLoader(AbstractRelationLoader):
 
         # determine if our "lazywhere" clause is the same as the mapper's
         # get() clause.  then we can just use mapper.get()
-        #from sqlalchemy.orm import query
         self.use_get = not self.uselist and self.mapper._get_clause[0].compare(self.__lazywhere)
         if self.use_get:
             self.logger.info("%s will use query.get() to optimize instance loads" % self)
@@ -376,13 +379,16 @@ class LazyLoader(AbstractRelationLoader):
     def init_class_attribute(self, mapper):
         self.is_class_level = True
         
-        
+        # MANYTOONE currently only needs the "old" value for delete-orphan
+        # cascades.  the required _SingleParentValidator will enable active_history
+        # in that case.  otherwise we don't need the "old" value during backref operations.
         _register_attribute(self, 
                 mapper,
                 useobject=True,
-                callable_=self.class_level_loader,
+                callable_=self._class_level_loader,
                 uselist = self.parent_property.uselist,
                 typecallable = self.parent_property.collection_class,
+                active_history = self.parent_property.direction is not interfaces.MANYTOONE, 
                 )
 
     def lazy_clause(self, state, reverse_direction=False, alias_secondary=False, adapt_source=None):
@@ -435,53 +441,47 @@ class LazyLoader(AbstractRelationLoader):
             criterion = adapt_source(criterion)
         return criterion
         
-    def class_level_loader(self, state, options=None, path=None):
+    def _class_level_loader(self, state):
         if not mapperutil._state_has_identity(state):
             return None
 
-        localparent = mapper._state_mapper(state)
-
-        # adjust for the PropertyLoader associated with the instance
-        # not being our own PropertyLoader.  
-        # TODO: this may no longer be relevant without entity_name
-        prop = localparent.get_property(self.key)
-        if prop is not self.parent_property:
-            return prop._get_strategy(LazyLoader).setup_loader(state)
-        
-        return LoadLazyAttribute(state, self.key, options, path)
-
-    def setup_loader(self, state, options=None, path=None):
-        return LoadLazyAttribute(state, self.key, options, path)
+        return LoadLazyAttribute(state, self.key)
 
     def create_row_processor(self, selectcontext, path, mapper, row, adapter):
-        if not self.is_class_level or len(selectcontext.options):
-            path = path + (self.key,)
-            def new_execute(state, row, **flags):
-                # we are not the primary manager for this attribute on this class - set up a per-instance lazyloader,
-                # which will override the class-level behavior
-                self._init_instance_attribute(state, callable_=self.setup_loader(state, selectcontext.options, selectcontext.query._current_path + path))
+        if not self.is_class_level:
+            def new_execute(state, dict_, row, **flags):
+                # we are not the primary manager for this attribute on this class - set up a
+                # per-instance lazyloader, which will override the class-level behavior.
+                # this currently only happens when using a "lazyload" option on a "no load"
+                # attribute - "eager" attributes always have a class-level lazyloader
+                # installed.
+                self._init_instance_attribute(state, callable_=LoadLazyAttribute(state, self.key))
 
             if self._should_log_debug:
                 new_execute = self.debug_callable(new_execute, self.logger, None,
-                    lambda state, row, **flags: "set instance-level lazy loader on %s" % mapperutil.state_attribute_str(state, self.key)
+                    lambda state, dict_, row, **flags: "set instance-level lazy loader on %s" % \
+                                                      mapperutil.state_attribute_str(state,
+                                                                                     self.key)
                 )
 
             return (new_execute, None)
         else:
-            def new_execute(state, row, **flags):
-                # we are the primary manager for this attribute on this class - reset its per-instance attribute state, 
-                # so that the class-level lazy loader is executed when next referenced on this instance.
-                # this usually is not needed unless the constructor of the object referenced the attribute before we got 
-                # to load data into it.
-                state.reset(self.key)
+            def new_execute(state, dict_, row, **flags):
+                # we are the primary manager for this attribute on this class - reset its
+                # per-instance attribute state, so that the class-level lazy loader is
+                # executed when next referenced on this instance.  this is needed in
+                # populate_existing() types of scenarios to reset any existing state.
+                state.reset(self.key, dict_)
 
             if self._should_log_debug:
                 new_execute = self.debug_callable(new_execute, self.logger, None,
-                    lambda state, row, **flags: "set class-level lazy loader on %s" % mapperutil.state_attribute_str(state, self.key)
+                    lambda state, dict_, row, **flags: "set class-level lazy loader on %s" % \
+                                                      mapperutil.state_attribute_str(state,
+                                                                                     self.key)
                 )
 
             return (new_execute, None)
-
+            
     def _create_lazy_clause(cls, prop, reverse_direction=False):
         binds = util.column_dict()
         lookup = util.column_dict()
@@ -529,20 +529,17 @@ log.class_logger(LazyLoader)
 class LoadLazyAttribute(object):
     """serializable loader object used by LazyLoader"""
 
-    def __init__(self, *args):
-        self.state, self.key, self.options, self.path = args
+    def __init__(self, state, key):
+        self.state, self.key = state, key
         
     def __getstate__(self):
-        return (self.state, self.key, self.options, serialize_path(self.path))
+        return (self.state, self.key)
 
     def __setstate__(self, state):
-        self.state, self.key, self.options, path = state
-        self.path = deserialize_path(path)
+        self.state, self.key = state
         
     def __call__(self):
         state = self.state
-        if not mapper._state_has_identity(state):
-            return None
 
         instance_mapper = mapper._state_mapper(state)
         prop = instance_mapper.get_property(self.key)
@@ -561,8 +558,8 @@ class LoadLazyAttribute(object):
         
         q = session.query(prop.mapper)._adapt_all_clauses()
         
-        if self.path:
-            q = q._with_current_path(self.path)
+        if state.load_path:
+            q = q._with_current_path(state.load_path + (self.key,))
             
         # if we have a simple primary key load, use mapper.get()
         # to possibly save a DB round trip
@@ -575,15 +572,15 @@ class LoadLazyAttribute(object):
                 ident.append(val)
             if allnulls:
                 return None
-            if self.options:
-                q = q._conditional_options(*self.options)
+            if state.load_options:
+                q = q._conditional_options(*state.load_options)
             return q.get(ident)
 
         if prop.order_by:
             q = q.order_by(*util.to_list(prop.order_by))
 
-        if self.options:
-            q = q._conditional_options(*self.options)
+        if state.load_options:
+            q = q._conditional_options(*state.load_options)
         q = q.filter(strategy.lazy_clause(state))
 
         result = q.all()
@@ -684,7 +681,7 @@ class EagerLoader(AbstractRelationLoader):
 
         # create AliasedClauses object to build up the eager query.  
         clauses = mapperutil.ORMAdapter(mapperutil.AliasedClass(self.mapper), 
-                    equivalents=self.mapper._equivalent_columns)
+                    equivalents=self.mapper._equivalent_columns, adapt_required=True)
 
         join_to_left = False
         if adapter:
@@ -756,24 +753,24 @@ class EagerLoader(AbstractRelationLoader):
             _instance = self.mapper._instance_processor(context, path + (self.mapper.base_mapper,), eager_adapter)
             
             if not self.uselist:
-                def execute(state, row, isnew, **flags):
+                def execute(state, dict_, row, isnew, **flags):
                     if isnew:
                         # set a scalar object instance directly on the
                         # parent object, bypassing InstrumentedAttribute
                         # event handlers.
-                        state.dict[key] = _instance(row, None)
+                        dict_[key] = _instance(row, None)
                     else:
                         # call _instance on the row, even though the object has been created,
                         # so that we further descend into properties
                         _instance(row, None)
             else:
-                def execute(state, row, isnew, **flags):
+                def execute(state, dict_, row, isnew, **flags):
                     if isnew or (state, key) not in context.attributes:
                         # appender_key can be absent from context.attributes with isnew=False
                         # when self-referential eager loading is used; the same instance may be present
                         # in two distinct sets of result columns
 
-                        collection = attributes.init_state_collection(state, key)
+                        collection = attributes.init_state_collection(state, dict_, key)
                         appender = util.UniqueAppender(collection, 'append_without_event')
 
                         context.attributes[(state, key)] = appender
@@ -785,7 +782,10 @@ class EagerLoader(AbstractRelationLoader):
             if self._should_log_debug:
                 execute = self.debug_callable(execute, self.logger, 
                     "%s returning eager instance loader" % self,
-                    lambda state, row, isnew, **flags: "%s eagerload %s" % (self, self.uselist and "scalar attribute" or "collection")
+                    lambda state, dict_, row, isnew, **flags: "%s eagerload %s" % \
+                                                  (self,
+                                                   self.uselist and "scalar attribute"
+                                                   or "collection")
                 )
 
             return (execute, execute)
@@ -797,10 +797,12 @@ class EagerLoader(AbstractRelationLoader):
 log.class_logger(EagerLoader)
 
 class EagerLazyOption(StrategizedOption):
-    def __init__(self, key, lazy=True, chained=False, mapper=None):
+
+    def __init__(self, key, lazy=True, chained=False, mapper=None, propagate_to_loaders=True):
         super(EagerLazyOption, self).__init__(key, mapper)
         self.lazy = lazy
         self.chained = chained
+        self.propagate_to_loaders = propagate_to_loaders
         
     def is_chained(self):
         return not self.lazy and self.chained
@@ -814,6 +816,7 @@ class EagerLazyOption(StrategizedOption):
             return NoLoader
 
 class LoadEagerFromAliasOption(PropertyOption):
+    
     def __init__(self, key, alias=None):
         super(LoadEagerFromAliasOption, self).__init__(key)
         if alias:
@@ -821,16 +824,20 @@ class LoadEagerFromAliasOption(PropertyOption):
                 m, alias, is_aliased_class = mapperutil._entity_info(alias)
         self.alias = alias
 
-    def process_query_property(self, query, paths):
+    def process_query_property(self, query, paths, mappers):
         if self.alias:
             if isinstance(self.alias, basestring):
-                (mapper, propname) = paths[-1][-2:]
-
+                mapper = mappers[-1]
+                (root_mapper, propname) = paths[-1][-2:]
                 prop = mapper.get_property(propname, resolve_synonyms=True)
                 self.alias = prop.target.alias(self.alias)
             query._attributes[("user_defined_eager_row_processor", paths[-1])] = sql_util.ColumnAdapter(self.alias)
         else:
-            query._attributes[("user_defined_eager_row_processor", paths[-1])] = None
+            (root_mapper, propname) = paths[-1][-2:]
+            mapper = mappers[-1]
+            prop = mapper.get_property(propname, resolve_synonyms=True)
+            adapter = query._polymorphic_adapters.get(prop.mapper, None)
+            query._attributes[("user_defined_eager_row_processor", paths[-1])] = adapter
 
 class _SingleParentValidator(interfaces.AttributeExtension):
     def __init__(self, prop):
