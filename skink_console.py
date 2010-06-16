@@ -33,6 +33,7 @@ import cherrypy
 
 from skink.src.services.plugins.builder import *
 from skink.src.services.plugins.monitor import *
+from skink.src.plugins import *
 
 def main():
     """ Main function - parses args and runs action """
@@ -72,7 +73,7 @@ def run_skink_server():
     server.context.current_log = ""
     server.context.build_queue = Queue.deque()
     server.context.projects_being_built = Queue.deque()
-
+    
     builder = BuilderPlugin(cherrypy.engine, server)
     builder.subscribe()
 
@@ -80,7 +81,16 @@ def run_skink_server():
     monitor.subscribe()
 
     try:
-        server.start("config.ini")
+        server.start("config.ini", non_block=True)
+        for plugin in SkinkPlugin.all():
+            config = server.context.settings.config
+            if config.has_section(plugin.__name__) and \
+               config.get(plugin.__name__, "enabled") == "True":
+                cherrypy.log('Plugin %s enabled!' % plugin.__name__,
+                             'PLUGINS')
+                instance = plugin(server)
+        
+        cherrypy.engine.block()
     except KeyboardInterrupt:
         server.stop()
 

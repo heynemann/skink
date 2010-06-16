@@ -109,16 +109,6 @@ class Build(Base):
         self.commit_committer_date = commit_committer_date
         self.project = project
 
-    @property
-    def tabs(self):
-        tabs = session.query(BuildTab) \
-                      .filter(BuildTab.build==self) \
-                      .order_by(BuildTab.id)[:10]
-
-        if not tabs:
-            return []
-        return tabs
-
 class BuildTab(Base):
     __tablename__ = "build_tabs"
     id = Column(Integer, primary_key=True)
@@ -128,6 +118,12 @@ class BuildTab(Base):
     
     build_id = Column(Integer, ForeignKey('builds.id'))
     build = relation(Build, primaryjoin=build_id == Build.id)
+    
+    def __init__(self, name, log, build, content_type="html"):
+        self.name = name
+        self.content_type = content_type
+        self.log = log
+        self.build = build
 
 class Pipeline(Base):
     __tablename__ = "pipelines"
@@ -196,4 +192,5 @@ class PipelineItem(Base):
 #Collections
 Project.builds = relation(Build)
 Pipeline.items = relation(PipelineItem, order_by=PipelineItem.order)
+Build.tabs = relation(BuildTab)
 
