@@ -38,12 +38,29 @@
 	</div>
 	
 	<div class="grid_12">
-		<div class="build_log">
-		    <h6>Build Log</h6>
-		    <div class="scroll">
-				<pre>{{ build.log }}</pre>
-		    </div>
-		</div>
+	    <div id="current-build-tabs">
+		    <ul>
+		        <li><a href="#buildlog">Build Log</a></li>
+		        {% for tab in build.tabs %}
+		            <li><a href="#tab{{tab.id}}">{{tab.name}}</a></li>
+		        {% endfor %}
+		    </ul>
+	    
+		    <div id="buildlog">
+    		    <div class="scroll">
+    				<pre>{{ build.log }}</pre>
+    		    </div>
+    		</div>
+
+	        {% for tab in build.tabs %}
+    		    <div id="tab{{tab.id}}">
+        		    <div class="scroll">
+        				<pre>{{ tab.log }}</pre>
+        		    </div>
+        		</div>
+	        {% endfor %}
+
+    	</div>
 	</div>
 
     {% endif %}

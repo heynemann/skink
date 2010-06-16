@@ -654,3 +654,8 @@
     cursor:pointer;
     text-decoration:underline;
 }
+
+#current-build-tabs {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
