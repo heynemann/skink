@@ -22,6 +22,18 @@ class SkinkPlugin(object):
         self.server = server
         
         def on_build_successful(data):
+            sets = data['server'].context.settings
+            project = data['project']
+            plugin_name = self.__class__.__name__
+            
+            if sets.config.has_section(plugin_name) \
+                and sets.config.get(plugin_name, 'exclude'):
+
+                exclude = sets.config.get(plugin_name, 'exclude')
+                exclude = [item.strip() for item in exclude.split(',')]
+                if project.name in exclude:
+                    return
+
             self.build_successful(data['server'], data['project'], data['build'])
 
         server.subscribe('on_build_successful', on_build_successful)
