@@ -36,7 +36,7 @@ class SkinkPlugin(object):
 
             self.build_successful(data['server'], data['project'], data['build'])
 
-        server.subscribe('on_build_successful', on_build_successful)
+        server.subscribe('on_before_build_successful', on_build_successful)
 
     def build_succesful(self, server, project, build):
         pass

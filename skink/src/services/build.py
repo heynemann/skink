@@ -138,6 +138,9 @@ class BuildService(Service):
             ctx.projects_being_built.remove(project_id)
 
             if (build.status == BuildService.Success):
+                self.server.publish('on_before_build_successful', {"server":self.server, "project":project, "build":build})
+
+            if (build.status == BuildService.Success):
                 self.server.publish('on_build_successful', {"server":self.server, "project":project, "build":build})
                 self.process_pipelines_for(project)
             else:
