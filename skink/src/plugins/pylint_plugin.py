@@ -13,6 +13,6 @@ class PyLintPlugin(SkinkPlugin):
        if project.name not in project_config:
            return
 
-       exit_code, log = self.shell("pylint %s" % project_config[project.name], self.get_project_path(server, project))
+       exit_code, log = self.shell("pylint %s --no-docstring-rgx='.*'" % project_config[project.name], self.get_project_path(server, project))
        tab = BuildTab(name="PyLint", log=log, build=build)
        build.tabs.append(tab)
