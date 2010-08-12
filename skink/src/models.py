@@ -33,14 +33,16 @@ class Project(Base):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode)
     build_script = Column(Unicode)
+    branch = Column(Unicode)
     scm_repository = Column(Unicode)
     monitor_changes = Column(Boolean)
 
-    def __init__(self, name, build_script, scm_repository, monitor_changes):
+    def __init__(self, name, build_script, scm_repository, branch, monitor_changes):
         self.name = name
         self.build_script = build_script
         self.scm_repository = scm_repository
         self.monitor_changes = monitor_changes
+        self.branch = branch
 
     @property
     def build_status(self):

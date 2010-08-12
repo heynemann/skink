@@ -1,0 +1,8 @@
+SQL_UP = u"""
+    ALTER TABLE `skink`.`projects` ADD COLUMN branch VARCHAR(255) DEFAULT 'master' NOT NULL;
+"""
+
+SQL_DOWN = u"""
+    ALTER TABLE `skink`.`projects` DROP COLUMN `branch`;
+"""
+

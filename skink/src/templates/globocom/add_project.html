@@ -4,27 +4,30 @@
 
 {% block content %}
 <div class="container_12">
-	<div class="grid_6">
-			<form method="post" action="create">
-				<fieldset>
-					<legend>Add Project</legend>
+    <div class="grid_6">
+            <form method="post" action="create">
+                <fieldset>
+                    <legend>Add Project</legend>
 
                     <h6>Name</h6>
                     <input class="input_gray" id="name" name="name" type="text"/>
-					
-					<h6>Git repository</h6>
-					<label for="scm_repository"></label>
-					<input class="input_gray" id="scm_repository" name="scm_repository" type="text"/>
+                    
+                    <h6>Git repository</h6>
+                    <label for="scm_repository"></label>
+                    <input class="input_gray" id="scm_repository" name="scm_repository" type="text"/>
 
-					<h6>Build script</h6>
-					<input class="input_gray" id="build_script" name="build_script" type="text" class="required"/>
+                    <h6>Build script</h6>
+                    <input class="input_gray" id="build_script" name="build_script" type="text" class="required"/>
+
+                    <h6>Branch to be built</h6>
+                    <input class="input_gray" id="branch" name="branch" type="text" class="required" value="master" />
 
                     <h6><input name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox'/> Should monitor for changes?</h6>
-					
-					<button class="btn_default" type="submit">Create Project</button>
-				</fieldset>
-			</form>	
-		</div>
+                    
+                    <button class="btn_default" type="submit">Create Project</button>
+                </fieldset>
+            </form> 
+        </div>
 </div>
 {% endblock %}
 

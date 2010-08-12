@@ -55,7 +55,7 @@ class GitService(object):
         
         self.log("Verifying if the repository at %s needs to be updated" % repository_path)
         executer.execute("git remote update", repository_path)
-        result = executer.execute("git rev-parse origin/master master", repository_path)
+        result = executer.execute("git rev-parse origin/%s %s" % (project.branch, project.branch), repository_path)
         commits = result.run_log.split()
         return len(commits) != 2 or commits[0]!=commits[1]
 
@@ -86,7 +86,7 @@ class GitService(object):
             self.log("Retrieving scm data for project %s in repository %s (updating repository - pull)" % (project_name, project.scm_repository))
             result = executer.execute("git reset --hard", repository_path)
             result = executer.execute("git clean -df", repository_path)
-            result = executer.execute("git pull origin master", repository_path)
+            result = executer.execute("git pull origin %s" % project.branch, repository_path)
             if result.exit_code == 0:
                 self.log("SCM Data retrieved successfully")
             else:

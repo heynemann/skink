@@ -46,8 +46,13 @@ class ProjectController(Controller):
         return self.render_template("add_project.html")
 
     @route("/project/create")
-    def create(self, name, build_script, scm_repository, monitor_changes=None):
-        prj = Project(name=name, build_script=build_script, scm_repository=scm_repository, monitor_changes=monitor_changes == "MONITOR")
+    def create(self, name, build_script, scm_repository, branch, **kwargs):
+        monitor_changes = 'monitor_changes' in kwargs and kwargs['monitor_changes'] == 'MONITOR' or False
+        prj = Project(name=name, 
+                      build_script=build_script, 
+                      scm_repository=scm_repository, 
+                      monitor_changes=monitor_changes, 
+                      branch=branch)
         self.store.add(prj)
 
         self.redirect("/")
@@ -59,11 +64,14 @@ class ProjectController(Controller):
         return self.render_template("edit_project.html", project=prj)
 
     @route("/project/:id/update")
-    def update(self, id, name, build_script, scm_repository, monitor_changes=None):
+    def update(self, id, name, build_script, scm_repository, branch, **kwargs):
+        monitor_changes = 'monitor_changes' in kwargs and kwargs['monitor_changes'] == 'MONITOR' or False
+
         project_id = int(id)
         prj = self.store.query(Project).get(project_id)
 
         prj.name = name
+        prj.branch = branch
         prj.build_script = build_script
         prj.scm_repository = scm_repository
         prj.monitor_changes = monitor_changes == "MONITOR"
