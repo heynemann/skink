@@ -20,7 +20,7 @@ from datetime import datetime
 from skink.src.models import *
 
 def test_can_create_project():
-    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False, branch="master")
 
     assert proj.name == u"Test Project 1"
     assert proj.build_script == u"test build script"
@@ -30,7 +30,7 @@ def test_can_create_project():
 def test_can_create_builds():
     some_date = datetime.now()
 
-    proj = Project(name=u"Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+    proj = Project(name=u"Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False, branch="master")
 
     build = Build(number=1, 
                   build_date=some_date,

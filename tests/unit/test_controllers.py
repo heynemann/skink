@@ -76,5 +76,5 @@ def test_create_action():
 
     controller = controllers.ProjectController()
 
-    controller.create(name=u"project_name", build_script=u"build_script", scm_repository=u"scm_repository", monitor_changes="MONITOR")
+    controller.create(name=u"project_name", build_script=u"build_script", scm_repository=u"scm_repository", monitor_changes="MONITOR", branch="master")
 

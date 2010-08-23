@@ -75,7 +75,7 @@ class GitService(object):
                 self.log("Directory successfully created.")
 
             self.log("Retrieving scm data for project %s in repository %s (creating new repository - clone)" % (project_name, project.scm_repository))
-            result = executer.execute("git clone %s %s" % (project.scm_repository, project_name), self.base_dir)
+            result = executer.execute("git clone %s %s && cd %s && git checkout -t origin/%s" % (project.scm_repository, project_name, project_name, project.branch), self.base_dir)
             if result.exit_code == 0:
                 self.log("SCM Data retrieved successfully")
             else:
@@ -84,6 +84,12 @@ class GitService(object):
             return ScmResult(result.exit_code == 0 and ScmResult.Created or ScmResult.Failed, repository_path, last_commit, result.run_log)
         else:
             self.log("Retrieving scm data for project %s in repository %s (updating repository - pull)" % (project_name, project.scm_repository))
+            result = executer.execute("git branch | grep %s" % project.branch, repository_path)
+            if project.branch in result.run_log:
+                result = executer.execute("git checkout %s" % project.branch, repository_path)
+            else:
+                result = executer.execute("git checkout -t origin/%s" % project.branch, repository_path)
+                
             result = executer.execute("git reset --hard", repository_path)
             result = executer.execute("git clean -df", repository_path)
             result = executer.execute("git pull origin %s" % project.branch, repository_path)
