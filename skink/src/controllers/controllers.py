@@ -132,6 +132,7 @@ class ProjectController(Controller):
                 return "NOTRUNNING"
             return "OK"
         except Exception, err:
+            self.log("ERROR: %s while stoping project_id %d " % (err, project_id) )
             return "ERROR"
 
 class BuildController(Controller):
@@ -290,5 +291,9 @@ class MiniController(Controller):
     def threecolumns(self):
         projects = self.store.query(Project).all()
         return self.render_template("threecolumns_mini.html", projects=projects)
+        
+    @route("/full")
+    def full(self):
+        return self.render_template("full.html")
             
             

@@ -1,0 +1,40 @@
+body { background: #000; margin:0; padding:0;}
+#projectname { 
+    height: 85px;
+    font-size: 60px;
+    font-family: Tahoma, Arial;
+    padding: 10px;
+    padding-left: 30px;
+    margin-top: 70px;
+    width: 80%;
+    overflow: hidden;
+    white-space: nowrap;
+    -moz-border-radius:0px 10px 10px 0px;
+    background: -moz-linear-gradient(center top , #CDCDCD, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+    -moz-box-shadow: 5px 5px 20px #000000;
+    
+}
+#build { 
+    background: #FFF;
+    height: 120px;
+    font-size: 25px;
+    font-family: Tahoma, Arial;
+    margin-top: 70px;
+    width: 80%;
+    padding: 10px;
+    padding-left: 30px;
+    -moz-border-radius:0px 10px 10px 0px;
+    position: relative;
+    background: -moz-linear-gradient(center top , #DFDFDF, #FFFFFF) repeat scroll 0 0 #FFFFFF;
+    -moz-box-shadow: 5px 5px 20px #000000;
+}
+#committer {
+    height: 100px;
+    width: 100px;
+    float: left;
+}
+#commitlog{
+    float: left;
+    width: 800px;
+    margin-left: 50px;
+}

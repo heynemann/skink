@@ -36,7 +36,7 @@
                             <div class="icon"></div>
                             <div class="title"><a href="/project/{{ project.id }}">{{ project.name[:30] }}{% if project.name|length > 30 %}...{% endif %}</a></div>
                             {% if not project.last_build %}
-                                <div class="comments">Project {{ project.name }}. <br \> No builds happened so far.</div>
+                                <div class="comments">Project {{ project.name }}. No builds happened so far.</div>
                                 <div class="comments_detail"></div>
                                 <div class="photo_project"><img src="/media/globocom/img/skink52x52.jpg"/></div>
                                 <div class="email"><p>Skink ci <br /><span>&nbsp;</span></p></div>
@@ -52,8 +52,11 @@
                     {% endif %}
                     <!-- end .grid_6 -->
                     <div class="grid_12">
-                        <form method="get" action="/project/new">
-                            <button class="btn_default" type="submit">Add a new project</button>
+                        <form class="form_project" action="/project/new" method="get">
+                            <fieldset>
+                                <legend>Project</legend>
+                                <button type="submit" class="btn_default">Add a new project</button>
+                            </fieldset>
                         </form>
                     </div>
                 </div>
