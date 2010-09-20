@@ -44,10 +44,8 @@
 }
 
 .comments_buildproject {
-    -moz-border-radius-bottomright:8px;
-    -moz-border-radius-topright:8px;
-    -webkit-border-radius-bottomright:8px;
-    -webkit-border-radius-topright:8px;
+    -moz-border-radius:0 8px 8px 0;
+    -webkit-border-radius:0 8px 8px 0;
     background-color:#fff;
     border-bottom:solid 1px #cdcdcd;
     border-right:solid 1px #cdcdcd;
@@ -219,8 +217,8 @@
 	margin-top:35px;
 }
 
-.frm_project {
-	margin-top:6px;
+.form_project {
+    margin-top:6px;
 }
 
 .additionaltabs, .filestoadd {
@@ -243,16 +241,6 @@
 	color:#999;
 	font-size:11px;
 	font-weight:normal;
-}
-
-.frm_project fieldset p {
-	margin:-10px 0 30px 0;
-}
-
-.frm_project fieldset span {
-	color:#333;
-	font-size:16px;
-	font-weight:bold;
 }
 
 .area_project {
@@ -427,10 +415,8 @@
 }
 
 .comments {
-	-moz-border-radius-bottomleft:8px;
-	-moz-border-radius-topleft:8px;
-	-webkit-border-radius-bottomleft:8px;
-	-webkit-border-radius-topleft:8px;
+	-moz-border-radius:8px 0 0 8px;
+	-webkit-border-radius:8px 0 0 8px;
 	background-color:#fff;
 	border-bottom:solid 1px #cdcdcd;
 	border-left:solid 1px #cdcdcd;
@@ -533,33 +519,43 @@
 
 
 #del_project {
-	background-color:#fff;
-	color:#000;
-    font-size:18px;
-	font-weight:bold;
+    background-color:#fff;
+    color:#000;
+    font-size:20px;
+    font-weight:bold;
     height:102px;
-	padding-top:18px;
-	text-align:center;
-	width:602px;
+    letter-spacing:-1px;
+    padding-top:18px;
+    text-align:center;
+    width:602px;
 }
 
-.del_yes, .del_no {
-	-moz-border-radius:4px;
-	-webkit-border-radius:4px;
-	background-color: #ffac08;
-	border:solid 1px #ffac08;
-	border-bottom:solid 1px #b97a06;
-	font-size:18px;
-	font-weight:bold;
-	height:32px;
-	margin:22px 12px 0 12px;
-	width:80px;
+.button_yes, .button_no {
+    background: url(/media/globocom/img/button_delete.png) no-repeat 0 0;
+    border:0;
+    height:32px;
+    margin:26px 12px 0 12px;
+    width:80px;
 }
 
-.del_no {
-	background-color:#f03c01;
-	border:solid 1px #f03c01;
-	border-bottom:solid 1px #a22801;
+.button_yes:hover {
+    background-position: -80px 0;
+}
+
+.button_yes:active {
+    background-position: -160px 0;
+}
+
+.button_no {
+    background-position: 0 -33px;
+}
+
+.button_no:hover {
+    background-position: -80px -33px;
+}
+
+.button_no:active {
+    background-position: -160px -33px;
 }
 
 #no_current_builds {
@@ -619,12 +615,10 @@
     background: url('/media/globocom/img/bg_btndefault.png') repeat-x 0 0;
     border:0;
     cursor:pointer;
-    font-family:arial, sans-serif;
-    font-size:14px;
-    font-weight:bold;
+    font:bold 14px arial, sans-serif;
     height:27px;
-    margin:0px 5px 24px 0;
     letter-spacing:-1px;
+    margin-right:5px;
     padding:4px;
 }
 

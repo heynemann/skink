@@ -32,7 +32,7 @@ function query_status(){
                 if (project_status == 'UNKNOWN') {
                     $project_div.find(".photo_project").html("<img src=\"/media/globocom/img/skink52x52.jpg\"/>");
                     $project_div.find(".email").html("<p>Skink ci <br /><span>&nbsp;</span></p>");
-                    $project_div.find(".comments").html("Project " + project_name + ". <br \> No builds happened so far.");
+                    $project_div.find(".comments").html("Project " + project_name + ". No builds happened so far.");
                 } else { 
                     $project_div.find(".photo_project").html("<img src=\""+author_photo+"?s=52\"/>");
                     $project_div.find(".email").html("<p>" + author_name + "<br /><span>"  + author_email + "</span></p>");
