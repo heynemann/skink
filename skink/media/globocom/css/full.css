@@ -12,7 +12,8 @@ body { background: #000; margin:0; padding:0;}
     -moz-border-radius:0px 10px 10px 0px;
     background: -moz-linear-gradient(center top , #CDCDCD, #FFFFFF) repeat scroll 0 0 #FFFFFF;
     -moz-box-shadow: 5px 5px 20px #000000;
-    
+    text-shadow:3px 3px 5px #CDCDCD;
+    font-weight:bold;
 }
 #build { 
     background: #FFF;
@@ -35,6 +36,10 @@ body { background: #000; margin:0; padding:0;}
 }
 #commitlog{
     float: left;
-    width: 800px;
+    width: 80%;
     margin-left: 50px;
+}
+
+hr{
+    border: 1px solid #000;
 }
