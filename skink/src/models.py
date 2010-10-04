@@ -117,10 +117,10 @@ class BuildTab(Base):
     name = Column(Unicode)
     content_type = Column(Unicode)
     log = Column(Unicode)
-    
+
     build_id = Column(Integer, ForeignKey('builds.id'))
     build = relation(Build, primaryjoin=build_id == Build.id)
-    
+
     def __init__(self, name, log, build, content_type="html"):
         self.name = name
         self.content_type = content_type

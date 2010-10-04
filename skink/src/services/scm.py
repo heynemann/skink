@@ -43,7 +43,7 @@ class GitService(object):
         if not exists(path) or not exists(join(path, ".git")):
             return False
         return True
-    
+
     def does_project_need_update(self, project):
         executer = ShellExecuter(verbose=self.server.context.settings.Ion.as_bool("verbose"))
         project_name = self.fix_name(project.name)
@@ -52,7 +52,7 @@ class GitService(object):
         if not is_repo_created:
             self.log("The repository at %s needs to be created." % repository_path)
             return True
-        
+
         self.log("Verifying if the repository at %s needs to be updated" % repository_path)
         executer.execute("git remote update", repository_path)
         result = executer.execute("git rev-parse origin/%s %s" % (project.branch, project.branch), repository_path)
@@ -85,11 +85,11 @@ class GitService(object):
         else:
             self.log("Retrieving scm data for project %s in repository %s (updating repository - pull)" % (project_name, project.scm_repository))
             result = executer.execute("git branch | grep %s" % project.branch, repository_path)
-            if project.branch in result.run_log:
-                result = executer.execute("git checkout %s" % project.branch, repository_path)
+            if project.branch.lower() in result.run_log.lower():
+                result = executer.execute("git checkout %s" % project.branch.lower(), repository_path)
             else:
-                result = executer.execute("git checkout -t origin/%s" % project.branch, repository_path)
-                
+                result = executer.execute("git checkout -t origin/%s" % project.branch.lower(), repository_path)
+
             result = executer.execute("git reset --hard", repository_path)
             result = executer.execute("git clean -df", repository_path)
             result = executer.execute("git pull origin %s" % project.branch, repository_path)
@@ -97,7 +97,7 @@ class GitService(object):
                 self.log("SCM Data retrieved successfully")
             else:
                 self.log("Error retrieving SCM Data: %s" % result.run_log)
-            
+
             self.log("Retrieving last commit data for project %s in repository %s" % (project_name, project.scm_repository))
             last_commit = self.get_last_commit(repository_path)
             self.log("Data retrieved.")
@@ -139,7 +139,7 @@ class ScmResult(object):
     Created = u"Created"
     Updated = u"Updated"
     Failed = u"Failed"
-    
+
     def __init__(self, status, repository_path, last_commit, log):
         self.status = status
         self.repository_path = repository_path

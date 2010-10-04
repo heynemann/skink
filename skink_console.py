@@ -33,6 +33,7 @@ import cherrypy
 
 from skink.src.services.plugins.builder import *
 from skink.src.services.plugins.monitor import *
+from skink.src.plugins.base import *
 from skink.src.plugins import *
 
 def main():
@@ -40,13 +41,13 @@ def main():
     parser = optparse.OptionParser(usage="%prog run or type %prog -h (--help) for help", description=__doc__, version="%prog")
 
     (options, args) = parser.parse_args()
-    
+
     if not args:
         print "Invalid action. for help type skink_console.py -h (--help) for help"
         sys.exit(0)
- 
+
     action = args[0]
-    
+
     if action.lower() == "run":
         run_skink_server()
 
@@ -73,7 +74,7 @@ def run_skink_server():
     server.context.current_log = ""
     server.context.build_queue = Queue.deque()
     server.context.projects_being_built = Queue.deque()
-    
+
     builder = BuilderPlugin(cherrypy.engine, server)
     builder.subscribe()
 
@@ -89,14 +90,14 @@ def run_skink_server():
                 cherrypy.log('Plugin %s enabled!' % plugin.__name__,
                              'PLUGINS')
                 instance = plugin(server)
-        
+
         cherrypy.engine.block()
     except KeyboardInterrupt:
         server.stop()
 
 def run_migrations(drop_db=False):
     root_dir = abspath(dirname(__file__))
-    
+
     settings = Settings(root_dir)
     settings.load("config.ini")
 

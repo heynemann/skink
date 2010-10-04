@@ -37,14 +37,15 @@ def create_models(store):
     create_build_model(store)
 
 def create_project_model(store):
-    sql = """DROP TABLE IF EXISTS `projects`; 
+    sql = """DROP TABLE IF EXISTS `projects`;
 CREATE TABLE  `projects` (
   `id` INTEGER PRIMARY KEY,
   `name` varchar(255) default NULL,
   `build_script` varchar(2000) default NULL,
   `scm_repository` varchar(1500) default NULL,
   `monitor_changes` tinyint(1) default NULL,
-  `build_status` varchar(15) default NULL
+  `build_status` varchar(15) default NULL,
+  `branch` varchar(255) default NULL
 );"""
     execute_sql(store, sql)
 

@@ -31,7 +31,7 @@ def clear():
 def test_can_create_project():
     global store
     clear()
-    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False, branch="master")
 
     store.add(proj)
 
@@ -46,13 +46,13 @@ def test_can_create_build():
     global store
     clear()
     some_date = datetime.now()
-    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+    proj = Project(name=u"Test Project 1", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False, branch="master")
 
-    build = Build(number=1, 
+    build = Build(number=1,
                   build_date=some_date,
                   status="Successful",
-                  scm_status="Successful", 
-                  log=u"some_log", 
+                  scm_status="Successful",
+                  log=u"some_log",
                   commit_number=u"commit_number",
                   commit_author=u"commit_author",
                   commit_committer=u"commit_committer",

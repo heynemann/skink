@@ -58,7 +58,7 @@ def test_index_controller_index_action():
 def test_index_controller_index_action_with_created_projects():
     global store
     clear()
-    proj = Project(name=u"Index Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False)
+    proj = Project(name=u"Index Test Project 2", build_script=u"test build script", scm_repository=u"scm_repository", monitor_changes=False, branch="master")
 
     store.add(proj)
 
@@ -109,7 +109,7 @@ def test_project_controller_create_action_assigns_false_to_monitor_changes_by_de
     controller.server = server
 
     try:
-        controller.create(u"name", u"build_script", u"scm_repository")
+        controller.create(u"name", u"build_script", u"scm_repository", u"master")
     except cherrypy.HTTPRedirect:
         return
 
