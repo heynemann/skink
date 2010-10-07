@@ -48,10 +48,10 @@ class ProjectController(Controller):
     @route("/project/create")
     def create(self, name, build_script, scm_repository, branch, **kwargs):
         monitor_changes = 'monitor_changes' in kwargs and kwargs['monitor_changes'] == 'MONITOR' or False
-        prj = Project(name=name, 
-                      build_script=build_script, 
-                      scm_repository=scm_repository, 
-                      monitor_changes=monitor_changes, 
+        prj = Project(name=name,
+                      build_script=build_script,
+                      scm_repository=scm_repository,
+                      monitor_changes=monitor_changes,
                       branch=branch)
         self.store.add(prj)
 
@@ -74,7 +74,7 @@ class ProjectController(Controller):
         prj.branch = branch
         prj.build_script = build_script
         prj.scm_repository = scm_repository
-        prj.monitor_changes = monitor_changes == "MONITOR"
+        prj.monitor_changes = monitor_changes
 
         self.redirect("/project/%d" % project_id)
 
@@ -148,27 +148,27 @@ class BuildController(Controller):
             result = {}
             result['id'] = project.id
             result['name'] = project.name
-            
-            
+
+
             if project.id in projects_being_built:
                 result['execution_status'] = "BUILDING"
             else:
                 result['execution_status'] = "BUILT"
-                
+
             if project.last_build is not None:
                 result['status'] = project.last_build.status
                 result['author'] = project.last_build.commit_author
                 result['email'] = template_filters.email(project.last_build.commit_author)
                 result['gravatar'] = template_filters.gravatar(project.last_build.commit_author)
-                
-                commit_text = project.last_build.commit_text[:50] 
+
+                commit_text = project.last_build.commit_text[:50]
                 if len(project.last_build.commit_text) > 50:
                     commit_text = commit_text + "..."
-                
+
                 result['commit_text'] = commit_text
             else:
                 result['status'] = 'UNKNOWN'
-                    
+
             results.append(result)
         return demjson.encode(results)
 
@@ -193,7 +193,7 @@ class PipelineController(Controller):
     def index(self):
         pipelines = self.store.query(Pipeline).all()
         projects = self.store.query(Project).all()
-        
+
         return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=None)
 
     @route("/pipeline/create")
@@ -209,7 +209,7 @@ class PipelineController(Controller):
         except (ProjectNotFoundError, CyclicalPipelineError), err:
             pipelines = self.store.query(Pipeline).all()
             projects = self.store.query(Project).all()
-            
+
             return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=[err.message,])
 
     @route("/pipeline/:id", priority=1)
@@ -218,7 +218,7 @@ class PipelineController(Controller):
         pipelines = self.store.query(Pipeline).all()
         pipeline = self.store.query(Pipeline).get(pipeline_id)
         projects = self.store.query(Project).all()
-        
+
         return self.render_template("pipeline_index.html", pipeline=pipeline, pipelines=pipelines, projects=projects, errors=None)
 
     @route("/pipeline/:id/update")
@@ -230,7 +230,7 @@ class PipelineController(Controller):
         if errors:
             pipelines = self.store.query(Pipeline).all()
             projects = self.store.query(Project).all()
-            
+
             return self.render_template("pipeline_index.html", pipeline=None, pipelines=pipelines, projects=projects, errors=errors)
 
         pipeline.name = name
@@ -269,10 +269,10 @@ class PipelineController(Controller):
         self.store.delete(pipeline)
 
         self.redirect('/pipeline')
-        
-        
+
+
 class MiniController(Controller):
-    
+
     @route("/mini/")
     def mini(self):
         projects = self.store.query(Project).all()
@@ -281,7 +281,7 @@ class MiniController(Controller):
     @route("/mini/currentbuild")
     def current_build_report_mini(self, **data):
         return self.render_template("current_build_mini.html")
-            
+
     @route("/mini/twocolumns")
     def twocolumns(self):
         projects = self.store.query(Project).all()
@@ -291,9 +291,8 @@ class MiniController(Controller):
     def threecolumns(self):
         projects = self.store.query(Project).all()
         return self.render_template("threecolumns_mini.html", projects=projects)
-        
+
     @route("/full")
     def full(self):
         return self.render_template("full.html")
-            
-            
+
