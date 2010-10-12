@@ -48,7 +48,7 @@ function changeProject(name, status, author, gravatar, commit_text) {
     if (status == 'Successful'){
         $("#projectname").animate({width:'-=0'},2000);
     } else {
-        $("#projectname").animate({width:'-=0'},2000);
+        $("#projectname").animate({width:'-=0'},5000);
     }
     
     $("#projectname").queue(function () {
