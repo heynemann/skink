@@ -1,6 +1,7 @@
 *.pyc
 *.pyo
-docs/build
+*.egg-info
+docs/_build
 dist/
 build/
 .coverage
