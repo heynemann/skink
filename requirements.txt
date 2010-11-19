@@ -1,0 +1,13 @@
+# testing
+nose
+specloud
+http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz
+http://darcs.idyll.org/~t/projects/figleaf-latest.tar.gz
+coverage
+lettuce
+
+# docs
+sphinx
+
+# running
+tornado
