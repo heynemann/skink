@@ -1,0 +1,9 @@
+*.pyc
+*.pyo
+docs/build
+dist/
+build/
+.coverage
+
+# Vim files
+*.swp
