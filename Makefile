@@ -19,4 +19,4 @@ bootstrap:
 
 clean:
 	@find . -name "*.pyc" -exec rm -f {} \;
-	@rm -f .coverage
+	@rm -rf .coverage *.egg-info build
