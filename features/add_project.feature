@@ -3,7 +3,7 @@ Feature: Add project
     I want to add a project to Skink
     So that I can develop better softwares
 
-    Scenario: Add a project with right data
+    Scenario: Add a project by filling the new project form
         Given I am logged in
         And I go to new project page
         When I submit the form with the following data:
