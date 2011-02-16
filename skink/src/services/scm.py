@@ -93,7 +93,7 @@ class GitService(object):
             result = executer.execute("git reset --hard", repository_path)
             result = executer.execute("git clean -df", repository_path)
             result = executer.execute("git pull origin %s" % project.branch, repository_path)
-            result = executer.execute("git submodule update --init --recursive")
+            result = executer.execute("git submodule update --init --recursive", repository_path)
             
             if result.exit_code == 0:
                 self.log("SCM Data retrieved successfully")
