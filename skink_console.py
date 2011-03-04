@@ -89,7 +89,11 @@ def run_skink_server():
     monitor = MonitorPlugin(cherrypy.engine, server)
     monitor.subscribe()
 
-    pid = cherrypy.process.plugins.PIDFile(cherrypy.engine, "/var/run/skink.pid")
+    settings = Settings(root_dir)
+    settings.load("config.ini")
+
+    pid_file = settings.Ion.pid_file
+    pid = cherrypy.process.plugins.PIDFile(cherrypy.engine, pid_file)
     pid.subscribe()
 
     try:
