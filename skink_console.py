@@ -89,6 +89,9 @@ def run_skink_server():
     monitor = MonitorPlugin(cherrypy.engine, server)
     monitor.subscribe()
 
+    pid = cherrypy.process.plugins.PIDFile(cherrypy.engine, "/var/run/skink.pid")
+    pid.subscribe()
+
     try:
         server.start("config.ini", non_block=True)
         for plugin in SkinkPlugin.all():
