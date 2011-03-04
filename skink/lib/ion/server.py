@@ -113,6 +113,8 @@ class Server(object):
                    'tools.decode.on': True,
                    'tools.trailing_slash.on': True,
                    'log.screen': sets.Ion.as_bool('verbose'),
+                   'log.access_file': sets.Ion.access_log,
+                   'log.error_file': sets.Ion.error_log,
                    'tools.sessions.on': True
                }
 

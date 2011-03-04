@@ -36,6 +36,8 @@ from skink.src.services.plugins.monitor import *
 from skink.src.plugins.base import *
 from skink.src.plugins import *
 
+import signal
+
 def main():
     """ Main function - parses args and runs action """
     parser = optparse.OptionParser(usage="%prog run or type %prog -h (--help) for help", description=__doc__, version="%prog")
@@ -59,10 +61,16 @@ def main():
 
     sys.exit(0)
 
+def SigHUPHandler(signum, frame):
+    cherrypy.log('signal SIGHUP received','SIGNAL')
+    cherrypy.log.reopen_files()
+    return
+
 def on_user_authentication_failed_handler(data):
     raise cherrypy.HTTPRedirect("/authentication/%s" % urllib.quote(cherrypy.url(cherrypy.request.path_info)).replace("/", "@@"))
 
 def run_skink_server():
+    signal.signal( signal.SIGHUP, SigHUPHandler )
     root_dir = abspath(dirname(__file__))
     server = Server(root_dir=root_dir)
     server.build_dir = join(root_dir, "ci_tmp")
