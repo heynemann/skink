@@ -13,11 +13,12 @@ You can create a git hook to auto-execute the build upon push as well.
 
 Installing
 ----------
-It couldn't be easier. Run the three following commands in a shell:
-git clone git://github.com/heynemann/skink.git
-sudo aptitude install python-coverage (if you do not want coverage or you don't need to run make all for skink, ignore this)
-make createdb
-make run
+It couldn't be easier. Run the three following commands in a shell::
+
+    git clone git://github.com/heynemann/skink.git
+    sudo pip install coverage # (if you do not want coverage or you don't need to run make all for skink, ignore this)
+    make createdb
+    make run
 
 Congratulations! You are the happy owner of a build server!
 Just reach http://localhost:8089 (or whatever port you configured in the config.ini file) and enjoy.
