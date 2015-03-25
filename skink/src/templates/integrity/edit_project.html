@@ -22,6 +22,13 @@
     </p>
 
     <p class='required'>
+        <label for='branch'>
+          Branch
+        </label>
+        <input class="text" id="branch" name="branch" type="text" class="required" value="master" />
+    </p>
+
+    <p class='required'>
         <label for='monitor_changes'>
             <input class='text' name="monitor_changes" value="MONITOR" id="monitor_changes" type='checkbox' {% if project.monitor_changes %}CHECKED="checked"{% endif %} /> Should monitor for changes?
         </label>
@@ -32,4 +39,3 @@
     </p>
 </form>
 {% endblock %}
-

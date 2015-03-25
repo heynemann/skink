@@ -20,7 +20,12 @@
         </label>
         <input class='text' name="build_script" id="build_script" type='text' />
     </p>
-
+    <p class='required'>
+        <label for='branch'>
+          Branch
+        </label>
+        <input class="text" id="branch" name="branch" type="text" class="required" value="master" />
+    </p>
     <p class='required'>
         <label for='monitor_changes'>
             <input class='text' name="monitor_changes" checked="true" value="MONITOR" id="monitor_changes" type='checkbox' /> Should monitor for changes?
@@ -32,4 +37,3 @@
     </p>
 </form>
 {% endblock %}
-
